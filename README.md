@@ -20,7 +20,7 @@ The example is based on https://documentation.suse.com/sbp/all/single-html/SAP_N
 
 ```
 rsc_sapstartsrv_HA1_ASCS00 ocf:suse:SAPStartSrv \
-         op monitor interval=11 timeout=60 on-fail=ignore \ # <=== !! *)
+         op monitor interval=10 timeout=60 on-fail=ignore \ # <=== !! *)
          params InstanceName=HA1_ASCS00_sapha1as
          # optional: START_PROFILE="/sapmnt/HA1/profile/HA1_ASCS00_sapha1as"
          
