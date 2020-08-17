@@ -221,15 +221,6 @@ sapstartsrv_stop() {
   local output=""
   local rc="$OCF_SUCCESS"
 
-  if [ "$OCF_RESKEY_SHUTDOWN_METHOD" = "KILL" ]
-  then
-    ocf_log info "Stopping sapstartsrv of SAP Instance $SID-$InstanceName with shutdown method KILL!"
-    # TODO  
-    #cleanup_instance
-    #return $OCF_SUCCESS
-    return "$OCF_ERR_GENERIC"
-  fi
-
   if sapstartsrv_status; then
 	  output=$($SAPCONTROL -nr $InstanceNr -function StopService); rc="$?"
 	  ocf_log info "Stopping sapstartsrv of SAP Instance $SID-$InstanceName: $output"
