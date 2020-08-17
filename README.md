@@ -20,11 +20,11 @@ The example is based on https://documentation.suse.com/sbp/all/single-html/SAP_N
 
 ```
 rsc_sapstartsrv_HA1_ASCS00 ocf:suse:SAPStartSrv \
-         op monitor interval=10 timeout=60 on-fail=ignore \ # <=== !! *)
-         params InstanceName=HA1_ASCS00_sapha1as
-         # optional: START_PROFILE="/sapmnt/HA1/profile/HA1_ASCS00_sapha1as"
+         params InstanceName=HA1_ASCS00_sapha1as         
          
 group grp_HA1_ASCS00 \
   rsc_ip_HA1_ASCS00 rsc_sapstartsrv_HA1_ASCS00 rsc_sap_HA1_ASCS00 \
      meta resource-stickiness=3000
 ```     
+
+**Note:** The resource **rsc_sapstartsrv_HA1_ASCS00** does by intention not define a monitoring operation. This is, because the failing sapstartsrv must never force an SAP instance restart which would happen, as the two resources reside in one resource group.
