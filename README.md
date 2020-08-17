@@ -19,7 +19,7 @@ SAPStartSrv could be used where-ever it is not possible to mount/unmount the wor
 The example is based on https://documentation.suse.com/sbp/all/single-html/SAP_NW740_SLE12_SetupGuide/. We replace the file system resource by an SAPStartSrv resource.
 
 ```
-rsc_sapstartsrv_HA1_ASCS00 ocf:suse:SAPStartSrv \
+primitive rsc_sapstartsrv_HA1_ASCS00 ocf:suse:SAPStartSrv \
          params InstanceName=HA1_ASCS00_sapha1as         
          
 group grp_HA1_ASCS00 \
