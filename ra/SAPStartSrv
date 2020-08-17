@@ -223,7 +223,7 @@ sapstartsrv_start() {
 #
 sapstartsrv_stop() {
   local output=""
-  local rc
+  local rc="$OCF_SUCCESS"
 
   if [ "$OCF_RESKEY_SHUTDOWN_METHOD" = "KILL" ]
   then
@@ -234,8 +234,10 @@ sapstartsrv_stop() {
     return "$OCF_ERR_GENERIC"
   fi
 
-  output=$($SAPCONTROL -nr $InstanceNr -function StopService); rc="$?"
-  ocf_log info "Stopping sapstartsrv of SAP Instance $SID-$InstanceName: $output"
+  if sapstartsrv_status; then
+	  output=$($SAPCONTROL -nr $InstanceNr -function StopService); rc="$?"
+	  ocf_log info "Stopping sapstartsrv of SAP Instance $SID-$InstanceName: $output"
+  fi
 
   if [ "$rc" -eq 0 ]
   then
@@ -341,9 +343,6 @@ then
 fi
 
 ACTION=$1
-if [ "$ACTION" = "status" ]; then
-  ACTION=monitor
-fi
 
 # These operations don't require OCF instance parameters to be set
 case "$ACTION" in
@@ -373,7 +372,7 @@ sapstartsrv_init
 
 # What kind of method was invoked?
 case "$ACTION" in
-  start|stop|monitor|status)              sapstartsrv_$ACTION$CLACT
+  start|stop|monitor|status)              sapstartsrv_$ACTION
                                           exit $?;;
   validate-all)                           sapstartsrv_validate
                                           exit $?;;
