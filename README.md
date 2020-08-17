@@ -16,6 +16,7 @@ SAPStartSrv could be used since SAP NetWeaver 7.40 or SAP S/4HANA (ABAP Platform
 ## Resource example
 
 SAPStartSrv could be used where-ever it is not possible to mount/unmount the work directories of the SAPInstances.
+The example is based on https://documentation.suse.com/sbp/all/single-html/SAP_NW740_SLE12_SetupGuide/. We replace the file system resource by an SAPStartSrv resource.
 
 ```
 rsc_sap_HA1_ASCS00 SAPStartSrv \
