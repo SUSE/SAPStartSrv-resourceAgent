@@ -255,7 +255,7 @@ sapstartsrv_stop() {
 sapstartsrv_monitor() {
   local rc
 
-  if ocf_is_probe
+  if ocf_is_probe; then
     #
     # if a probe is been called we need to return, if sapstartsrv is running
     #    to force a stop, if sapstartsrv is not expected to run at this node
@@ -278,7 +278,7 @@ sapstartsrv_monitor() {
 #
 sapstartsrv_status() {
   local rc
-  if pgrep -f -l 'sapstartsrv.*pf=.*${SID}_${InstanceName}_${SAPVIRHOST}'; then
+  if pgrep -f -l "sapstartsrv.*pf=.*${SID}_${InstanceName}_${SAPVIRHOST}"; then
      rc="$OCF_SUCCESS"
   else
      rc="$OCF_NOT_RUNNING"
@@ -293,7 +293,6 @@ sapstartsrv_status() {
 sapstartsrv_validate() {
   local rc="$OCF_SUCCESS"
   if grep -cqv '^[A-Z][A-Z0-9][A-Z0-9]$' <<<"$SID"; then
-  then
     ocf_log err "Parsing instance profile name: '$SID' is not a valid system ID!"
     rc="$OCF_ERR_ARGS"
   fi
