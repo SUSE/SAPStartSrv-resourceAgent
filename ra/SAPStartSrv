@@ -71,7 +71,7 @@ Long description of SAPStartSrv to be done
   <content type="string" default="" />
  </parameter>
  <parameter name="START_PROFILE" unique="1" required="0">
-  <longdesc lang="en">The name of the SAP Instance profile. Specify this parameter, if you have changed the name of the SAP Instance profile after the default SAP installation.
+  <longdesc lang="en">The name of the SAP Instance profile. Specify this parameter, if you have changed the name of the SAP Instance profile after the default SAP installation.</longdesc>
   <shortdesc lang="en">Start profile name</shortdesc>
   <content type="string" default="" />
  </parameter>
