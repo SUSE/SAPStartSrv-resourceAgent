@@ -296,7 +296,7 @@ sapstartsrv_validate() {
     rc="$OCF_ERR_ARGS"
   fi
 
-  if [ grep -cqv '^[A-Za-z][A-Za-z0-9_-]*$' <<<"$SAPVIRHOST"; then
+  if grep -cqv '^[A-Za-z][A-Za-z0-9_-]*$' <<<"$SAPVIRHOST"; then
     ocf_log err "Parsing instance profile name: '$SAPVIRHOST' is not a valid hostname!"
     rc="$OCF_ERR_ARGS"
   fi
