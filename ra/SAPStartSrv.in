@@ -1,0 +1,340 @@
+#!@PYTHON@ -tt
+# - *- coding: utf- 8 - *-
+#
+#
+# Description:  Manages a single sapstartrv on an SAP Instance as a High-Availability
+#               resource.
+#
+# Author:       Xabier Arbulu, September 2020
+# Based on code from: Fabian Herschel
+# Support:
+# License:      GNU General Public License (GPL)
+# Copyright:    (c) 2020 SUSE LLC
+#
+# An example usage:
+#      See usage() function below for more details...
+#
+# OCF instance parameters:
+#	- OCF_RESKEY_InstanceName
+#	- not currently OCF_RESKEY_START_PROFILE (optional, well known directories will be
+#     searched by default)
+#
+#   - supports sapstartsrv for SAP instances NW7.40 or newer, SAP S/4HANA ABAP Platform 1909
+#     or newer (central services and enqueue replication)
+#   - MUST NOT be used for SAP HANA in system replication
+#   - MUST NOT be used for SAP HANA standalone Scale-Up or Scale-Out systems
+#
+#######################################################################
+
+import os
+import sys
+import re
+import subprocess
+import shlex
+
+OCF_FUNCTIONS_DIR = os.environ.get(
+    "OCF_FUNCTIONS_DIR",
+    "%s/lib/heartbeat" % os.environ.get("OCF_ROOT"))
+sys.path.append(OCF_FUNCTIONS_DIR)
+
+import ocf  # noqa: E402
+from ocf import logger
+
+LONG_DESC = '''Long description of SAPStartSrv to be done (python version)'''
+
+SHORT_DESC = 'Manages an sapstartsrv of a specific SAP instance as an HA resource (python version)'
+
+MONITOR_SERVICES = \
+    'disp+work|msg_server|enserver|enrepserver|jcontrol|jstart|enq_server|enq_replicator'
+INSTANCE_NAME = ocf.get_parameter("InstanceName")  # Example: HA1_ASCS00_sapha1as
+START_PROFILE = ocf.get_parameter("START_PROFILE")
+
+
+class ProcessResult(object):
+    """
+    Class to store subprocess.Popen output information and offer some
+    functionalities
+
+    Args:
+        cmd (str): Executed command
+        returncode (int): Subprocess return code
+        output (str): Subprocess output string
+        err (str): Subprocess error string
+    """
+
+    def __init__(self, cmd, returncode, output, err):
+        self.cmd = cmd
+        self.returncode = returncode
+        self.output = output.decode() # Make it compatiable with python2 and 3
+        self.err = err.decode()
+
+
+def run_command(cmd):
+    '''
+    Run shell command and return result and outputs
+    '''
+    proc = subprocess.Popen(
+        shlex.split(cmd),
+        stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    out, err = proc.communicate()
+
+    return ProcessResult(cmd, proc.returncode, out, err)
+
+
+class SapStartSrv(object):
+    '''
+    SapStartSrv class
+    '''
+
+    def __init__(self, instance_name):
+        self.full_name = instance_name
+        self.sid = None
+        self.sidadm = None
+        self.instance_name = None
+        self.instance_number = None
+        self.virtual_host = None
+        self.dir_executable = None
+        self.saptstartsrv_path = None
+        self.sapcontrol_path = None
+        self.start_profile = None
+        self.sap_instance_profile = None
+
+    def _get_status(self):
+        '''
+        Get sapstartsrv status returning ProcessResult object
+        '''
+        result = run_command(
+            'pgrep -f -l "sapstartsrv.*pf=.*{}_{}_{}"'.format(
+                self.sid, self.instance_name, self.virtual_host))
+        logger.info('Current status: %d. Output: %s' % (result.returncode, result.output))
+        return result
+
+    def _find_executables(self):
+        '''
+        Find sapstartsrv and sapcontrol executables
+        '''
+
+        # Find executables in DIR_EXECUTABLE
+        self.dir_executable = ocf.get_parameter("DIR_EXECUTABLE")
+        if self.dir_executable:
+            self.saptstartsrv_path = '{}/sapstartsrv'.format(self.dir_executable)
+            self.sapcontrol_path = '{}/sapcontrol'.format(self.dir_executable)
+            if ocf.have_binary(self.saptstartsrv_path) and ocf.have_binary(self.sapcontrol_path):
+                return ocf.OCF_SUCCESS
+
+            logger.error(
+                'Cannot find sapstartsrv and sapcontrol executable in %s' %
+                (self.dir_executable))
+            return ocf.OCF_ERR_ARGS
+
+        # Find executables in standard locations. E.g: /usr/sap/HA1/ASCS00/exe
+        self.dir_executable = '/usr/sap/{}/{}/exe'.format(self.sid, self.instance_name)
+        self.saptstartsrv_path = '/usr/sap/{}/{}/exe/sapstartsrv'.format(
+            self.sid, self.instance_name)
+        self.sapcontrol_path = '/usr/sap/{}/{}/exe/sapcontrol'.format(
+            self.sid, self.instance_name)
+
+        if ocf.have_binary(self.saptstartsrv_path) and ocf.have_binary(self.sapcontrol_path):
+            return ocf.OCF_SUCCESS
+        else:
+            logger.error(
+                'Cannot find sapstartsrv and sapcontrol executable in %s' %
+                (self.dir_executable))
+
+        # Find executables in standard locations. E.g: /usr/sap/HA1/ASCS00/exe/run
+        self.dir_executable = '/usr/sap/{}/{}/exe/run'.format(self.sid, self.instance_name)
+        self.saptstartsrv_path = '/usr/sap/{}/{}/exe/run/sapstartsrv'.format(
+            self.sid, self.instance_name)
+        self.sapcontrol_path = '/usr/sap/{}/{}/exe/run/sapcontrol'.format(
+            self.sid, self.instance_name)
+        if ocf.have_binary(self.saptstartsrv_path) and ocf.have_binary(self.sapcontrol_path):
+            return ocf.OCF_SUCCESS
+
+        logger.error(
+            'Cannot find sapstartsrv and sapcontrol executable in %s' %
+            (self.dir_executable))
+        return ocf.OCF_ERR_ARGS
+
+    def _export_variables(self):
+        '''
+        Export needed variables
+        '''
+
+        if not os.environ.get('OCF_RESKEY_START_WAITTIME'):
+            os.environ['OCF_RESKEY_START_WAITTIME'] = ocf.get_parameter('START_WAITTIME', '3600')
+
+        if not os.environ.get('OCF_RESKEY_MONITOR_SERVICES'):
+            os.environ['OCF_RESKEY_MONITOR_SERVICES'] = ocf.get_parameter(
+                'MONITOR_SERVICES', MONITOR_SERVICES)
+
+        library_path = os.environ.get('LD_LIBRARY_PATH', '')
+        if self.dir_executable not in library_path:
+            os.environ['LD_LIBRARY_PATH'] = '{}{}{}'.format(
+                library_path, ':' if library_path else '', self.dir_executable)
+
+    def _inititialize(self):
+        '''
+        Initialize variables
+        '''
+        # TODO:  We could add some try/except to catch errors here
+        self.sid = self.full_name.split('_')[0]
+        self.instance_name = self.full_name.split('_')[1]
+        self.virtual_host = '_'.join(self.full_name.split('_')[2:])
+        instance_data = re.match('[a-zA-Z]+([0-9]+)', self.instance_name).groups()
+        self.instance_number = instance_data[0]
+
+        result = self._find_executables()
+        if result != ocf.OCF_SUCCESS:
+            return result
+
+        self.sidadm = '{}adm'.format(self.sid.lower())
+        dir_profile = ocf.get_parameter(
+            'DIR_PROFILE', '/usr/sap/{}/SYS/profile'.format(self.sid))
+        self.sap_instance_profile = ocf.get_parameter(
+            'SAP_INSTANCE_PROFILE', '{}/{}_{}_{}'.format(
+                dir_profile, self.sid, self.instance_name, self.virtual_host))
+
+        self._export_variables()
+
+        return ocf.OCF_SUCCESS
+
+    def start(self):
+        '''
+        Run sapstartsrv command
+        '''
+        self._inititialize()
+        run_command('rm -f /tmp/.sapstream5{}13'.format(self.instance_number))
+        run_command('rm -f /tmp/.sapstream5{}14'.format(self.instance_number))
+        start_result = run_command('{} pf={} -D -u {}'.format(
+            self.saptstartsrv_path, self.sap_instance_profile, self.sidadm))
+
+        result = self._get_status()
+        if result.returncode == 0:
+            logger.info(
+                'sapstartsrv for SAP Instance %s-%s started: %s' %
+                (self.sid, self.instance_name, start_result.output))
+            return ocf.OCF_SUCCESS
+
+        logger.error(
+            'sapstartsrv for SAP Instance %s-%s start failed: %s' %
+            (self.sid, self.instance_name, start_result.err))
+        return ocf.OCF_NOT_RUNNING
+
+    def stop(self):
+        '''
+        Run sapcontrol command to with StopService
+        '''
+        self._inititialize()
+        result = self._get_status()
+        if result.returncode == 0:
+            stop_result = run_command(
+                '{} -nr {} -function StopService'.format(
+                    self.sapcontrol_path, self.instance_number))
+            logger.info(
+                'Stopping sapstartsrv of SAP Instance %s-%s: %s' %
+                (self.sid, self.instance_number, stop_result.output))
+            if stop_result.returncode == 0:
+                return ocf.OCF_SUCCESS
+
+            logger.error(
+                'SAP Instance %s-%s stop failed: %s' %
+                (self.sid, self.instance_number, stop_result.err))
+            return ocf.OCF_ERR_GENERIC
+
+        logger.info(
+            'SAP Instance %s-%s already stopped' % (self.sid, self.instance_number))
+        return ocf.OCF_SUCCESS
+
+    def status(self):
+        '''
+        Get sapstartsrv status
+        '''
+        self._inititialize()
+        result = self._get_status()
+        if result.returncode == 0:
+            return ocf.OCF_SUCCESS
+
+        return ocf.OCF_NOT_RUNNING
+
+    def monitor(self):
+        '''
+        Can the given SAP instance do anything useful?
+        '''
+        self._inititialize()
+        if ocf.is_probe():
+            return self._get_status().returncode
+        return ocf.OCF_SUCCESS
+
+    def validate(self):
+        '''
+        Validate provided parameters
+        '''
+        self._inititialize()
+        if not re.match('^[A-Z][A-Z0-9][A-Z0-9]$', self.sid):
+            logger.error('Parsing instance profile name: %s is not a valid system ID!' % self.sid)
+            return ocf.OCF_ERR_ARGS
+
+        if not re.match('^[A-Z].*[0-9][0-9]$', self.instance_name):
+            logger.error(
+                'Parsing instance profile name: %s is not a valid instance name!!' %
+                self.instance_name)
+            return ocf.OCF_ERR_ARGS
+
+        if not re.match('^[0-9][0-9]$', self.instance_number):
+            logger.error(
+                'Parsing instance profile name: %s is not a valid instance number!!' %
+                self.instance_number)
+            return ocf.OCF_ERR_ARGS
+
+        if not re.match('^[A-Za-z][A-Za-z0-9_-]*$', self.virtual_host):
+            logger.error(
+                'Parsing instance profile name: %s is not a valid hostname!' %
+                self.virtual_host)
+            return ocf.OCF_ERR_ARGS
+
+        return ocf.OCF_SUCCESS
+
+
+def main():
+    '''
+    Main method
+    '''
+    sapstartsrv_agent = ocf.Agent('SAPStartSrv', SHORT_DESC, LONG_DESC)
+
+    sapstartsrv_agent.add_parameter(
+        name='InstanceName',
+        shortdesc='Instance name: SID_INSTANCE_VIR-HOSTNAME',
+        longdesc='The full qualified SAP instance name. e.g. HA1_ASCS00_sapha1as. ' \
+            'Usually this is the name of the SAP instance profile.',
+        content_type='string',
+        required=True,
+        unique=True,
+        default=''
+    )
+
+    sapstartsrv_agent.add_parameter(
+        name='START_PROFILE',
+        shortdesc='Start profile name',
+        longdesc='The name of the SAP Instance profile. Specify this parameter, if you have ' \
+            'changed the name of the SAP Instance profile after the default SAP installation.',
+        content_type='string',
+        unique=True,
+        default=''
+    )
+
+    sapstartsrv_instance = SapStartSrv(INSTANCE_NAME)
+
+    sapstartsrv_agent.add_action(name='start', timeout=60, handler=sapstartsrv_instance.start)
+    sapstartsrv_agent.add_action(name='stop', timeout=60, handler=sapstartsrv_instance.stop)
+    sapstartsrv_agent.add_action(name='status', timeout=60, handler=sapstartsrv_instance.status)
+    sapstartsrv_agent.add_action(
+        name='monitor', timeout=20, interval=120, handler=sapstartsrv_instance.monitor)
+    sapstartsrv_agent.add_action(
+        name='validate-all', timeout=5, handler=sapstartsrv_instance.validate)
+
+    sapstartsrv_agent.run()
+
+
+if __name__ == '__main__':
+    main()
