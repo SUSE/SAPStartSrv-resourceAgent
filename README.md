@@ -30,3 +30,12 @@ group grp_HA1_ASCS00 \
 **Note:** The resource **rsc_sapstartsrv_HA1_ASCS00** does by intention not define a monitoring operation. This is, because the failing sapstartsrv must never force an SAP instance restart which would happen, as the two resources reside in one resource group.
 
 **Note:** To use the python version of the resource agent, the shebang of the script file must be changed (this is done during the packaging process). Replace `#!@PYTHON@ -tt` by `#!/usr/bin/python3 -tt` with the correct python version.
+
+## Unit tests
+
+The python version of the resource agent comes with a unit test battery. In order to run them:
+```
+virtualenv test
+source test/bin/activate
+test/bin/py.test -vv
+```

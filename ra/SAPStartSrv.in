@@ -275,15 +275,15 @@ class SapStartSrv(object):
             logger.error('Parsing instance profile name: %s is not a valid system ID!' % self.sid)
             return ocf.OCF_ERR_ARGS
 
-        if not re.match('^[A-Z].*[0-9][0-9]$', self.instance_name):
+        if not re.match('^[A-Z]*[0-9][0-9]$', self.instance_name):
             logger.error(
-                'Parsing instance profile name: %s is not a valid instance name!!' %
+                'Parsing instance profile name: %s is not a valid instance name!' %
                 self.instance_name)
             return ocf.OCF_ERR_ARGS
 
         if not re.match('^[0-9][0-9]$', self.instance_number):
             logger.error(
-                'Parsing instance profile name: %s is not a valid instance number!!' %
+                'Parsing instance profile name: %s is not a valid instance number!' %
                 self.instance_number)
             return ocf.OCF_ERR_ARGS
 
