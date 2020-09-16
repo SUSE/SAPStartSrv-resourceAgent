@@ -1,0 +1,4 @@
+-------------------------------------------------------------------
+Wed Sep 16 09:33:32 UTC 2020 - Xabier Arbulu <xarbulu@suse.com>
+
+- Include python version to the resource agent 

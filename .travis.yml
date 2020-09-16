@@ -6,6 +6,8 @@ language: python
 
 stages:
   - test
+  - delivery
+  - submit
 
 jobs:
   include:
@@ -29,3 +31,33 @@ jobs:
       after_script:
           - mv tests/coverage.xml .
           - ./cc-test-reporter after-build -t coverage.py --exit-code $TRAVIS_TEST_RESULT tests/coverage.xml
+
+    - stage: delivery
+      if: type != pull_request
+      env:
+        - FOLDER=/package
+        - PACKAGE_NAME=SAPStartSrv
+
+      before_install:
+        - docker pull shap/continuous_deliver:latest
+
+      script:
+        - |
+          docker run -t -v "$(pwd):/package" -w /package \
+          -e OBS_USER -e OBS_PASS -e FOLDER -e OBS_PROJECT -e PACKAGE_NAME \
+          shap/continuous_deliver \
+          /scripts/upload.sh
+
+    - stage: submit
+      if: type != pull_request AND branch = master
+      env:
+        - PACKAGE_NAME=SAPStartSrv
+
+      before_install:
+        - docker pull shap/continuous_deliver:latest
+
+      script:
+        - |
+          docker run -t -v "$(pwd):/package" -w /package \
+          -e OBS_USER -e OBS_PASS -e OBS_PROJECT -e PACKAGE_NAME -e TARGET_PROJECT shap/continuous_deliver \
+          /scripts/submit.sh
