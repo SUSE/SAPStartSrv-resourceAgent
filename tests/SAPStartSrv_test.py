@@ -65,7 +65,7 @@ class TestSAPStartSrv(unittest.TestCase):
         """
 
     def test_process_result(self):
-        result = SAPStartSrv.ProcessResult('cmd', 0, 'output', 'error')
+        result = SAPStartSrv.ProcessResult('cmd', 0, b'output', b'error')
         assert result.cmd == 'cmd'
         assert result.returncode == 0
         assert result.output == 'output'
