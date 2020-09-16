@@ -17,8 +17,6 @@ import unittest
 import subprocess
 import logging
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 try:
     from unittest import mock
 except ImportError:
@@ -27,7 +25,7 @@ except ImportError:
 sys.modules['ocf'] = mock.Mock()
 SAPStartSrv = imp.load_source(
     'SAPStartSrv',
-    os.path.abspath(os.path.join(os.path.dirname(__file__), 'SAPStartSrv.in')))
+    os.path.abspath(os.path.join(os.path.dirname(__file__), '../ra/SAPStartSrv.in')))
 
 
 class TestSAPStartSrv(unittest.TestCase):

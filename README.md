@@ -34,9 +34,11 @@ group grp_HA1_ASCS00 \
 ## Unit tests
 
 The python version of the resource agent comes with a unit test battery. In order to run them:
+
 ```
-virtualenv test
-source test/bin/activate
-test/bin/pip install pytest-cov
-test/bin/py.test -vv --cov=SAPStartSrv --cov-report term
+cd SAPStartSrv-resourceAgent
+virtualenv myvirtenv
+source myvirtenv/bin/activate
+myvirtenv/bin/pip install pytest-cov mock
+myvirtenv/bin/py.test -vv --cov=SAPStartSrv --cov-report term tests
 ```
