@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.com/arbulu89/SAPStartSrv-resourceAgent.svg?branch=master)](https://travis-ci.com/arbulu89/SAPStartSrv-resourceAgent)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/c7979de8b94a50e48e0d/test_coverage)](https://codeclimate.com/github/arbulu89/SAPStartSrv-resourceAgent/test_coverage)
+
 # SAPStartSrv-resourceAgent
 pacemaker integration for instance specific sapstartsrv
 ## Overview
