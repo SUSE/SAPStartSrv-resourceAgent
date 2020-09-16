@@ -37,5 +37,6 @@ The python version of the resource agent comes with a unit test battery. In orde
 ```
 virtualenv test
 source test/bin/activate
-test/bin/py.test -vv
+test/bin/pip install pytest-cov
+test/bin/py.test -vv --cov=SAPStartSrv --cov-report term
 ```

@@ -44,11 +44,8 @@ LONG_DESC = '''Long description of SAPStartSrv to be done (python version)'''
 
 SHORT_DESC = 'Manages an sapstartsrv of a specific SAP instance as an HA resource (python version)'
 
-MONITOR_SERVICES = \
+MONITOR_SERVICES_DEFAULT = \
     'disp+work|msg_server|enserver|enrepserver|jcontrol|jstart|enq_server|enq_replicator'
-INSTANCE_NAME = ocf.get_parameter("InstanceName")  # Example: HA1_ASCS00_sapha1as
-START_PROFILE = ocf.get_parameter("START_PROFILE")
-
 
 class ProcessResult(object):
     """
@@ -166,7 +163,7 @@ class SapStartSrv(object):
 
         if not os.environ.get('OCF_RESKEY_MONITOR_SERVICES'):
             os.environ['OCF_RESKEY_MONITOR_SERVICES'] = ocf.get_parameter(
-                'MONITOR_SERVICES', MONITOR_SERVICES)
+                'MONITOR_SERVICES', MONITOR_SERVICES_DEFAULT)
 
         library_path = os.environ.get('LD_LIBRARY_PATH', '')
         if self.dir_executable not in library_path:
@@ -177,18 +174,26 @@ class SapStartSrv(object):
         '''
         Initialize variables
         '''
-        # TODO:  We could add some try/except to catch errors here
-        self.sid = self.full_name.split('_')[0]
-        self.instance_name = self.full_name.split('_')[1]
-        self.virtual_host = '_'.join(self.full_name.split('_')[2:])
-        instance_data = re.match('[a-zA-Z]+([0-9]+)', self.instance_name).groups()
-        self.instance_number = instance_data[0]
+
+        if len(self.full_name.split('_')) != 3:
+          logger.error('InstanceName parsing error. It must follow SID_NAME00_VIRTHOST syntax')
+          return ocf.OCF_ERR_ARGS
+
+        try:
+          self.sid = self.full_name.split('_')[0]
+          self.instance_name = self.full_name.split('_')[1]
+          self.virtual_host = '_'.join(self.full_name.split('_')[2:])
+          instance_data = re.match('[a-zA-Z]+([0-9]{2})', self.instance_name).groups()
+          self.instance_number = instance_data[0]
+          self.sidadm = '{}adm'.format(self.sid.lower())
+        except (IndexError, AttributeError):
+          logger.error('InstanceName parsing error. It must follow SID_NAME00_VIRTHOST syntax')
+          return ocf.OCF_ERR_ARGS
 
         result = self._find_executables()
         if result != ocf.OCF_SUCCESS:
             return result
 
-        self.sidadm = '{}adm'.format(self.sid.lower())
         dir_profile = ocf.get_parameter(
             'DIR_PROFILE', '/usr/sap/{}/SYS/profile'.format(self.sid))
         self.sap_instance_profile = ocf.get_parameter(
@@ -289,7 +294,7 @@ class SapStartSrv(object):
 
         if not re.match('^[A-Za-z][A-Za-z0-9_-]*$', self.virtual_host):
             logger.error(
-                'Parsing instance profile name: %s is not a valid hostname!' %
+                'Parsing instance profile name: %s is not a valid virtual host name!' %
                 self.virtual_host)
             return ocf.OCF_ERR_ARGS
 
@@ -323,7 +328,10 @@ def main():
         default=''
     )
 
-    sapstartsrv_instance = SapStartSrv(INSTANCE_NAME)
+    instance_full_name = ocf.get_parameter("InstanceName")  # Example: HA1_ASCS00_sapha1as
+    start_profile = ocf.get_parameter("START_PROFILE")
+
+    sapstartsrv_instance = SapStartSrv(instance_full_name)
 
     sapstartsrv_agent.add_action(name='start', timeout=60, handler=sapstartsrv_instance.start)
     sapstartsrv_agent.add_action(name='stop', timeout=60, handler=sapstartsrv_instance.stop)
@@ -336,5 +344,5 @@ def main():
     sapstartsrv_agent.run()
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main()
