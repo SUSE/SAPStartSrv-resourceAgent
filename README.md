@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/SUSE/SAPStartSrv-resourceAgent.svg?branch=master)](https://travis-ci.com/SUSE/SAPStartSrv-resourceAgent)
+[![Build Status](https://travis-ci.org/SUSE/SAPStartSrv-resourceAgent.svg?branch=master)](https://travis-ci.org/SUSE/SAPStartSrv-resourceAgent)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/c7979de8b94a50e48e0d/test_coverage)](https://codeclimate.com/github/SUSE/SAPStartSrv-resourceAgent/test_coverage)
 
 # SAPStartSrv-resourceAgent
