@@ -29,7 +29,7 @@ AutoReqProv:    on
 Summary:        Resource agents to control SAP instances using sapstartsrv
 Version:        0.1.0
 Release:        0
-Url:            https://github.com/arbulu89/SAPStartSrv-resourceAgent
+Url:            https://github.com/SUSE/SAPStartSrv-resourceAgent
 
 BuildArch:      noarch
 
