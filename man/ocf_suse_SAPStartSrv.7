@@ -1,4 +1,4 @@
-.\" Version: 0.1
+.\" Version: 0.1 2020-11-10 16:33
 .\"
 .TH ocf_suse_SAPStartSrv 7 "10 Nov 2020" "" "OCF resource agents"
 .\"
@@ -166,7 +166,7 @@ rsc_IPAddr2_EVA_ASCS00
 .PP
 .RS 4
 # grep "SAPStartSrv.*RA.*rc=[1-7,9]" /var/log/messages
-.\" TODO: output
+.\" TODO output
 .RE
 .PP
 .\"
@@ -195,6 +195,8 @@ rsc_IPAddr2_EVA_ASCS00
 * SAPInstance resource agent with MINIMAL_PROBE support, November 2020.
 .PP
 * Complete entries in /usr/sap/sapservice.
+.PP
+* SAP profile Autostart feature is disabled.
 .PP
 ./"
 .SH BUGS
