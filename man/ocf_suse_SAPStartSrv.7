@@ -1,0 +1,224 @@
+.\" Version: 0.1
+.\"
+.TH ocf_suse_SAPStartSrv 7 "10 Nov 2020" "" "OCF resource agents"
+.\"
+.SH NAME
+SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
+.PP
+.\"
+.SH SYNOPSYS
+\fBSAPStartSrv\fP [ start | stop | status | monitor | meta\-data | validate\-all | usage ]
+.PP
+.\"
+.SH DESCRIPTION
+
+\fBSAPStartSrv\fP is an resource agent for managing the sapstartsrv process for
+a single SAP instance as an HA resource.
+.PP
+One SAP instance is defined by having exactly one instance profile.
+The instance profiles can usually be found in the directory
+/sapmnt/$SID/profile.
+In an Enqueue Replication setup one (ABAP-) Central Services instance ((A)SCS)
+and at least one Replicated Enqueue instance (ERS) are configured.
+An Linux HA cluster can control these instances by using the SAPInstance
+resource agent. That resource agent depends on the SAP sapstartsrv service for
+starting, stopping, monitoring and probing the instances. The sapstartsrv needs
+to read the respective instance profile.
+By default one system-wide sapstartsrv is started at Linux boot time to provide the needed service for all SAP instances.
+.PP
+For specific Enqueue Replication setups using instance specific sapstartsrv processes might be desireable. So each SAP instance is managed on its own by a pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv makes sure sapstartsrv is running, SAPInstance than can utilise that service for managing the SAP instance.
+.PP
+This is benefitial particularly for public cloud and NFS-based environments.
+One common NFS share with both instance directories can be mounted statically.
+The HA cluster does not need to control that filesystems. 
+.\" TODO
+.PP
+.RE
+.\"
+.SH SUPPORTED PARAMETERS
+This resource agent supports the following parameters:
+.PP
+\fBInstanceName\fR
+.RS 4
+The full qualified SAP instance name. e.g. P01_DVEBMGS00_sapp01ci.
+Usually this is the name of the SAP instance profile.
+.br
+Unique, required, string, no default.
+.RE
+.PP
+\fBDIR_EXECUTABLE\fR
+.RS 4
+The full qualified path where to find sapstartsrv and sapcontrol. Specify this parameter, if you have changed the SAP kernel directory location after the default SAP installation.
+.br
+Optional, string, well known directories will be searched by default.
+.RE
+.PP
+\fBDIR_PROFILE\fR
+.RS 4
+The full qualified path where to find the SAP START profile. Specify this parameter, if you have changed the SAP profile directory location after the default SAP installation.
+.br
+Optional, string, well known directories will be searched by default.
+.RE
+.PP
+\fBSTART_PROFILE\fR
+.RS 4
+The name of the SAP START profile. Specify this parameter, if you have changed
+the name of the SAP START profile after the default SAP installation.
+.br
+Unique, optional, string, no default.
+.RE
+.PP
+.\"
+.SH SUPPORTED ACTIONS
+This resource agent supports the following actions (operations):
+.PP
+\fBstart\fR
+.RS 4
+Starts the sapstartsrv resource.
+.br
+Suggested minimum timeout: 60\&.
+.RE
+.PP
+\fBstop\fR
+.RS 4
+Stops the sapstartsrv resource.
+.br
+Suggested minimum timeout: 60\&.
+.RE
+.PP
+\fBstatus\fR
+.RS 4
+Performs a minimal status check.
+.br
+Suggested minimum timeout: 60\&.
+.RE
+.PP
+\fBmonitor\fR
+.RS 4
+Performs a detailed status check for the SAP instance.
+.br
+Suggested minimum timeout: 20\&. Suggested interval: 120\&.
+.RE
+.PP
+\fBvalidate\-all\fR
+.RS 4
+Performs a validation of the resource configuration.
+.br
+Suggested minimum timeout: 5\&.
+.RE
+.PP
+\fBmeta\-data\fR
+.RS 4
+Retrieves resource agent metadata (internal use only).
+.br
+Suggested minimum timeout: 5\&.
+.RE
+.PP
+.\"
+.SH RETURN CODES
+The return codes are defined by the OCF cluster framework. Please refer to the OCF definition on the website mentioned below. 
+.RE
+.PP
+.\"
+.SH EXAMPLES
+* Example configuration for SAP ASCS instance resource group in an ENSA2 setup.
+.br
+Note: Needed ERS instance and location constraints are not shown.
+.br
+.PP
+.RS 4
+primitive rsc_SAPStartSrv_EVA_ASCS00 ocf:suse:SAPStartSrv \\
+.br
+params InstanceName="EVA_ASCS00_sapeva"
+.PP
+primitive rsc_SAPInstance_EVA_ASCS00 ocf:heartbeat:SAPInstance \\
+.br
+params InstanceName="EVA_ASCS00_sapeva" \\
+.br
+meta resource-stickiness=5000 \\
+.br
+START_PROFILE="/sapmnt/EVA/profile/EVA_ASCS00_sapeva" \\
+.br
+AUTOMATIC_RECOVER="false" \\
+.br
+MINIMAL_PROBE="true"
+.PP
+primitive rsc_IPAddr2_EVA_ASCS00 ocf:heartbeat:IPaddr2 \\
+.br
+params ip="192.168.178.1"
+.PP
+group grp_EVA_ASCS00 \\
+.br
+.\" TODO IP first?
+rsc_IPAddr2_EVA_ASCS00 \\
+.br
+rsc_SAPStartSrv_EVA_ASCS00 \\
+.br
+rsc_SAPInstance_EVA_ASCS00 \\
+.RE
+.PP
+* Search for log entries of SAPStartSrv, show errors only:
+.PP
+.RS 4
+# grep "SAPStartSrv.*RA.*rc=[1-7,9]" /var/log/messages
+.\" TODO: output
+.RE
+.PP
+.\"
+.SH FILES
+.TP
+/usr/lib/ocf/resource.d/suse/SAPStartSrv
+    the resource agent
+.TP
+/usr/lib/ocf/resource.d/heartbeat/SAPInstance
+    the also needed SAP instance resource agent
+.TP
+/usr/sap/$SID/$InstanceName/exe
+    default path for DIR_EXECUTABLE
+.TP
+/usr/sap/$SID/SYS/profile
+    default path for DIR_PROFILE
+.TP
+/usr/sap/sapservices
+    SAP profiles definition file
+.\"
+.PP
+.SH REQUIREMENTS
+.PP
+* At least SAP instances NW7.40 or SAP S/4HANA ABAP Platform 1909.
+.PP
+* SAPInstance resource agent with MINIMAL_PROBE support, November 2020.
+.PP
+* Complete entries in /usr/sap/sapservice.
+.PP
+./"
+.SH BUGS
+.\" TODO By design at system startup ...
+.\" In case of any problem, please use your favourite SAP support process to
+.\" open a request for the component BC-OP-LNX-SUSE.
+Please report feedback and suggestions to feedback@suse.com.
+.PP
+.\"
+.SH SEE ALSO
+\fBocf_heartbeat_SAPInstance\fP(7) , \fBocf_heartbeat_IPaddr2\fP(8) ,
+\fBsap_suse_cluster_connector\fP(8) \fBstonith\fP(8) , \fBcrm\fP(8) 
+.br
+https://documentation.suse.com/sbp/all/?context=sles-sap ,
+.br
+http://clusterlabs.org/doc/en-US/Pacemaker/1.1/html/Pacemaker_Explained/s-ocf-return-codes.html ,
+.PP
+.\"
+.SH AUTHORS
+X.Arbulu, F.Herschel.
+.\" L.Pinne
+.PP
+.\"
+.SH COPYRIGHT
+.br
+(c) 2020 SUSE LLC
+.br
+The resource agent SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
+.br
+For details see the GNU General Public License at
+http://www.gnu.org/licenses/gpl.html
+.\"
