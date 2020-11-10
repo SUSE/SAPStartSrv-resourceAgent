@@ -22,11 +22,11 @@
 %bcond_without test
 %endif
 
-Name:           SAPStartSrv
+Name:           sapstartsrv-resource-agents
 License:        GPL-2.0
 Group:          Productivity/Clustering/HA
 AutoReqProv:    on
-Summary:        Resource agents to control SAP instances using sapstartsrv
+Summary:        Resource agent to control SAP instances using sapstartsrv
 Version:        0.1.0
 Release:        0
 Url:            https://github.com/SUSE/SAPStartSrv-resourceAgent
@@ -54,6 +54,7 @@ SAPStartSrv does only start, stop and probe for the server process. By intention
 SAPStartSrv is to be included into a resource group together with the vIP and the SAPInstance. It needs to be started before SAPInstance is starting and needs to be stopped after SAPInstance has been stopped.
 
 SAPStartSrv could be used since SAP NetWeaver 7.40 or SAP S/4HANA (ABAP Platform >= 1909).
+
 Authors:
 --------
     Fabian Herschel
@@ -65,8 +66,10 @@ Authors:
 %build
 
 %install
-mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse
+mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse %{buildroot}/usr/share/man/man7/
 cp ra/%{name}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{name}
+cp man/*.7 %{buildroot}/usr/share/man/man7/
+gzip %{buildroot}/usr/share/man/man7/*.7
 sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/usr/lib/ocf/resource.d/suse/%{name}
 
 %if %{with test}
@@ -77,9 +80,9 @@ pytest tests
 %files
 %defattr(-,root,root)
 %if 0%{?sle_version:1} && 0%{?sle_version} < 120300
-%doc README.md LICENSE
+%doc README.md LICENSE man/ocf_suse_SAPStartSrv.7.gz
 %else
-%doc README.md
+%doc README.md man/ocf_suse_SAPStartSrv.7.gz
 %license LICENSE
 %endif
 %dir /usr/lib/ocf
