@@ -1,4 +1,4 @@
-.\" Version: 0.1 2020-11-10 16:33
+.\" Version: 0.1 2020-11-10 17:25
 .\"
 .TH ocf_suse_SAPStartSrv 7 "10 Nov 2020" "" "OCF resource agents"
 .\"
@@ -27,6 +27,7 @@ to read the respective instance profile.
 By default one system-wide sapstartsrv is started at Linux boot time to provide the needed service for all SAP instances.
 .PP
 For specific Enqueue Replication setups using instance specific sapstartsrv processes might be desireable. So each SAP instance is managed on its own by a pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts sapstartsrv for one specific SAP instance. By intention it does not monitor the service. SAPInstance than utilises that service for managing the SAP instance. SAPInstance also is doing in-line recovery of failed sapstartsrv processes
+.\" TODO check: by intention it does not monitor the service
 .PP
 This is benefitial particularly for public cloud and NFS-based environments.
 One common NFS share with both instance directories can be mounted statically.
@@ -95,10 +96,9 @@ Suggested minimum timeout: 60\&.
 .PP
 \fBmonitor\fR
 .RS 4
-The resource SAPStartSrv resource must by intention not define a monitor
-operation. This is, because the failing sapstartsrv must never force an
-SAPInstance restart which would happen, as the two resources reside in one
-resource group.
+The SAPStartSrv resource must by intention not define a monitor operation.
+This is, because the failing sapstartsrv must never force an SAPInstance
+restart which would happen, as the two resources reside in one resource group.
 .RE
 .PP
 \fBvalidate\-all\fR
@@ -173,19 +173,19 @@ rsc_IPAddr2_EVA_ASCS00
 .SH FILES
 .TP
 /usr/lib/ocf/resource.d/suse/SAPStartSrv
-    the resource agent
+the resource agent
 .TP
 /usr/lib/ocf/resource.d/heartbeat/SAPInstance
-    the also needed SAP instance resource agent, package resource-agents
+the also needed SAP instance resource agent, package resource-agents
 .TP
 /usr/sap/$SID/$InstanceName/exe
-    default path for DIR_EXECUTABLE
+default path for the sapstartsrv executable
 .TP
 /usr/sap/$SID/SYS/profile
-    default path for DIR_PROFILE
+default path for DIR_PROFILE
 .TP
 /usr/sap/sapservices
-    SAP profiles definition file
+SAP profiles definition file
 .\"
 .PP
 .SH REQUIREMENTS
@@ -208,16 +208,15 @@ Please report feedback and suggestions to feedback@suse.com.
 .\"
 .SH SEE ALSO
 \fBocf_heartbeat_SAPInstance\fP(7) , \fBocf_heartbeat_IPaddr2\fP(8) ,
-\fBsap_suse_cluster_connector\fP(8) \fBstonith\fP(8) , \fBcrm\fP(8) 
+\fBsap_suse_cluster_connector\fP(8) , \fBstonith\fP(8) , \fBcrm\fP(8) 
 .br
 https://documentation.suse.com/sbp/all/?context=sles-sap ,
 .br
-http://clusterlabs.org/doc/en-US/Pacemaker/1.1/html/Pacemaker_Explained/s-ocf-return-codes.html ,
+http://clusterlabs.org/doc/en-US/Pacemaker/1.1/html/Pacemaker_Explained/s-ocf-return-codes.html
 .PP
 .\"
 .SH AUTHORS
-X.Arbulu, F.Herschel.
-.\" L.Pinne
+X.Arbulu, F.Herschel, L.Pinne
 .PP
 .\"
 .SH COPYRIGHT
