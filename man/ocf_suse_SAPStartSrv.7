@@ -7,7 +7,7 @@ SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
 .PP
 .\"
 .SH SYNOPSYS
-\fBSAPStartSrv\fP [ start | stop | status | monitor | meta\-data | validate\-all | usage ]
+\fBSAPStartSrv\fP [ start | stop | status | meta\-data | validate\-all | usage ]
 .PP
 .\"
 .SH DESCRIPTION
@@ -26,7 +26,7 @@ starting, stopping, monitoring and probing the instances. The sapstartsrv needs
 to read the respective instance profile.
 By default one system-wide sapstartsrv is started at Linux boot time to provide the needed service for all SAP instances.
 .PP
-For specific Enqueue Replication setups using instance specific sapstartsrv processes might be desireable. So each SAP instance is managed on its own by a pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv makes sure sapstartsrv is running, SAPInstance than can utilise that service for managing the SAP instance.
+For specific Enqueue Replication setups using instance specific sapstartsrv processes might be desireable. So each SAP instance is managed on its own by a pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts sapstartsrv for one specific SAP instance. By intention it does not monitor the service. SAPInstance than utilises that service for managing the SAP instance. SAPInstance also is doing in-line recovery of failed sapstartsrv processes
 .PP
 This is benefitial particularly for public cloud and NFS-based environments.
 One common NFS share with both instance directories can be mounted statically.
@@ -88,16 +88,17 @@ Suggested minimum timeout: 60\&.
 .PP
 \fBstatus\fR
 .RS 4
-Performs a minimal status check.
+Performs a minimal status check of the sapstartsrv resource.
 .br
 Suggested minimum timeout: 60\&.
 .RE
 .PP
 \fBmonitor\fR
 .RS 4
-Performs a detailed status check for the SAP instance.
-.br
-Suggested minimum timeout: 20\&. Suggested interval: 120\&.
+The resource SAPStartSrv resource must by intention not define a monitor
+operation. This is, because the failing sapstartsrv must never force an
+SAPInstance restart which would happen, as the two resources reside in one
+resource group.
 .RE
 .PP
 \fBvalidate\-all\fR
@@ -133,6 +134,8 @@ params InstanceName="EVA_ASCS00_sapeva"
 .PP
 primitive rsc_SAPInstance_EVA_ASCS00 ocf:heartbeat:SAPInstance \\
 .br
+op monitor interval="120" timeout="60" \\
+.br
 params InstanceName="EVA_ASCS00_sapeva" \\
 .br
 meta resource-stickiness=5000 \\
@@ -145,16 +148,18 @@ MINIMAL_PROBE="true"
 .PP
 primitive rsc_IPAddr2_EVA_ASCS00 ocf:heartbeat:IPaddr2 \\
 .br
-params ip="192.168.178.1"
+op monitor interval="10" timeout="20" \\
+.br
+params ip="192.168.178.188"
 .PP
 group grp_EVA_ASCS00 \\
-.br
-.\" TODO IP first?
-rsc_IPAddr2_EVA_ASCS00 \\
 .br
 rsc_SAPStartSrv_EVA_ASCS00 \\
 .br
 rsc_SAPInstance_EVA_ASCS00 \\
+.br
+.\" TODO IP last, to not cause restart of sapstartsrv?
+rsc_IPAddr2_EVA_ASCS00
 .RE
 .PP
 * Search for log entries of SAPStartSrv, show errors only:
