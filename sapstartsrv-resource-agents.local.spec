@@ -1,9 +1,7 @@
 #
-# spec file for package SAPStartSrv
+# spec file for package sapstartsrv-resource-agents
 #
-# Copyright (c) 2013-2014 SUSE Linux Products GmbH, Nuernberg, Germany.
-# Copyright (c) 2014-2016 SUSE Linux GmbH, Nuernberg, Germany.
-# Copyright (c) 2017-2020 SUSE LLC.
+# Copyright (c) 2020 SUSE LLC.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -26,7 +24,7 @@ Name:           sapstartsrv-resource-agents
 License:        GPL-2.0
 Group:          Productivity/Clustering/HA
 AutoReqProv:    on
-Summary:        Resource agent to control SAP instances using sapstartsrv
+Summary:        Resource agent for SAP instance specific sapstartsrv service
 Version:        0.1.0
 Release:        0
 Url:            https://github.com/SUSE/SAPStartSrv-resourceAgent
@@ -39,45 +37,45 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 Requires:       pacemaker > 1.1.1
 Requires:       resource-agents
-Requires:       python3
+Requires:       python2
 BuildRequires:  resource-agents
+Distribution:	SUSE Linux Enterprise 12
 %if %{with test}
+Requires:       python3
 BuildRequires:  python3-mock
 BuildRequires:  python3-pytest
+Distribution:	SUSE Linux Enterprise 15
 %endif
 
 %description
-This project is to implement a resource agent for the instance specific SAP start framework. It controls the instance specific sapstartsrv process which provides the API to start, stop and check an SAP instance.
-
-SAPStartSrv does only start, stop and probe for the server process. By intention it does not monitor the service. SAPInstance is doing in-line recovery of failed sapstartsrv processes instead.
-
-SAPStartSrv is to be included into a resource group together with the vIP and the SAPInstance. It needs to be started before SAPInstance is starting and needs to be stopped after SAPInstance has been stopped.
-
-SAPStartSrv can be used since SAP NetWeaver 7.40 or SAP S/4HANA (ABAP Platform >= 1909).
+This is an resource agent for the instance specific SAP start framework.
+It controls the instance specific sapstartsrv process which provides the
+API to start, stop and check an SAP instance.
 
 Authors:
 --------
     Fabian Herschel
     Xabier Arbulu
 
+
 %prep
 mkdir -p %{name}-%{version}
 cd %{name}-%{version}
 tar xf %{S:0}
-## %setup -q
 
 %build
-gzip man/*
+cd %{name}-%{version}
+gzip -f man/*.[0-9]
+sed -i 's+@PYTHON@+%{_bindir}/python3+' ra/SAPStartSrv.in ra/SAPStartSrv
 
 %install
+cd %{name}-%{version} || exit
 mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse
-mkdir -p %{buildroot}%{_mandir}/man7
-cp ra/%{name}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{name}
-cp man/*.7 %{buildroot}/usr/share/man/man7/
-sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/usr/lib/ocf/resource.d/suse/%{name}
-
-install -m 0755 ra/* %{buildroot}/usr/lib/ocf/resource.d/suse/
-install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
+mkdir -p %{buildroot}/%{_mandir}/man7
+mkdir -p %{buildroot}/%{_docdir}/%{name}
+cp ra/SAPStartSrv.in %{buildroot}/usr/lib/ocf/resource.d/suse/SAPStartSrv
+cp man/*.7.gz %{buildroot}/%{_mandir}/man7/
+cp README.md LICENSE %{buildroot}/%{_docdir}/%{name}/
 
 %if %{with test}
 %check
@@ -87,12 +85,13 @@ pytest tests
 %files
 %defattr(-,root,root)
 %if 0%{?sle_version:1} && 0%{?sle_version} < 120300
-%doc README.md LICENSE
+%doc %{_docdir}/%{name}/README.md
+%doc %{_docdir}/%{name}/LICENSE
 %doc %{_mandir}/man7/*.7.gz
 %else
-%doc README.md
+%doc %{_docdir}/%{name}/README.md
+%doc %{_docdir}/%{name}/LICENSE
 %doc %{_mandir}/man7/*.7.gz
-%license LICENSE
 %endif
 %dir /usr/lib/ocf
 %dir /usr/lib/ocf/resource.d
@@ -100,5 +99,8 @@ pytest tests
 %defattr(755,root,root,-)
 %dir /usr/lib/ocf/resource.d/suse
 /usr/lib/ocf/resource.d/suse/*
+
+%clean
+rm -rf %{buildroot}
 
 %changelog
