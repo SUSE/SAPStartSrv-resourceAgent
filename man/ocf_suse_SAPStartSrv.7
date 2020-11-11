@@ -1,4 +1,4 @@
-.\" Version: 0.1.0 2020-11-11 11:11
+.\" Version: 0.1.0 2020-11-11 13:00
 .\"
 .TH ocf_suse_SAPStartSrv 7 "10 Nov 2020" "" "OCF resource agents"
 .\"
@@ -153,7 +153,7 @@ primitive rsc_SAPInstance_EVA_ASCS00 ocf:heartbeat:SAPInstance \\
 .PP
 primitive rsc_IPAddr2_EVA_ASCS00 ocf:heartbeat:IPaddr2 \\
 .br
- params ip=192.168.178.188
+ params ip=192.168.178.188 cidr_netmask=32
 .PP
 primitive rsc_Loadbalancer_EVA_ASCS00 ocf:heartbeat:azure-lb \\
 .br
