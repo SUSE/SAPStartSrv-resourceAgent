@@ -47,13 +47,13 @@ BuildRequires:  python3-pytest
 %endif
 
 %description
-This project is to implement a resource-agent for the instance specific SAP start framework. It controls the instance specific sapstartsrv process which provides the API to start, stop and check an SAP instance.
+This project is to implement a resource agent for the instance specific SAP start framework. It controls the instance specific sapstartsrv process which provides the API to start, stop and check an SAP instance.
 
 SAPStartSrv does only start, stop and probe for the server process. By intention it does not monitor the service. SAPInstance is doing in-line recovery of failed sapstartsrv processes instead.
 
 SAPStartSrv is to be included into a resource group together with the vIP and the SAPInstance. It needs to be started before SAPInstance is starting and needs to be stopped after SAPInstance has been stopped.
 
-SAPStartSrv could be used since SAP NetWeaver 7.40 or SAP S/4HANA (ABAP Platform >= 1909).
+SAPStartSrv can be used since SAP NetWeaver 7.40 or SAP S/4HANA (ABAP Platform >= 1909).
 
 Authors:
 --------
@@ -63,14 +63,16 @@ Authors:
 %prep
 %setup -q
 
-%build
-
 %install
-mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse %{buildroot}/usr/share/man/man7/
+mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse
+mkdir -p %{buildroot}%{_mandir}/man7
 cp ra/%{name}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{name}
-cp man/*.7 %{buildroot}/usr/share/man/man7/
-gzip %{buildroot}/usr/share/man/man7/*.7
+cp man/*.7 %{buildroot}%{_mandir}/man7/
+gzip %{buildroot}%{_mandir}/man7/*.7
 sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/usr/lib/ocf/resource.d/suse/%{name}
+
+install -m 0755 ra/* %{buildroot}/usr/lib/ocf/resource.d/suse/
+install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
 
 %if %{with test}
 %check
@@ -80,13 +82,16 @@ pytest tests
 %files
 %defattr(-,root,root)
 %if 0%{?sle_version:1} && 0%{?sle_version} < 120300
-%doc README.md LICENSE man/ocf_suse_SAPStartSrv.7.gz
+%doc README.md LICENSE
+%doc %{_mandir}/man7/*.7.gz
 %else
-%doc README.md man/ocf_suse_SAPStartSrv.7.gz
+%doc README.md
+%doc %{_mandir}/man7/*.7.gz
 %license LICENSE
 %endif
 %dir /usr/lib/ocf
 %dir /usr/lib/ocf/resource.d
+%dir %{_mandir}/man7
 %defattr(755,root,root,-)
 %dir /usr/lib/ocf/resource.d/suse
 /usr/lib/ocf/resource.d/suse/*
