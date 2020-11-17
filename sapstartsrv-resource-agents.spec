@@ -46,6 +46,8 @@ BuildRequires:  python3-mock
 BuildRequires:  python3-pytest
 %endif
 
+%define raname SAPStartSrv
+
 %description
 This project is to implement a resource agent for the instance specific SAP start framework. It controls the instance specific sapstartsrv process which provides the API to start, stop and check an SAP instance.
 
@@ -63,16 +65,16 @@ Authors:
 %prep
 %setup -q
 
+%build
+gzip man/*
+
 %install
 mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse
 mkdir -p %{buildroot}%{_mandir}/man7
-cp ra/%{name}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{name}
-cp man/*.7 %{buildroot}%{_mandir}/man7/
-gzip %{buildroot}%{_mandir}/man7/*.7
-sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/usr/lib/ocf/resource.d/suse/%{name}
 
-install -m 0755 ra/* %{buildroot}/usr/lib/ocf/resource.d/suse/
+install -m 0755 ra/%{raname}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
+sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
 
 %if %{with test}
 %check
@@ -91,7 +93,6 @@ pytest tests
 %endif
 %dir /usr/lib/ocf
 %dir /usr/lib/ocf/resource.d
-%dir %{_mandir}/man7
 %defattr(755,root,root,-)
 %dir /usr/lib/ocf/resource.d/suse
 /usr/lib/ocf/resource.d/suse/*
