@@ -24,9 +24,11 @@ An Linux HA cluster can control these instances by using the SAPInstance
 resource agent. That resource agent depends on the SAP sapstartsrv service for
 starting, stopping, monitoring and probing the instances. The sapstartsrv needs
 to read the respective instance profile.
-By default one system-wide sapstartsrv is started at Linux boot time to provide the needed service for all SAP instances.
+By default one system-wide sapstartsrv is started at Linux boot time to provide
+the needed service for all SAP instances.
 .PP
-For specific Enqueue Replication setups using instance specific sapstartsrv processes might be desireable. So each SAP instance is managed on its own by a pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts sapstartsrv for one specific SAP instance. By intention it does not monitor the service. SAPInstance than utilises that service for managing the SAP instance. SAPInstance also is doing in-line recovery of failed sapstartsrv processes
+For specific Enqueue Replication setups using instance specific sapstartsrv processes might be desireable. So each SAP instance is managed on its own by a pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts sapstartsrv for one specific SAP instance. By intention it does not monitor the service. SAPInstance than utilises that service for managing the SAP instance. SAPInstance also is doing in-line recovery of failed sapstartsrv processes. 
+.\" Since the sapstartsrv process  IP TODO
 .\" TODO check: by intention it does not monitor the service
 .PP
 This is benefitial particularly for public cloud and NFS-based environments.
