@@ -28,8 +28,7 @@ By default one system-wide sapstartsrv is started at Linux boot time to provide
 the needed service for all SAP instances.
 .PP
 For specific Enqueue Replication setups using instance specific sapstartsrv processes might be desireable. So each SAP instance is managed on its own by a pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts sapstartsrv for one specific SAP instance. By intention it does not monitor the service. SAPInstance than utilises that service for managing the SAP instance. SAPInstance also is doing in-line recovery of failed sapstartsrv processes. 
-.\" Since the sapstartsrv process  IP TODO
-.\" TODO check: by intention it does not monitor the service
+Since the sapstartsrv process is contacted via network, a working service IP address is needed.
 .PP
 This is benefitial particularly for public cloud and NFS-based environments.
 One common NFS share with both instance directories can be mounted statically.
