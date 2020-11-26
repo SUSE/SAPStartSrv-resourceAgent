@@ -1,0 +1,13 @@
+[Unit]
+Description=Un-Hiding sap services file
+Documentation=man:sappong
+After=sapinit.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/sappong
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
