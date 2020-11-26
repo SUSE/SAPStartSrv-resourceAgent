@@ -24,13 +24,13 @@ sapping \- hiding sapservices file from sapinit service at system boot.
 .SH FILES
 .TP
 /usr/sbin/sapping
-the systemd service executable 
+systemd service executable 
 .TP
 /usr/lib/systemd/system/sapping.service
-the systemd service definiton
+systemd service definiton
 .TP
 /usr/sap/sapservices
-the host's SAP services definition, used by sapstartsrv et al.
+SAP profiles definition file, used by sapstartsrv et al.
 .PP
 .\"
 .SH BUGS
@@ -38,7 +38,7 @@ Please report feedback and suggestions to feedback@suse.com.
 .PP
 .\"
 .SH SEE ALSO
-\fBocf_heartbeat_SAPStartSrv\fP(7) , \fBsystemctl\fP(1)
+\fBocf_heartbeat_SAPStartSrv\fP(7) , \fBsappong\fP(8),  \fBsystemctl\fP(1)
 .PP
 .\"
 .SH AUTHORS
