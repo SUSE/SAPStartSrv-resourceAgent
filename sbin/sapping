@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# sapping
+#
+sapservices="/usr/sap/sapservices"
+#
+# document current sapservices status and content
+#
+ls -la "$sapservices"
+cat "$sapservices"
+#
+# move sapservices if size > 0
+#
+if [ -n "$(find $sapservices -size 0)" ]; then
+    echo "skip moving sapservices";
+else
+    touch "$sapservices".empty
+    mv "$sapservices" "$sapservices".moved
+    mv "$sapservices".empty "$sapservices"
+fi
+ls -la "$sapservices"
