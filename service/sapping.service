@@ -1,0 +1,13 @@
+[Unit]
+Description=Hiding sap services file
+Documentation=man:sapping
+Before=sapinit.service pacemaker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/sapping
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target pacemaker.service
