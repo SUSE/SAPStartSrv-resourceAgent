@@ -74,6 +74,8 @@ mkdir -p %{buildroot}%{_mandir}/man7
 
 install -m 0755 ra/%{raname}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
+install -m 0755 sbin/* %{buildroot}/usr/sbin
+install -m 0755 service/* %{buildroot}/usr/lib/systemd/system
 sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
 
 %if %{with test}
@@ -95,6 +97,10 @@ pytest tests
 %dir /usr/lib/ocf/resource.d
 %defattr(755,root,root,-)
 %dir /usr/lib/ocf/resource.d/suse
+%dir /usr/sbin
+%dir /usr/lib/systemd/system
+/usr/sbin/*
 /usr/lib/ocf/resource.d/suse/*
+/usr/lib/systemd/system/*
 
 %changelog
