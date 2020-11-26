@@ -1,17 +1,23 @@
 .\" Version: 2020-11-26 18_00
 .\"
-.TH sapping 8 "26 11 2020" "" "sapstartsrv-resource-agents"
+.TH sapping/sappong 8 "26 11 2020" "" "sapstartsrv-resource-agents"
 .\"
 .SH NAME
 sapping \- hiding sapservices file from sapinit service at system boot.
+.br
+sappong \- restoring sapservices file at system boot.
 .PP
 .\"
 .SH SYNOPSYS
 \fBsapping\fP
+.br
+\fBsappong\fP
 .PP
 .\"
 .SH DESCRIPTION
-\fBsapping\fP is a systemd service for  hiding sapservices file from sapinit service at system boot.
+\fBsapping\fP is a systemd service for hiding sapservices file from sapinit service at system boot.
+.br
+\fBsappong\fP is a systemd service for restoring sapservices file after sapinit service has been started at system boot.
 .\" TODO
 .PP
 .\"
@@ -23,11 +29,11 @@ sapping \- hiding sapservices file from sapinit service at system boot.
 .\"
 .SH FILES
 .TP
-/usr/sbin/sapping
-systemd service executable 
+/usr/sbin/sapping , /usr/sbin/sappong
+systemd service executables 
 .TP
-/usr/lib/systemd/system/sapping.service
-systemd service definiton
+/usr/lib/systemd/system/sapping.service , /usr/lib/systemd/system/sapping.service
+systemd service definitions
 .TP
 /usr/sap/sapservices
 SAP profiles definition file, used by sapstartsrv et al.
@@ -38,7 +44,7 @@ Please report feedback and suggestions to feedback@suse.com.
 .PP
 .\"
 .SH SEE ALSO
-\fBocf_heartbeat_SAPStartSrv\fP(7) , \fBsappong\fP(8),  \fBsystemctl\fP(1)
+\fBocf_heartbeat_SAPStartSrv\fP(7) , \fBsystemctl\fP(1)
 .PP
 .\"
 .SH AUTHORS
