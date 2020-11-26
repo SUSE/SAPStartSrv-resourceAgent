@@ -18,7 +18,20 @@ sappong \- restoring sapservices file at system boot.
 \fBsapping\fP is a systemd service for hiding sapservices file from sapinit service at system boot.
 .br
 \fBsappong\fP is a systemd service for restoring sapservices file after sapinit service has been started at system boot.
+.br
+The scripts are intended to be called at boot time. Administrative use during regular operations is not intended.
 .\" TODO
+.PP
+.\"
+.SH EXAMPLES
+.TP
+* enabling both services at boot time
+# systemctl enable sapping
+.br
+# systemctl enable sappong
+.TP
+* showing status of service sapping, including content of moved sapservices file
+# systemctl status sapping
 .PP
 .\"
 .SH EXIT STATUS
@@ -55,7 +68,7 @@ X.Arbulu, F.Herschel, L.Pinne
 .br
 (c) 2020 SUSE LLC
 .br
-The resource agent SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
+sapping/sappong comes with ABSOLUTELY NO WARRANTY.
 .br
 For details see the GNU General Public License at
 http://www.gnu.org/licenses/gpl.html
