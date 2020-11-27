@@ -1,13 +1,13 @@
-.\" Version: 2020-11-26 18_00
+.\" Version: 2020-11-27 18_00
 .\"
-.TH sapservices-move 8 "26 11 2020" "" "sapstartsrv-resource-agents"
+.TH sapservices-move 8 "27 11 2020" "" "sapstartsrv-resource-agents"
 .\"
 .SH NAME
 sapservices-move \- hiding sapservices file from sapinit service at system boot.
 .PP
 .\"
 .SH SYNOPSYS
-\fBsapservices-move\fP [ --help | --version | --away | --restore ]
+\fBsapservices-move\fP [ --help | --version | --hide | --unhide ]
 .PP
 .\"
 .SH DESCRIPTION
@@ -37,10 +37,10 @@ show help
 -v | --version
 show version
 .TP
--a | --away
+-m | --hide | --move
 move away sapervices file
 .TP
--r | --restore
+-u | --unhide
 restore sapservices file
 .PP
 .\"
@@ -82,7 +82,7 @@ Please report feedback and suggestions to feedback@suse.com.
 .PP
 .\"
 .SH AUTHORS
-X.Arbulu, F.Herschel, L.Pinne
+F.Herschel, L.Pinne
 .PP
 .\"
 .SH COPYRIGHT
