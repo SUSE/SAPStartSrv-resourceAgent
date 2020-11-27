@@ -1,11 +1,13 @@
 [Unit]
-Description=Hiding sap services file
-Documentation=man:sapping
+Description=Hiding sapservices file from sapinit
+Documentation=man:sapping(8)
+#Documentation=man:sapservices-move(8)
 Before=sapinit.service pacemaker.service
 
 [Service]
 Type=oneshot
 ExecStart=/usr/sbin/sapping
+#ExecStart=/usr/sbin/sapservices-move --away
 StandardOutput=syslog
 StandardError=syslog
 

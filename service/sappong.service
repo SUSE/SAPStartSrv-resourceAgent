@@ -1,11 +1,13 @@
 [Unit]
-Description=Un-Hiding sap services file
-Documentation=man:sappong
+Description=Un-Hiding sapservices file from sapinit
+Documentation=man:sappong(8)
+#Documentation=man:sapservices-move(8)
 After=sapinit.service
 
 [Service]
 Type=oneshot
 ExecStart=/usr/sbin/sappong
+#ExecStart=/usr/sbin/sapservices-move --restore
 StandardOutput=syslog
 StandardError=syslog
 
