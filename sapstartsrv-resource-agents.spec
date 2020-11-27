@@ -101,6 +101,7 @@ pytest tests
 %dir /usr/lib/systemd/system
 /usr/sbin/*
 /usr/lib/ocf/resource.d/suse/*
+%defattr(644,root,root,-)
 /usr/lib/systemd/system/*
 
 %changelog
