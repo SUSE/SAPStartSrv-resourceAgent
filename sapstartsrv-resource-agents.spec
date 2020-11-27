@@ -1,8 +1,6 @@
 #
-# spec file for package SAPStartSrv
+# spec file for package sapstartsrv-resource-agents
 #
-# Copyright (c) 2013-2014 SUSE Linux Products GmbH, Nuernberg, Germany.
-# Copyright (c) 2014-2016 SUSE Linux GmbH, Nuernberg, Germany.
 # Copyright (c) 2017-2020 SUSE LLC.
 #
 # All modifications and additions to the file contributed by third parties
@@ -26,7 +24,7 @@ Name:           sapstartsrv-resource-agents
 License:        GPL-2.0
 Group:          Productivity/Clustering/HA
 AutoReqProv:    on
-Summary:        Resource agent to control SAP instances using sapstartsrv
+Summary:        Resource agent for SAP instance specific sapstartsrv service 
 Version:        0.1.0
 Release:        0
 Url:            https://github.com/SUSE/SAPStartSrv-resourceAgent
@@ -49,13 +47,9 @@ BuildRequires:  python3-pytest
 %define raname SAPStartSrv
 
 %description
-This project is to implement a resource agent for the instance specific SAP start framework. It controls the instance specific sapstartsrv process which provides the API to start, stop and check an SAP instance.
-
-SAPStartSrv does only start, stop and probe for the server process. By intention it does not monitor the service. SAPInstance is doing in-line recovery of failed sapstartsrv processes instead.
-
-SAPStartSrv is to be included into a resource group together with the vIP and the SAPInstance. It needs to be started before SAPInstance is starting and needs to be stopped after SAPInstance has been stopped.
-
-SAPStartSrv can be used since SAP NetWeaver 7.40 or SAP S/4HANA (ABAP Platform >= 1909).
+This is an resource agent for the instance specific SAP start framework.
+It controls the instance specific sapstartsrv process which provides the
+API to start, stop and check an SAP instance.
 
 Authors:
 --------

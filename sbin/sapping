@@ -2,6 +2,13 @@
 #
 # sapping
 #
+# (c) 2020 SUSE LLC
+# Author: F.Herschel
+# GNU General Public License v2. No warranty.
+# http://www.gnu.org/licenses/gpl.html
+#
+# Version: 2020-11-26
+#
 sapservices="/usr/sap/sapservices"
 #
 # document current sapservices status and content
@@ -19,3 +26,4 @@ else
     mv "$sapservices".empty "$sapservices"
 fi
 ls -la "$sapservices"
+#
