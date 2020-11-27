@@ -71,6 +71,8 @@ gzip man/*
 %install
 mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse
 mkdir -p %{buildroot}%{_mandir}/man7
+mkdir -p %{buildroot}/usr/sbin
+mkdir -p %{buildroot}/usr/lib/systemd/system
 
 install -m 0755 ra/%{raname}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
