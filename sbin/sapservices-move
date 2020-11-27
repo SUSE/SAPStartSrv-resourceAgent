@@ -3,7 +3,7 @@
 # sapservices-move
 #
 # (c) 2020 SUSE LLC
-# Author: F.Herschel
+# Author: F.Herschel, L.Pinne
 # GNU General Public License v2. No warranty.
 # http://www.gnu.org/licenses/gpl.html
 #
@@ -20,8 +20,8 @@ function do_help() {
 	echo
 	echo " --help		show help"
 	echo " --version	show version"
-	echo " --away		move away $sapservices"
-	echo " --restore	restore $sapservices"
+	echo " --hide		move away $sapservices"
+	echo " --unhide     restore $sapservices"
 	echo
 }
 
@@ -70,10 +70,10 @@ case $1 in
 	-v|--version)
 		echo "version: $scriptversion"
 	;;
-	-a|--away)
+	-m|--hide|--move)
 		do_ping
 	;;
-	-r|--restore)
+	-u|--unhide)
 		do_pong
 	;;
 	*)

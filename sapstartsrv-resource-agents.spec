@@ -65,11 +65,13 @@ gzip man/*
 %install
 mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse
 mkdir -p %{buildroot}%{_mandir}/man7
+mkdir -p %{buildroot}%{_mandir}/man8
 mkdir -p %{buildroot}/usr/sbin
 mkdir -p %{buildroot}/usr/lib/systemd/system
 
 install -m 0755 ra/%{raname}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
+install -m 0444 man/*.8.gz %{buildroot}%{_mandir}/man8
 install -m 0755 sbin/* %{buildroot}/usr/sbin
 install -m 0755 service/* %{buildroot}/usr/lib/systemd/system
 sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
@@ -84,9 +86,11 @@ pytest tests
 %if 0%{?sle_version:1} && 0%{?sle_version} < 120300
 %doc README.md LICENSE
 %doc %{_mandir}/man7/*.7.gz
+%doc %{_mandir}/man8/*.8.gz
 %else
 %doc README.md
 %doc %{_mandir}/man7/*.7.gz
+%doc %{_mandir}/man8/*.8.gz
 %license LICENSE
 %endif
 %dir /usr/lib/ocf
