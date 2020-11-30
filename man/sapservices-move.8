@@ -1,6 +1,6 @@
-.\" Version: 2020-11-27 18_00
+.\" Version: 0.1.0
 .\"
-.TH sapservices-move 8 "27 11 2020" "" "sapstartsrv-resource-agents"
+.TH sapservices-move 8 "30 11 2020" "" "sapstartsrv-resource-agents"
 .\"
 .SH NAME
 sapservices-move \- hiding sapservices file from sapinit service at system boot.
@@ -25,7 +25,9 @@ The sapinit service takes not into account such environments, but starts sapstar
 This could damage the working directory content of already running instances,
 even on remote cluster nodes.
 
-The script is intended to be called at boot time. Administrative use during regular operations is not intended.
+The script is intended to be called at boot time. Administrative use during regular operations is not intended. Consequently calling the sapinit script during regular operation will cause trouble in an above mentioned HA cluster, even on remote nodes.
+
+For details on concept and requirements see ocf_suse_SAPStartSrv(8).
 .\" TODO
 .PP
 .\"
@@ -47,9 +49,7 @@ restore sapservices file
 .SH EXAMPLES
 .TP
 * enable both services at boot time
-# systemctl enable sapping
-.br
-# systemctl enable sappong
+# systemctl enable sapping sappong
 .TP
 * show status of service sapping, including content of moved sapservices file
 # systemctl status sapping
@@ -71,6 +71,9 @@ systemd service definitions
 .TP
 /usr/sap/sapservices
 SAP profiles definition file, used by sapstartsrv et al.
+.TP
+/etc/init.d/sapinit
+System V SAP init script to enable SAP start framework, including sapstartsrv service for all entries in the sapservices file
 .PP
 .\"
 .SH BUGS
