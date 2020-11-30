@@ -53,6 +53,9 @@ restore sapservices file
 .TP
 * show status of service sapping, including content of moved sapservices file
 # systemctl status sapping
+.TP
+* show journal log entries for service sapping since 2020-02-02 20:20:20
+# journalctl --unit=sapping --since="2020-02-02 20:20:20"
 .PP
 .\"
 .SH EXIT STATUS
