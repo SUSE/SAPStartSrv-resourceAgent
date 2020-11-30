@@ -1,6 +1,6 @@
-.\" Version: 0.1.0 2020-11-26
+.\" Version: 0.1.0 
 .\"
-.TH ocf_suse_SAPStartSrv 7 "26 11 2020" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "30 11 2020" "" "OCF resource agents"
 .\"
 .SH NAME
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
@@ -8,6 +8,7 @@ SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
 .\"
 .SH SYNOPSYS
 \fBSAPStartSrv\fP [ start | stop | status | monitor | meta\-data | validate\-all | usage ]
+.\" TODO monitor?
 .PP
 .\"
 .SH DESCRIPTION
@@ -17,7 +18,7 @@ a single SAP instance as an HA resource.
 .PP
 One SAP instance is defined by having exactly one instance profile.
 The instance profiles can usually be found in the directory
-/sapmnt/$SID/profile.
+/sapmnt/$SID/profile/.
 In an Enqueue Replication setup one (ABAP-) Central Services instance ((A)SCS)
 and at least one Replicated Enqueue instance (ERS) are configured.
 An Linux HA cluster can control these instances by using the SAPInstance
@@ -27,14 +28,19 @@ to read the respective instance profile.
 By default one system-wide sapstartsrv is started at Linux boot time to provide
 the needed service for all SAP instances.
 .PP
-For specific Enqueue Replication setups using instance specific sapstartsrv processes might be desireable. So each SAP instance is managed on its own by a pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts sapstartsrv for one specific SAP instance. By intention it does not monitor the service. SAPInstance than utilises that service for managing the SAP instance. SAPInstance also is doing in-line recovery of failed sapstartsrv processes. 
-.\" Since the sapstartsrv process  IP TODO
-.\" TODO check: by intention it does not monitor the service
+For specific Enqueue Replication setups using instance specific sapstartsrv
+processes might be desireable. So each SAP instance is managed on its own by a
+pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts
+sapstartsrv for one specific SAP instance. By intention it does not monitor the
+service. SAPInstance than utilises that service for managing the SAP instance.
+SAPInstance also is doing in-line recovery of failed sapstartsrv processes.
+The instance's virtual service IP address is used for contacting the sapstartsrv
+process. Thus that IP address resource (e.g. IPAddr2, aws-vpc-route53) needs to start before SAPStartSrv.
 .PP
-This is benefitial particularly for public cloud and NFS-based environments.
-One common NFS share with both instance directories can be mounted statically.
-The HA cluster does not need to control that filesystems. 
-.\" TODO
+The described setup is benefitial particularly for public cloud and NFS-based
+environments. Both NFS shares with instance directories can be mounted
+statically all nodes. The HA cluster does not need to control that filesystems. 
+The /usr/sap/sapservices file is stored locally on each cluster node.
 .PP
 .RE
 .\"
@@ -186,10 +192,10 @@ the resource agent
 /usr/lib/ocf/resource.d/heartbeat/SAPInstance
 the also needed SAP instance resource agent, package resource-agents
 .TP
-/usr/sap/$SID/$InstanceName/exe
+/usr/sap/$SID/$InstanceName/exe/
 default path for the sapstartsrv executable
 .TP
-/usr/sap/$SID/SYS/profile
+/usr/sap/$SID/SYS/profile/
 default path for DIR_PROFILE
 .TP
 /usr/sap/sapservices
@@ -203,19 +209,20 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 .PP
 * SAPInstance resource agent with MINIMAL_PROBE support, November 2020.
 .PP
-* Needed NFS shares (e.g. /sapmnt/$SID, /usr/sap/$SID) mounted statically or by automounter.
-.PP
-* Complete entries in /usr/sap/sapservice.
+* Needed NFS shares (e.g. /sapmnt/$SID/, /usr/sap/$SID/) mounted statically or by automounter.
 .PP
 * Directory /usr/sap/ locally mounted on each cluster node.
 .PP
+* Complete entries in /usr/sap/sapservices file.
+.PP
 * SAP profile Autostart feature is disabled.
 .PP
-* Service sapping and sappong to handle sapservices file at system boot.
+* The sapinit boot script does not read entries from sapservices file at boot. Thus services sapping and sappong to handle sapservices file at system boot.
+.PP
+* The sapinit script is not used while the HA cluster is running on any node. 
 .PP
 ./"
 .SH BUGS
-.\" TODO By design at system startup ...
 .\" In case of any problem, please use your favourite SAP support process to
 .\" open a request for the component BC-OP-LNX-SUSE.
 Please report feedback and suggestions to feedback@suse.com.
@@ -223,7 +230,8 @@ Please report feedback and suggestions to feedback@suse.com.
 .\"
 .SH SEE ALSO
 \fBocf_heartbeat_SAPInstance\fP(7) , \fBocf_heartbeat_IPaddr2\fP(7) ,
-\fBsap_suse_cluster_connector\fP(8) , \fBsappping\fP(8) , \fBcrm\fP(8) ,
+.\"TODO aws-vpc-route53 gcp-vpc-move-route
+\fBsap_suse_cluster_connector\fP(8) , \fBcrm\fP(8) ,
 \fBnfs\fP(5) , \fBmount\fP(8) , \fBha_related_suse_tids\fP(7) ,
 .br
 https://documentation.suse.com/sbp/all/?context=sles-sap ,
@@ -233,7 +241,6 @@ http://clusterlabs.org/doc/en-US/Pacemaker/1.1/html/Pacemaker_Explained/s-ocf-re
 https://help.sap.com/doc/e9a0eddf6eb14a82bcbe3be3c9a58c7e/1610%20001/en-US/frameset.htm?frameset.htm
 .\" https://blogs.sap.com/2018/04/03/high-availability-with-standalone-enqueue-server-2/
 .\" https://blogs.sap.com/2020/08/27/evolution-of-ensa2-and-erp2.../
-.\" 
 .PP
 .\"
 .SH AUTHORS
