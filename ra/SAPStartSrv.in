@@ -105,7 +105,11 @@ class SapStartSrv(object):
             'pgrep -f -l "sapstartsrv.*pf=.*{}_{}_{}"'.format(
                 self.sid, self.instance_name, self.virtual_host))
         logger.info('Current status: %d. Output: %s' % (result.returncode, result.output))
-        return result
+        if result.returncode == 0:
+            status = ocf.OCF_SUCCESS
+        else:
+            status = ocf.OCF_NOT_RUNNING
+        return status
 
     def _find_executables(self):
         '''
@@ -214,8 +218,8 @@ class SapStartSrv(object):
         start_result = run_command('{} pf={} -D -u {}'.format(
             self.saptstartsrv_path, self.sap_instance_profile, self.sidadm))
 
-        result = self._get_status()
-        if result.returncode == 0:
+        status = self._get_status()
+        if status == ocf.OCF_SUCCESS:
             logger.info(
                 'sapstartsrv for SAP Instance %s-%s started: %s' %
                 (self.sid, self.instance_name, start_result.output))
@@ -231,8 +235,8 @@ class SapStartSrv(object):
         Run sapcontrol command to with StopService
         '''
         self._inititialize()
-        result = self._get_status()
-        if result.returncode == 0:
+        status = self._get_status()
+        if status == ocf.OCF_SUCCESS:
             stop_result = run_command(
                 '{} -nr {} -function StopService'.format(
                     self.sapcontrol_path, self.instance_number))
@@ -256,19 +260,24 @@ class SapStartSrv(object):
         Get sapstartsrv status
         '''
         self._inititialize()
-        result = self._get_status()
-        if result.returncode == 0:
+        status = self._get_status()
+        if status == ocf.OCF_SUCCESS:
             return ocf.OCF_SUCCESS
 
         return ocf.OCF_NOT_RUNNING
 
     def monitor(self):
         '''
-        Can the given SAP instance do anything useful?
+        Is the sapstartsrv server process running?
         '''
         self._inititialize()
         if ocf.is_probe():
-            return self._get_status().returncode
+            status = self._get_status()
+            return status
+        '''
+        For regular monitors always return success, because recover of sapstartsrv is already handeled by SAPInstance
+        This might be changed in a next-generation edition
+        '''
         return ocf.OCF_SUCCESS
 
     def validate(self):
