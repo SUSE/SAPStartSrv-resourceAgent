@@ -268,7 +268,7 @@ class SapStartSrv(object):
         '''
         self._inititialize()
         if ocf.is_probe():
-            return self._get_status().returncode
+            return self.status()
         return ocf.OCF_SUCCESS
 
     def validate(self):
