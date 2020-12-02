@@ -75,10 +75,10 @@ mkdir -p %{buildroot}%{_mandir}/man8
 install -m 0755 ra/%{raname}.in %{buildroot}%{ocf_dir}/resource.d/suse/%{raname}
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
 install -m 0444 man/*.8.gz %{buildroot}%{_mandir}/man8
-install -m 0755 sbin/* %{buildroot}%{_sbindidr}
+install -m 0755 sbin/* %{buildroot}%{_sbindir}
 install -m 0755 service/* %{buildroot}%{_unitdir}
 sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}%{ocf_dir}/resource.d/suse/%{raname}
-sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/%{_sbindidr}/%{srvname}
+sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/%{_sbindir}/%{srvname}
 
 %if %{with test}
 %check
@@ -101,9 +101,9 @@ pytest tests
 %dir %{ocf_dir}/resource.d
 %defattr(755,root,root,-)
 %dir %{ocf_dir}/resource.d/suse
-# %dir %{_sbindidr}
+# %dir %{_sbindir}
 # %dir %{_unitdir}
-%{_sbindidr}*
+%{_sbindir}*
 %{ocf_dir}/resource.d/suse/*
 %defattr(644,root,root,-)
 %{_unitdir}/*
