@@ -1,0 +1,94 @@
+#!@PYTHON@ -tt
+# - *- coding: utf- 8 - *-
+import os
+import sys
+from pathlib import Path
+import argparse
+
+'''
+*
+* sapservices-move
+*
+* (c) 2020 SUSE LLC
+* Author: F.Herschel, L.Pinne
+* GNU General Public License v2. No warranty.
+* http://www.gnu.org/licenses/gpl.html
+*
+* TODO error handling
+*
+'''
+
+script_version = "2020-12-01 14:14"
+script_name = sys.argv[0]
+#sapservices = "/usr/sap/sapservices"
+sapservices = "./sapservices"
+
+def do_help():
+    print(f"usage: {script_name} [OPTION]")
+    print(" --help      show help")
+    print(" --version   show version")
+    print(f" --hide      hide {sapservices}")
+    print(f" --unhide    unhide {sapservices}")
+    return 0
+
+def do_stat():
+    print(Path(sapservices).stat())
+
+def do_cat():
+    '''
+    document current sapservices content
+    '''
+    with open(sapservices) as infile:
+        for line in infile:
+            print(line) 
+
+def do_hide():
+    do_stat()
+    do_cat()
+    '''
+    move sapservices if size > 0
+    '''
+    if Path(sapservices).stat().st_size == 0:
+        print(f"skip moving {sapservices}")
+    else:
+        '''
+        touch empty file, move orig file, move-over empty file to hide
+        '''
+        sapservices_empty = sapservices + ".empty"
+        sapservices_moved = sapservices + ".moved"
+        open(sapservices_empty, "w+").close()
+        os.rename(sapservices, sapservices_moved) 
+        os.rename(sapservices_empty, sapservices)
+        do_stat()
+
+def do_unhide():
+    do_stat()
+    do_cat()
+    '''
+    restore sapservices back if size = 0
+    '''
+    if Path(sapservices).stat().st_size == 0:
+        sapservices_empty = sapservices + ".empty"
+        sapservices_moved = sapservices + ".moved"
+        os.rename(sapservices_moved, sapservices) 
+    else:
+        print(f"skip unhiding {sapservices}")
+    do_stat()
+
+def main():
+    '''
+    main method - take only exact ONE parameter
+    '''
+    main_param = sys.argv[1]
+    if main_param == "-v" or main_param == "--version":
+        print(f"version: {script_version}")
+    elif main_param == "-h" or main_param == "--help":
+        do_help()
+    elif main_param == "--hide":
+        do_hide()
+    elif main_param == "--unhide":
+        do_unhide()
+    return 0
+
+if __name__ == '__main__':  # pragma: no cover
+    main()
