@@ -46,6 +46,7 @@ BuildRequires:  python3-pytest
 
 %define raname SAPStartSrv
 %define srvname sapservices-move
+%define ocf_dir /usr/lib/ocf
 
 %description
 This is a resource agent for the instance specific SAP start framework.
@@ -64,19 +65,19 @@ Authors:
 gzip man/*
 
 %install
-mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse
+mkdir -p %{buildroot}%{ocf_dir}/resource.d/suse
 mkdir -p %{buildroot}%{_mandir}/man7
 mkdir -p %{buildroot}%{_mandir}/man8
 # remove the following two lines
 #mkdir -p %{buildroot}/usr/sbin
 #mkdir -p %{buildroot}/usr/lib/systemd/system
 
-install -m 0755 ra/%{raname}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
+install -m 0755 ra/%{raname}.in %{buildroot}%{ocf_dir}/resource.d/suse/%{raname}
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
 install -m 0444 man/*.8.gz %{buildroot}%{_mandir}/man8
 install -m 0755 sbin/* %{buildroot}%{_sbindidr}
 install -m 0755 service/* %{buildroot}%{_unitdir}
-sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
+sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}%{ocf_dir}/resource.d/suse/%{raname}
 sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/%{_sbindidr}/%{srvname}
 
 %if %{with test}
@@ -96,15 +97,15 @@ pytest tests
 %doc %{_mandir}/man8/*.8.gz
 %license LICENSE
 %endif
-%dir /usr/lib/ocf
-%dir /usr/lib/ocf/resource.d
+%dir %{ocf_dir}
+%dir %{ocf_dir}/resource.d
 %defattr(755,root,root,-)
-%dir /usr/lib/ocf/resource.d/suse
-%dir /usr/sbin
-%dir /usr/lib/systemd/system
-/usr/sbin/*
-/usr/lib/ocf/resource.d/suse/*
+%dir %{ocf_dir}/resource.d/suse
+# %dir %{_sbindidr}
+# %dir %{_unitdir}
+%{_sbindidr}*
+%{ocf_dir}/resource.d/suse/*
 %defattr(644,root,root,-)
-/usr/lib/systemd/system/*
+%{_unitdir}/*
 
 %changelog
