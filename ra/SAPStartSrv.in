@@ -264,11 +264,18 @@ class SapStartSrv(object):
 
     def monitor(self):
         '''
-        Can the given SAP instance do anything useful?
+        Is the sapstartsrv server process running?
         '''
         self._inititialize()
         if ocf.is_probe():
-            return self._get_status().returncode
+            if self._get_status().returncode == 0:
+                return ocf.OCF_SUCCESS
+            else:
+                return ocf.OCF_NOT_RUNNING
+        '''
+        For regular monitors always return success, because recover of sapstartsrv is already handeled by SAPInstance
+        This might be changed in a next-generation edition
+        '''
         return ocf.OCF_SUCCESS
 
     def validate(self):
