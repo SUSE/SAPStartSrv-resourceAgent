@@ -1,9 +1,7 @@
 #
-# spec file for package SAPStartSrv
+# spec file for package sapstartsrv-resource-agents
 #
-# Copyright (c) 2013-2014 SUSE Linux Products GmbH, Nuernberg, Germany.
-# Copyright (c) 2014-2016 SUSE Linux GmbH, Nuernberg, Germany.
-# Copyright (c) 2017-2020 SUSE LLC.
+# Copyright (c) 2020 SUSE LLC.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -26,7 +24,7 @@ Name:           sapstartsrv-resource-agents
 License:        GPL-2.0
 Group:          Productivity/Clustering/HA
 AutoReqProv:    on
-Summary:        Resource agent to control SAP instances using sapstartsrv
+Summary:        Resource agent for SAP instance specific sapstartsrv service
 Version:        0.1.0
 Release:        0
 Url:            https://github.com/SUSE/SAPStartSrv-resourceAgent
@@ -47,15 +45,12 @@ BuildRequires:  python3-pytest
 %endif
 
 %define raname SAPStartSrv
+%define srvname sapservices-move
 
 %description
-This project is to implement a resource agent for the instance specific SAP start framework. It controls the instance specific sapstartsrv process which provides the API to start, stop and check an SAP instance.
-
-SAPStartSrv does only start, stop and probe for the server process. By intention it does not monitor the service. SAPInstance is doing in-line recovery of failed sapstartsrv processes instead.
-
-SAPStartSrv is to be included into a resource group together with the vIP and the SAPInstance. It needs to be started before SAPInstance is starting and needs to be stopped after SAPInstance has been stopped.
-
-SAPStartSrv can be used since SAP NetWeaver 7.40 or SAP S/4HANA (ABAP Platform >= 1909).
+This is a resource agent for the instance specific SAP start framework.
+It controls the instance specific sapstartsrv process which provides the
+API to start, stop and check an SAP instance.
 
 Authors:
 --------
@@ -71,10 +66,18 @@ gzip man/*
 %install
 mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse
 mkdir -p %{buildroot}%{_mandir}/man7
+mkdir -p %{buildroot}%{_mandir}/man8
+# remove the following two lines
+#mkdir -p %{buildroot}/usr/sbin
+#mkdir -p %{buildroot}/usr/lib/systemd/system
 
 install -m 0755 ra/%{raname}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
+install -m 0444 man/*.8.gz %{buildroot}%{_mandir}/man8
+install -m 0755 sbin/* %{buildroot}%{_sbindidr}
+install -m 0755 service/* %{buildroot}%{_unitdir}
 sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/usr/lib/ocf/resource.d/suse/%{raname}
+sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/%{_sbindidr}/%{srvname}
 
 %if %{with test}
 %check
@@ -86,15 +89,22 @@ pytest tests
 %if 0%{?sle_version:1} && 0%{?sle_version} < 120300
 %doc README.md LICENSE
 %doc %{_mandir}/man7/*.7.gz
+%doc %{_mandir}/man8/*.8.gz
 %else
 %doc README.md
 %doc %{_mandir}/man7/*.7.gz
+%doc %{_mandir}/man8/*.8.gz
 %license LICENSE
 %endif
 %dir /usr/lib/ocf
 %dir /usr/lib/ocf/resource.d
 %defattr(755,root,root,-)
 %dir /usr/lib/ocf/resource.d/suse
+%dir /usr/sbin
+%dir /usr/lib/systemd/system
+/usr/sbin/*
 /usr/lib/ocf/resource.d/suse/*
+%defattr(644,root,root,-)
+/usr/lib/systemd/system/*
 
 %changelog
