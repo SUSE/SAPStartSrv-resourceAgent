@@ -68,9 +68,8 @@ gzip man/*
 mkdir -p %{buildroot}%{ocf_dir}/resource.d/suse
 mkdir -p %{buildroot}%{_mandir}/man7
 mkdir -p %{buildroot}%{_mandir}/man8
-# remove the following two lines
-#mkdir -p %{buildroot}/usr/sbin
-#mkdir -p %{buildroot}/usr/lib/systemd/system
+mkdir -p %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}%{_unitdir}
 
 install -m 0755 ra/%{raname}.in %{buildroot}%{ocf_dir}/resource.d/suse/%{raname}
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
