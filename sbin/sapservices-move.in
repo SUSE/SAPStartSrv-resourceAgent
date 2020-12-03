@@ -18,7 +18,6 @@ import argparse
 script_version = "2020-12-01 14:14"
 script_name = sys.argv[0]
 sapservices = "/usr/sap/sapservices"
-sapservices = "./sapservices"
 
 def do_help():
     print('usage: %s [OPTION]' % sapservices)
