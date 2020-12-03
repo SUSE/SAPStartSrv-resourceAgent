@@ -17,15 +17,15 @@ import argparse
 
 script_version = "2020-12-01 14:14"
 script_name = sys.argv[0]
-#sapservices = "/usr/sap/sapservices"
+sapservices = "/usr/sap/sapservices"
 sapservices = "./sapservices"
 
 def do_help():
-    print(f"usage: {script_name} [OPTION]")
+    print('usage: %s [OPTION]' % sapservices)
     print(" --help      show help")
     print(" --version   show version")
-    print(f" --hide      hide {sapservices}")
-    print(f" --unhide    unhide {sapservices}")
+    print(' --hide      hide %s' % sapservices)
+    print(' --unhide    unhide %s' % sapservices)
     return 0
 
 def do_stat():
