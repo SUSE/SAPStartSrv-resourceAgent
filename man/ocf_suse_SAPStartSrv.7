@@ -1,6 +1,6 @@
-.\" Version: 0.1.0 2020-11-11 13:00
+.\" Version: 0.1.0
 .\"
-.TH ocf_suse_SAPStartSrv 7 "10 Nov 2020" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "30 11 2020" "" "OCF resource agents"
 .\"
 .SH NAME
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
@@ -8,6 +8,7 @@ SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
 .\"
 .SH SYNOPSYS
 \fBSAPStartSrv\fP [ start | stop | status | monitor | meta\-data | validate\-all | usage ]
+.\" TODO monitor?
 .PP
 .\"
 .SH DESCRIPTION
@@ -17,22 +18,29 @@ a single SAP instance as an HA resource.
 .PP
 One SAP instance is defined by having exactly one instance profile.
 The instance profiles can usually be found in the directory
-/sapmnt/$SID/profile.
+/sapmnt/$SID/profile/.
 In an Enqueue Replication setup one (ABAP-) Central Services instance ((A)SCS)
 and at least one Replicated Enqueue instance (ERS) are configured.
 An Linux HA cluster can control these instances by using the SAPInstance
 resource agent. That resource agent depends on the SAP sapstartsrv service for
 starting, stopping, monitoring and probing the instances. The sapstartsrv needs
 to read the respective instance profile.
-By default one system-wide sapstartsrv is started at Linux boot time to provide the needed service for all SAP instances.
+By default one system-wide sapstartsrv is started at Linux boot time to provide
+the needed service for all SAP instances.
 .PP
-For specific Enqueue Replication setups using instance specific sapstartsrv processes might be desireable. So each SAP instance is managed on its own by a pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts sapstartsrv for one specific SAP instance. By intention it does not monitor the service. SAPInstance than utilises that service for managing the SAP instance. SAPInstance also is doing in-line recovery of failed sapstartsrv processes
-.\" TODO check: by intention it does not monitor the service
+For specific Enqueue Replication setups using instance specific sapstartsrv
+processes might be desireable. So each SAP instance is managed on its own by a
+pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts
+sapstartsrv for one specific SAP instance. By intention it does not monitor the
+service. SAPInstance than utilises that service for managing the SAP instance.
+SAPInstance also is doing in-line recovery of failed sapstartsrv processes.
+The instance's virtual service IP address is used for contacting the sapstartsrv
+process. Thus that IP address resource (e.g. IPAddr2, aws-vpc-route53) needs to start before SAPStartSrv.
 .PP
-This is benefitial particularly for public cloud and NFS-based environments.
-One common NFS share with both instance directories can be mounted statically.
-The HA cluster does not need to control that filesystems. 
-.\" TODO
+The described setup is benefitial particularly for public cloud and NFS-based
+environments. Both NFS shares with instance directories can be mounted
+statically on all nodes. The HA cluster does not need to control that filesystems.
+The /usr/sap/sapservices file is stored locally on each cluster node.
 .PP
 .RE
 .\"
@@ -46,21 +54,8 @@ Usually this is the name of the SAP instance profile.
 .br
 Unique, required, string, no default.
 .RE
-.\".PP
-.\"\fBDIR_EXECUTABLE\fR
-.\".RS 4
-.\"The full qualified path where to find sapstartsrv and sapcontrol. Specify this parameter, if you have changed the SAP kernel directory location after the default SAP installation.
-.\".br
-.\"Optional, string, well known directories will be searched by default.
-.\".RE
-.\".PP
-.\"\fBDIR_PROFILE\fR
-.\".RS 4
-.\"The full qualified path where to find the SAP START profile. Specify this parameter, if you have changed the SAP profile directory location after the default SAP installation.
-.\".br
-.\"Optional, string, well known directories will be searched by default.
-.\".RE
 .PP
+.\"
 \fBSTART_PROFILE\fR
 .RS 4
 The name of the SAP START profile. Specify this parameter, if you have changed
@@ -95,14 +90,11 @@ Suggested minimum timeout: 60\&.
 .RE
 .PP
 \fBmonitor\fR
-.\" TODO is monitor needed or not?
 .RS 4
 The SAPStartSrv resource must by intention not define a monitor operation.
 This is, because the failing sapstartsrv must never force an SAPInstance
 restart which would happen, as the two resources reside in one resource group.
 .\" TODO op monitor on-fail="ignore"
-.\" .br
-.\" TODO Suggested interval: 120. Suggested minimum timeout: 30\&.
 .RE
 .PP
 \fBvalidate\-all\fR
@@ -128,18 +120,15 @@ The return codes are defined by the OCF cluster framework. Please refer to the O
 .SH EXAMPLES
 * Example configuration for SAP ASCS instance resource group in an ENSA2 setup.
 .br
-SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with the IP address for specific public cloud environments.
+SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments.
 The also needed ERS instance group and location constraints are not shown.
 .PP
 .RS 4
-primitive rsc_SAPStartSrv_EVA_ASCS00 ocf:suse:SAPStartSrv \\
-.br
-.\" TODO does on-fail=ignore make sense?
- op monitor on-fail=ignore \\
+primitive rsc_SAPStartSrv_EVA_ASCS00 SAPStartSrv \\
 .br
  params InstanceName=EVA_ASCS00_sapeva
 .PP
-primitive rsc_SAPInstance_EVA_ASCS00 ocf:heartbeat:SAPInstance \\
+primitive rsc_SAPInstance_EVA_ASCS00 SAPInstance \\
 .br
  params InstanceName=EVA_ASCS00_sapeva \\
 .br
@@ -151,25 +140,27 @@ primitive rsc_SAPInstance_EVA_ASCS00 ocf:heartbeat:SAPInstance \\
 .br
  MINIMAL_PROBE=true
 .PP
-primitive rsc_IPAddr2_EVA_ASCS00 ocf:heartbeat:IPaddr2 \\
+primitive rsc_IPAddr2_EVA_ASCS00 IPaddr2 \\
 .br
  params ip=192.168.178.188 cidr_netmask=32
 .PP
-primitive rsc_Loadbalancer_EVA_ASCS00 ocf:heartbeat:azure-lb \\
+primitive rsc_Loadbalancer_EVA_ASCS00 azure-lb \\
 .br
  params port=85085
 .PP
 group grp_EVA_ASCS00 \\
 .br
- rsc_SAPStartSrv_EVA_ASCS00 \\
+ meta resource-stickiness=3000 \\
 .br
- rsc_SAPInstance_EVA_ASCS00 \\
-.br
-.\" TODO IP last, to not cause restart of sapstartsrv?
  rsc_Loadbalancer_EVA_ASCS00 \\
 .br
- rsc_IPAddr2_EVA_ASCS00
+ rsc_IPAddr2_EVA_ASCS00 \\
 .\" TODO meta resource-stickiness=1
+.br
+ rsc_SAPStartSrv_EVA_ASCS00 \\
+.br
+ rsc_SAPInstance_EVA_ASCS00
+.br
 .RE
 .PP
 * Search for log entries of SAPStartSrv, show errors only:
@@ -201,10 +192,10 @@ the resource agent
 /usr/lib/ocf/resource.d/heartbeat/SAPInstance
 the also needed SAP instance resource agent, package resource-agents
 .TP
-/usr/sap/$SID/$InstanceName/exe
+/usr/sap/$SID/$InstanceName/exe/
 default path for the sapstartsrv executable
 .TP
-/usr/sap/$SID/SYS/profile
+/usr/sap/$SID/SYS/profile/
 default path for DIR_PROFILE
 .TP
 /usr/sap/sapservices
@@ -218,24 +209,30 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 .PP
 * SAPInstance resource agent with MINIMAL_PROBE support, November 2020.
 .PP
-* Complete entries in /usr/sap/sapservice.
+* Needed NFS shares (e.g. /sapmnt/$SID/, /usr/sap/$SID/) mounted statically or by automounter.
+.PP
+* Directory /usr/sap/ locally mounted on each cluster node.
+.PP
+* Complete entries in /usr/sap/sapservices file.
 .PP
 * SAP profile Autostart feature is disabled.
 .PP
-* Needed NFS shares (e.g. /sapmnt/$SID, /usr/sap/$SID) mounted statically or by automounter.
+* The sapinit boot script does not read entries from sapservices file at boot. Thus services sapping and sappong to handle sapservices file at system boot.
+.PP
+* The sapinit script is not used while the HA cluster is running on any node.
 .PP
 ./"
 .SH BUGS
-.\" TODO By design at system startup ...
 .\" In case of any problem, please use your favourite SAP support process to
 .\" open a request for the component BC-OP-LNX-SUSE.
 Please report feedback and suggestions to feedback@suse.com.
 .PP
 .\"
 .SH SEE ALSO
-\fBocf_heartbeat_SAPInstance\fP(7) , \fBocf_heartbeat_IPaddr2\fP(8) ,
-\fBsap_suse_cluster_connector\fP(8) , \fBcrm\fP(8) ,
-\fBnfs\fP(5) , \fBmount\fP(8) , \fBha_related_suse_tids\fP(7) ,
+\fBocf_heartbeat_SAPInstance\fP(7) , \fBocf_heartbeat_IPaddr2\fP(7) ,
+.\"TODO aws-vpc-route53 gcp-vpc-move-route
+\fBsapservices-move\fP(8) , \fBsap_suse_cluster_connector\fP(8) ,
+\fBcrm\fP(8) , \fBnfs\fP(5) , \fBmount\fP(8) , \fBha_related_suse_tids\fP(7) ,
 .br
 https://documentation.suse.com/sbp/all/?context=sles-sap ,
 .br
@@ -244,7 +241,6 @@ http://clusterlabs.org/doc/en-US/Pacemaker/1.1/html/Pacemaker_Explained/s-ocf-re
 https://help.sap.com/doc/e9a0eddf6eb14a82bcbe3be3c9a58c7e/1610%20001/en-US/frameset.htm?frameset.htm
 .\" https://blogs.sap.com/2018/04/03/high-availability-with-standalone-enqueue-server-2/
 .\" https://blogs.sap.com/2020/08/27/evolution-of-ensa2-and-erp2.../
-.\" 
 .PP
 .\"
 .SH AUTHORS
