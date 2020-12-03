@@ -32,7 +32,7 @@ For specific Enqueue Replication setups using instance specific sapstartsrv
 processes might be desireable. So each SAP instance is managed on its own by a
 pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts
 sapstartsrv for one specific SAP instance. By intention it does not monitor the
-service. SAPInstance than utilises that service for managing the SAP instance.
+service. SAPInstance then utilises that service for managing the SAP instance.
 SAPInstance also is doing in-line recovery of failed sapstartsrv processes.
 The instance's virtual service IP address is used for contacting the sapstartsrv
 process. Thus that IP address resource (e.g. IPAddr2, aws-vpc-route53) needs to start before SAPStartSrv.
