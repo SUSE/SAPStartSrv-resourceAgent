@@ -34,9 +34,8 @@ def do_cat():
     '''
     document current sapservices content
     '''
-    with open(sapservices) as infile:
-        for line in infile:
-            print(line) 
+    with open(sapservices) as f:
+        print(f.read()) 
 
 def do_hide():
     '''
