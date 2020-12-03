@@ -66,7 +66,6 @@ def do_unhide():
     do_stat()
     do_cat()
     if Path(sapservices).stat().st_size == 0:
-        sapservices_empty = sapservices + ".empty"
         sapservices_moved = sapservices + ".moved"
         os.rename(sapservices_moved, sapservices) 
     else:
@@ -77,16 +76,20 @@ def main():
     '''
     main method - take only exact ONE parameter
     '''
-    main_param = sys.argv[1]
-    if main_param == "-v" or main_param == "--version":
-        print(f"version: {script_version}")
-    elif main_param == "-h" or main_param == "--help":
+    try:
+        main_param = sys.argv[1]
+        if main_param == "-v" or main_param == "--version":
+            print(f"version: {script_version}")
+        elif main_param == "-h" or main_param == "--help":
+            do_help()
+        elif main_param == "--hide":
+            do_hide()
+        elif main_param == "--unhide":
+            do_unhide()
+        return 0
+    except IndexError:
         do_help()
-    elif main_param == "--hide":
-        do_hide()
-    elif main_param == "--unhide":
-        do_unhide()
-    return 0
+        return 2
 
 if __name__ == '__main__':  # pragma: no cover
     main()
