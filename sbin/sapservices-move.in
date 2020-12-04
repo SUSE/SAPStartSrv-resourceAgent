@@ -35,11 +35,11 @@ def do_cat():
     document current sapservices content
     '''
     with open(sapservices) as f:
-        print(f.read()) 
+        print(f.read())
 
 def do_hide():
     '''
-    hide sapservices file by moving and creating an empty file 
+    hide sapservices file by moving and creating an empty file
     '''
     do_stat()
     do_cat()
@@ -47,7 +47,7 @@ def do_hide():
     # only if sapservices is not already empty
     #
     if Path(sapservices).stat().st_size == 0:
-        print(f"skip moving {sapservices}")
+        print("skip moving %s" % sapservices)
     else:
         #
         # touch empty file, move orig file, move-over empty file to hide
@@ -55,7 +55,7 @@ def do_hide():
         sapservices_empty = sapservices + ".empty"
         sapservices_moved = sapservices + ".moved"
         open(sapservices_empty, "w+").close()
-        os.rename(sapservices, sapservices_moved) 
+        os.rename(sapservices, sapservices_moved)
         os.rename(sapservices_empty, sapservices)
         do_stat()
 
@@ -67,9 +67,9 @@ def do_unhide():
     do_cat()
     if Path(sapservices).stat().st_size == 0:
         sapservices_moved = sapservices + ".moved"
-        os.rename(sapservices_moved, sapservices) 
+        os.rename(sapservices_moved, sapservices)
     else:
-        print(f"skip unhiding {sapservices}")
+        print("skip unhiding %s" % sapservices)
     do_stat()
 
 def main():
@@ -79,7 +79,7 @@ def main():
     try:
         main_param = sys.argv[1]
         if main_param == "-v" or main_param == "--version":
-            print(f"version: {script_version}")
+            print("version: %s" % script_version)
         elif main_param == "-h" or main_param == "--help":
             do_help()
         elif main_param == "--hide":
