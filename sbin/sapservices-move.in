@@ -20,6 +20,9 @@ SCRIPT_NAME = sys.argv[0]
 SAPSERVICES = "/usr/sap/sapservices"
 
 def do_stat():
+    '''
+    stat current sapservices file
+    '''
     print(Path(SAPSERVICES).stat())
 
 def do_cat():
@@ -29,10 +32,19 @@ def do_cat():
     with open(SAPSERVICES) as f:
         print(f.read())
 
+def do_sanity_check():
+    '''
+    Check if the sapservices file exist
+    '''
+    if not os.path.isfile(SAPSERVICES):
+        print('%s file does not exist' % SAPSERVICES)
+        exit(1)
+
 def do_hide():
     '''
     hide sapservices file by moving and creating an empty file
     '''
+    do_sanity_check()
     do_stat()
     do_cat()
     #
@@ -55,6 +67,7 @@ def do_unhide():
     '''
     unhide sapservices by restoring the previously hided version of the file
     '''
+    do_sanity_check()
     do_stat()
     do_cat()
     if Path(SAPSERVICES).stat().st_size == 0:
