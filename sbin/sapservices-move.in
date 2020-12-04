@@ -13,28 +13,27 @@
 import os
 import sys
 from pathlib import Path
-import argparse
 
-script_version = "2020-12-01 14:14"
-script_name = sys.argv[0]
-sapservices = "/usr/sap/sapservices"
+SCRIPT_VERSION = "2020-12-01 14:14"
+SCRIPT_NAME = sys.argv[0]
+SAPSERVICES = "/usr/sap/sapservices"
 
 def do_help():
-    print('usage: %s [OPTION]' % sapservices)
+    print('usage: %s [OPTION]' % SCRIPT_NAME)
     print(" --help      show help")
     print(" --version   show version")
-    print(' --hide      hide %s' % sapservices)
-    print(' --unhide    unhide %s' % sapservices)
+    print(' --hide      hide %s' % SAPSERVICES)
+    print(' --unhide    unhide %s' % SAPSERVICES)
     return 0
 
 def do_stat():
-    print(Path(sapservices).stat())
+    print(Path(SAPSERVICES).stat())
 
 def do_cat():
     '''
     document current sapservices content
     '''
-    with open(sapservices) as f:
+    with open(SAPSERVICES) as f:
         print(f.read())
 
 def do_hide():
@@ -46,17 +45,17 @@ def do_hide():
     #
     # only if sapservices is not already empty
     #
-    if Path(sapservices).stat().st_size == 0:
-        print("skip moving %s" % sapservices)
+    if Path(SAPSERVICES).stat().st_size == 0:
+        print("skip moving %s" % SAPSERVICES)
     else:
         #
         # touch empty file, move orig file, move-over empty file to hide
         #
-        sapservices_empty = sapservices + ".empty"
-        sapservices_moved = sapservices + ".moved"
+        sapservices_empty = SAPSERVICES + ".empty"
+        sapservices_moved = SAPSERVICES + ".moved"
         open(sapservices_empty, "w+").close()
-        os.rename(sapservices, sapservices_moved)
-        os.rename(sapservices_empty, sapservices)
+        os.rename(SAPSERVICES, sapservices_moved)
+        os.rename(sapservices_empty, SAPSERVICES)
         do_stat()
 
 def do_unhide():
@@ -65,11 +64,11 @@ def do_unhide():
     '''
     do_stat()
     do_cat()
-    if Path(sapservices).stat().st_size == 0:
-        sapservices_moved = sapservices + ".moved"
-        os.rename(sapservices_moved, sapservices)
+    if Path(SAPSERVICES).stat().st_size == 0:
+        sapservices_moved = SAPSERVICES + ".moved"
+        os.rename(sapservices_moved, SAPSERVICES)
     else:
-        print("skip unhiding %s" % sapservices)
+        print("skip unhiding %s" % SAPSERVICES)
     do_stat()
 
 def main():
@@ -79,7 +78,7 @@ def main():
     try:
         main_param = sys.argv[1]
         if main_param == "-v" or main_param == "--version":
-            print("version: %s" % script_version)
+            print("version: %s" % SCRIPT_VERSION)
         elif main_param == "-h" or main_param == "--help":
             do_help()
         elif main_param == "--hide":
