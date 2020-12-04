@@ -12,19 +12,12 @@
 
 import os
 import sys
+import argparse
 from pathlib import Path
 
-SCRIPT_VERSION = "2020-12-01 14:14"
+__version__ = "2020-12-01 14:14"
 SCRIPT_NAME = sys.argv[0]
 SAPSERVICES = "/usr/sap/sapservices"
-
-def do_help():
-    print('usage: %s [OPTION]' % SCRIPT_NAME)
-    print(" --help      show help")
-    print(" --version   show version")
-    print(' --hide      hide %s' % SAPSERVICES)
-    print(' --unhide    unhide %s' % SAPSERVICES)
-    return 0
 
 def do_stat():
     print(Path(SAPSERVICES).stat())
@@ -71,24 +64,35 @@ def do_unhide():
         print("skip unhiding %s" % SAPSERVICES)
     do_stat()
 
+def parse_arguments():
+    '''
+    Parse command line arguments
+    '''
+    parser = argparse.ArgumentParser(SCRIPT_NAME)
+
+    parser.add_argument(
+        '-v', '--version', help='Show scrip version', action="store_true")
+    parser.add_argument(
+        '--hide', help='Hide sapservices file', action="store_true")
+    parser.add_argument(
+        '--unhide', help='Restore sapservices file', action="store_true")
+
+    args = parser.parse_args()
+    return parser, args
+
 def main():
     '''
     main method - take only exact ONE parameter
     '''
-    try:
-        main_param = sys.argv[1]
-        if main_param == "-v" or main_param == "--version":
-            print("version: %s" % SCRIPT_VERSION)
-        elif main_param == "-h" or main_param == "--help":
-            do_help()
-        elif main_param == "--hide":
-            do_hide()
-        elif main_param == "--unhide":
-            do_unhide()
-        return 0
-    except IndexError:
-        do_help()
-        return 2
+    parser, args = parse_arguments()
+    if args.version:
+        print("version: %s" % __version__)
+    elif args.hide:
+        do_hide()
+    elif args.unhide:
+        do_unhide()
+    else:
+        parser.print_help()
 
 if __name__ == '__main__':  # pragma: no cover
     main()
