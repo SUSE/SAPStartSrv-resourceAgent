@@ -1,0 +1,13 @@
+[Unit]
+Description=Un-Hiding sapservices file from sapinit
+Documentation=man:sapservices-move(8)
+After=sapinit.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/sapservices-move --unhide
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
