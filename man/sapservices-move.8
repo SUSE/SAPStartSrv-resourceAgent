@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH sapservices-move 8 "30 11 2020" "" "sapstartsrv-resource-agents"
+.TH sapservices-move 8 "09 12 2020" "" "sapstartsrv-resource-agents"
 .\"
 .SH NAME
 sapservices-move \- hiding sapservices file from sapinit service at system boot.
@@ -33,17 +33,17 @@ For details on concept and requirements see ocf_suse_SAPStartSrv(8).
 .\"
 .SH OPTIONS
 .TP
--h | --help
+--help
 show help
 .TP
--v | --version
+--version
 show version
 .TP
--m | --hide
-hide - move away sapervices file
+--hide
+hide sapervices file from sapinit
 .TP
--u | --unhide
-unhide - restore previously moved away sapservices file
+--unhide
+un-hide previously hidden sapservices file
 .PP
 .\"
 .SH EXAMPLES
