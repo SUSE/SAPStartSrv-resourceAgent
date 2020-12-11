@@ -36,7 +36,7 @@ jobs:
       if: type != pull_request
       env:
         - FOLDER=/package
-        - PACKAGE_NAME=sapstartsrv-resource-agent
+        - PACKAGE_NAME=sapstartsrv-resource-agents
 
       before_install:
         - docker pull shap/continuous_deliver:latest
@@ -51,7 +51,7 @@ jobs:
     - stage: submit
       if: type != pull_request AND branch = master
       env:
-        - PACKAGE_NAME=sapstartsrv-resource-agent
+        - PACKAGE_NAME=sapstartsrv-resource-agents
 
       before_install:
         - docker pull shap/continuous_deliver:latest

@@ -1,9 +1,7 @@
 #
-# spec file for package SAPStartSrv
+# spec file for package sapstartsrv-resource-agents
 #
-# Copyright (c) 2013-2014 SUSE Linux Products GmbH, Nuernberg, Germany.
-# Copyright (c) 2014-2016 SUSE Linux GmbH, Nuernberg, Germany.
-# Copyright (c) 2017-2020 SUSE LLC.
+# Copyright (c) 2020 SUSE LLC.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -26,7 +24,7 @@ Name:           sapstartsrv-resource-agents
 License:        GPL-2.0
 Group:          Productivity/Clustering/HA
 AutoReqProv:    on
-Summary:        Resource agent to control SAP instances using sapstartsrv
+Summary:        Resource agent for SAP instance specific sapstartsrv service
 Version:        0.1.0
 Release:        0
 Url:            https://github.com/SUSE/SAPStartSrv-resourceAgent
@@ -46,14 +44,14 @@ BuildRequires:  python3-mock
 BuildRequires:  python3-pytest
 %endif
 
+%define raname SAPStartSrv
+%define srvname sapservices-move
+%define ocf_dir /usr/lib/ocf
+
 %description
-This project is to implement a resource agent for the instance specific SAP start framework. It controls the instance specific sapstartsrv process which provides the API to start, stop and check an SAP instance.
-
-SAPStartSrv does only start, stop and probe for the server process. By intention it does not monitor the service. SAPInstance is doing in-line recovery of failed sapstartsrv processes instead.
-
-SAPStartSrv is to be included into a resource group together with the vIP and the SAPInstance. It needs to be started before SAPInstance is starting and needs to be stopped after SAPInstance has been stopped.
-
-SAPStartSrv can be used since SAP NetWeaver 7.40 or SAP S/4HANA (ABAP Platform >= 1909).
+This is a resource agent for the instance specific SAP start framework.
+It controls the instance specific sapstartsrv process which provides the
+API to start, stop and check an SAP instance.
 
 Authors:
 --------
@@ -63,16 +61,23 @@ Authors:
 %prep
 %setup -q
 
-%install
-mkdir -p %{buildroot}/usr/lib/ocf/resource.d/suse
-mkdir -p %{buildroot}%{_mandir}/man7
-cp ra/%{name}.in %{buildroot}/usr/lib/ocf/resource.d/suse/%{name}
-cp man/*.7 %{buildroot}%{_mandir}/man7/
-gzip %{buildroot}%{_mandir}/man7/*.7
-sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}/usr/lib/ocf/resource.d/suse/%{name}
+%build
+gzip man/*
 
-install -m 0755 ra/* %{buildroot}/usr/lib/ocf/resource.d/suse/
+%install
+mkdir -p %{buildroot}%{ocf_dir}/resource.d/suse
+mkdir -p %{buildroot}%{_mandir}/man7
+mkdir -p %{buildroot}%{_mandir}/man8
+mkdir -p %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}%{_unitdir}
+
+install -m 0755 ra/%{raname}.in %{buildroot}%{ocf_dir}/resource.d/suse/%{raname}
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
+install -m 0444 man/*.8.gz %{buildroot}%{_mandir}/man8
+install -m 0644 sbin/%{srvname}.in %{buildroot}%{_sbindir}/%{srvname}
+install -m 0644 service/* %{buildroot}%{_unitdir}
+sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}%{ocf_dir}/resource.d/suse/%{raname}
+sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}%{_sbindir}/%{srvname}
 
 %if %{with test}
 %check
@@ -84,16 +89,20 @@ pytest tests
 %if 0%{?sle_version:1} && 0%{?sle_version} < 120300
 %doc README.md LICENSE
 %doc %{_mandir}/man7/*.7.gz
+%doc %{_mandir}/man8/*.8.gz
 %else
 %doc README.md
 %doc %{_mandir}/man7/*.7.gz
+%doc %{_mandir}/man8/*.8.gz
 %license LICENSE
 %endif
-%dir /usr/lib/ocf
-%dir /usr/lib/ocf/resource.d
-%dir %{_mandir}/man7
+%dir %{ocf_dir}
+%dir %{ocf_dir}/resource.d
 %defattr(755,root,root,-)
-%dir /usr/lib/ocf/resource.d/suse
-/usr/lib/ocf/resource.d/suse/*
+%dir %{ocf_dir}/resource.d/suse
+%{_sbindir}*
+%{ocf_dir}/resource.d/suse/*
+%defattr(644,root,root,-)
+%{_unitdir}/*
 
 %changelog

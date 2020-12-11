@@ -16,6 +16,10 @@ needs to be stopped after SAPInstance has been stopped.
 
 SAPStartSrv could be used since SAP NetWeaver 7.40 or SAP S/4HANA (ABAP Platform >= 1909).
 
+sapping and sappong - agents to hide/unhide the /usr/sap/sapservices files during system boot to avoid that sapstartsrv is started for an SAP Instance.
+sapping is running before sapinit and sappong is running after sappong.
+
+
 ## Resource example
 
 SAPStartSrv could be used where-ever it is not possible to mount/unmount the work directories of the SAPInstances.
