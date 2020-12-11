@@ -4,20 +4,103 @@
 .\"
 .SH NAME
 SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
-.\" TODO description
 .PP
 .\"
 .SH DESCRIPTION
+.\" TODO description
+.\" TODO Specifics ENSA1 vs. ENSA2?
+.PP
+.SH PARAMETERS
+.PP
+.\" TODO OS:	tcp_retries2=8...10
+.\" TODO cib:	cib-bootstrap-options: stonith-enabled=true
+.\" TODO cib: 	stonith-watdhog-timeout=10 ==> diskless SBD
+.\" TODO cib: 	stonith-timeout=120 ==> disk-based SBD
+.\" TODO cib:	rsc_defaults resource-stickiness=1
+.\" TODO cib:	rsc_defaults migration-threshold=3
+.\" TODO cib: 	op_defaults record-pending=true
+.\" TODO cib:	op_defaults timeout=600
 .PP
 .\"
 .SH EXAMPLES
 .\" TODO OS network tcp_retries2=8 (8..10)
+.\"
+* Example basic properties
 .\" TODO scenario specific CIB basic settings
+.\" TODO check against setup guides NW and S/4. Specifics ENSA1 vs. ENSA2?
+.br
+three-node cluster with diskless SBD
+.br
+.PP
+.RS 4
+property cib-bootstrap-options: \\
+.br
+ have-watchdog=true \\
+.br
+ cluster-infrastructure=corosync \\
+.br
+ cluster-name=hacluster \\
+.br
+ stonith-enabled=true \\
+.br
+ stonith-watchdog-timeout=10 \\
+.br
+ placement-strategy=balanced \\
+.br
+rsc_defaults rsc-options: \\
+.br
+ resource-stickiness=1 \\
+.br
+ migration-threshold=3
+.br
+op_defaults op-options: \\
+.br
+ timeout=600 \\
+.br
+ record-pending=true 
+.RE
+.PP
 .\" TODO priority fencing: use case, setup
-.\" TODO pingd: use case, setup
+.\"
+* Example optional ping resource for checking connectivity to the outer world.
+.\" TODO discuss what ping-based score might break ENSA scoring
+.br
+ASCS should run on an node from which more ping targets can be reached than
+from others. If all nodes are same, ASCS stays where it is.
+.br
+Three vital infrastructure servers outside the datacenter are choosen as ping
+targets. If at least two targets are reacheable, the current node is preferred
+for running the ASCS.
+.br
+If the nodes have only one network interface, shared between HA cluster and
+application, this measure does not improve availability.
+.PP
+.RS 4
+primitive rsc_ping ocf:pacemaker:ping \\
+.br
+ op monitor interval=120 timeout=60 start-delay=10 on-fail=ignore \\
+.br
+ params name=ping_ok host_list="proxy1 proxy2 proxy3"
+.PP
+clone cln_ping rsc_ping
+.PP
+location ASCS00_connected grp_EN2_ASCS00 \\
+.br
+ rule 90000: ping_ok gt 1
+.RE
+.br
 .PP
 .\"
 .SH FILES
+.TP
+/etc/passwd
+the local user database
+.TP
+/etc/hosts
+the local hostname resolution database
+.TP
+/etc/chrony.conf
+basic config for time synchronisation
 .\" TODO
 .PP
 .\"
@@ -28,8 +111,8 @@ Please report feedback and suggestions to feedback@suse.com.
 .SH SEE ALSO
 \fBocf_suse_SAPStartSrv\fP(7) , \fBsap_suse_cluster_connector\fP(8) ,
 \fBocf_pacemaker_ping\fP(7) , \fBocf_heartbeat_ethmonitor\fP(7) ,
-\fBsbd\fP(8) , \fBstonith_sbd\fP(8) , \fBcorosync.conf\fP(5) ,
-\fBvotequorum\fP(5)
+\fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) ,
+\fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) 
 .PP
 .\"
 .SH AUTHORS
@@ -45,9 +128,3 @@ SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 For details see the GNU General Public License at
 http://www.gnu.org/licenses/gpl.html
 .\"
-
-	
-	
-	
-	
-
