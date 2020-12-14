@@ -130,15 +130,17 @@ primitive rsc_SAPStartSrv_EVA_ASCS00 SAPStartSrv \\
 .PP
 primitive rsc_SAPInstance_EVA_ASCS00 SAPInstance \\
 .br
- params InstanceName=EVA_ASCS00_sapeva \\
+ op monitor interval=11 timeout=60 on-fail=restart \\
 .br
- meta resource-stickiness=5000 \\
+ params InstanceName=EVA_ASCS00_sapeva \\
 .br
  START_PROFILE=/sapmnt/EVA/profile/EVA_ASCS00_sapeva \\
 .br
  AUTOMATIC_RECOVER=false \\
 .br
- MINIMAL_PROBE=true
+ MINIMAL_PROBE=true \\
+.br
+ meta resource-stickiness=5000
 .PP
 primitive rsc_IPAddr2_EVA_ASCS00 IPaddr2 \\
 .br
@@ -150,8 +152,6 @@ primitive rsc_Loadbalancer_EVA_ASCS00 azure-lb \\
 .PP
 group grp_EVA_ASCS00 \\
 .br
- meta resource-stickiness=3000 \\
-.br
  rsc_Loadbalancer_EVA_ASCS00 \\
 .br
  rsc_IPAddr2_EVA_ASCS00 \\
@@ -159,7 +159,9 @@ group grp_EVA_ASCS00 \\
 .br
  rsc_SAPStartSrv_EVA_ASCS00 \\
 .br
- rsc_SAPInstance_EVA_ASCS00
+ rsc_SAPInstance_EVA_ASCS00 \\
+.br
+ meta resource-stickiness=3000
 .br
 .RE
 .PP
