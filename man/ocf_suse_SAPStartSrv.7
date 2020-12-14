@@ -163,8 +163,6 @@ group grp_EVA_ASCS00 \\
 .br
 .RE
 .PP
-.\" TODO example pingd makes sense? 
-.\" TODO example priority fencing makes sense? 
 * Search for log entries of SAPStartSrv, show errors only:
 .PP
 .RS 4
@@ -204,6 +202,9 @@ default path for DIR_PROFILE
 .TP
 /usr/sap/sapservices
 SAP profiles definition file
+.TP
+/etc/sap_suse_cluster_connector
+sap_suse_cluster_connector configuration, SLE-HA 12
 .\"
 .PP
 .SH REQUIREMENTS
@@ -224,6 +225,10 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 * The sapinit boot script does not read entries from sapservices file at boot. Thus services sapping and sappong to handle sapservices file at system boot.
 .PP
 * The sapinit script is not used while the HA cluster is running on any node.
+.PP
+* SAP instance numbers controlled by the cluster must be unique.
+.PP
+* It is not allowed to block resources from being controlled manually. Thus BLOCK_RESOURCES in /etc/sap_suse_cluster_connector is not allowed anymore.
 .PP
 ./"
 .SH BUGS
