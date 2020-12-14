@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH SAPStartSrv_basic_cluster 7 "11 12 2020" "" "SAPStartSrv"
+.TH SAPStartSrv_basic_cluster 7 "14 12 2020" "" "SAPStartSrv"
 .\"
 .SH NAME
 SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
@@ -8,9 +8,9 @@ SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
 .\"
 .SH DESCRIPTION
 .\"
-The SAP Enqueue Standalone 2 scenario needs a certain basic
-cluster configuration. Besides this necessary settings, some additional
-configurations might match specific needs.
+The SAP Enqueue Standalone 2 (ENSA2) scenario needs a certain basic cluster
+configuration. Besides this necessary settings, some additional configurations
+might match specific needs.
 .\" TODO Specifics ENSA1 vs. ENSA2?
 .PP
 \fB* Operating System Basics\fR
@@ -27,14 +27,14 @@ A value of 8 to 10 TODO
 The cib bootstrap option stonith-enabled is crucial for any reliable pacemaker
 cluster.
 .br
-The value 'true' is pre-requisite for having a cluster supported.  
+The value 'true' is one pre-requisite for having a cluster supported.  
 .\"
 .\" TODO cib: 	stonith-watdhog-timeout=10 ==> diskless SBD
 .\" TODO cib: 	stonith-timeout=120 ==> disk-based SBD
 
 \fBresource-stickiness = 1\fR
 
-The crm basic parameter resource-stickiness defines the 'stickiness'
+The crm rsc_default resource-stickiness defines the 'stickiness'
 score a resource gets on the node where it is currently running. This prevents
 the cluster from moving resources around whithout an urgent need during a
 cluster transition. The correct value depends on number of resources, colocation
@@ -44,9 +44,18 @@ Too high value might prevent not only unwanted but also useful actions.
 .br
 A value of '1' TODO
 
+\fBmigration-threshold = 3\fR
+
+The crm rsc_defaul parameter migration-threshold defines how many errors on a
+resource can be detected before this resource will be migrated to another node.
+See also \fBfailure-timeout\fR.
+.\" TODO needed for resource monitor option on-fail=restart
+.br
+A value of '3' TODO ENSA2
+
 \fBrecord-pending = true\fR
 
-The op_default record-pending defines, whether the intention of an action
+The crm op_default record-pending defines, whether the intention of an action
 upon the resource is recorded in the Cluster Information Base (CIB).
 Setting this parameter to 'true' allows the user to see pending actions like
 \'starting\' and \'stopping\' in crm_mon. Also the sap_suse_cluster_connector
@@ -56,16 +65,12 @@ The value 'true' is needed for the sap_suse_cluster_connector interface TODO
 
 \fBfailure-timeout = 86400s\fR
 
-The crm basic parameter failure-timeout defines how long failed actions will
+The crm op_default failure-timeout defines how long failed actions will
 be kept in the CIB. After that time the failure record will be deleted. 
-See also \fBmigration-threshold\fR below.
-
-\fBmigration-threshold = 3\fR
-
-The crm basic parameter migration-threshold defines how many errors on a
-resource can be detected before this resource will be migrated to another node.
-See also \fBfailure-timeout\fR.
-A value of '3' TODO ENSA2
+See also \fBmigration-threshold\fR.
+.br
+The value '86400s' means failure records will be cleaned automatically after
+one day.
 .PP
 .\"
 .SH EXAMPLES
@@ -75,11 +80,12 @@ A value of '3' TODO ENSA2
 .\" TODO scenario specific CIB basic settings
 .\" TODO check against setup guides NW and S/4. Specifics ENSA1 vs. ENSA2?
 
-Below is an example crm basic configuration for ENSA2 three-node cluster.
+Below are examples of crm basic configuration for ENSA2 clusters.
 Shown are specific parameters which are needed. Some general parameters are
 left out.
 .br
-This example has been taken from SLE-HA 15 GA with diskless SBD:
+This example has been taken from a three-node cluster SLE-HA 15 GA with
+diskless SBD:
 .PP
 .RS 4
 property cib-bootstrap-options: \\
@@ -99,6 +105,39 @@ property cib-bootstrap-options: \\
  stonith-enabled=true \\
 .br
  stonith-watchdog-timeout=10 \\
+.br
+ placement-strategy=balanced \\
+.br
+rsc_defaults rsc-options: \\
+.br
+ resource-stickiness=1 \\
+.br
+ migration-threshold=3 \\
+.br
+ failure-timeout=86400s
+.br
+op_defaults op-options: \\
+.br
+ timeout=600 \\
+.br
+ record-pending=true 
+.RE
+
+This example has been taken from a two-node cluster SLE-HA 15 GA with
+disk-based SBD:
+.PP
+.RS 4
+property cib-bootstrap-options: \\
+.br
+ dc-deadtime=20s \\
+.br
+ cluster-infrastructure=corosync \\
+.br
+ cluster-name=hacluster \\
+.br
+ stonith-enabled=true \\
+.br
+ stonith-timeout=150 \\
 .br
  placement-strategy=balanced \\
 .br
