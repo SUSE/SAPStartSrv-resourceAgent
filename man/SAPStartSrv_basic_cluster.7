@@ -7,33 +7,88 @@ SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
 .PP
 .\"
 .SH DESCRIPTION
-.\" TODO description
+.\"
+The SAP Enqueue Standalone 2 scenario needs a certain basic
+cluster configuration. Besides this necessary settings, some additional
+configurations might match specific needs.
 .\" TODO Specifics ENSA1 vs. ENSA2?
 .PP
-.SH PARAMETERS
+\fB* Operating System Basics\fR
+
+\fBtcp_retries2 = 8\fR
+
+The OS network parameter tcp_retries2 TODO
+A value of 8 to 10 TODO
 .PP
-.\" TODO OS:	tcp_retries2=8...10
-.\" TODO cib:	cib-bootstrap-options: stonith-enabled=true
+\fB* CRM Basics\fR
+
+\fBstonith-enabled = true\fR
+
+The cib bootstrap option stonith-enabled is crucial for any reliable pacemaker
+cluster.
+.br
+The value 'true' is pre-requisite for having a cluster supported.  
+.\"
 .\" TODO cib: 	stonith-watdhog-timeout=10 ==> diskless SBD
 .\" TODO cib: 	stonith-timeout=120 ==> disk-based SBD
-.\" TODO cib:	rsc_defaults resource-stickiness=1
-.\" TODO cib:	rsc_defaults migration-threshold=3
-.\" TODO cib: 	op_defaults record-pending=true
-.\" TODO cib:	op_defaults timeout=600
+
+\fBresource-stickiness = 1\fR
+
+The crm basic parameter resource-stickiness defines the 'stickiness'
+score a resource gets on the node where it is currently running. This prevents
+the cluster from moving resources around whithout an urgent need during a
+cluster transition. The correct value depends on number of resources, colocation
+rules and resource groups. Particularly additional resources colocated to the
+ASCS resource can affect cluster decisions. 
+Too high value might prevent not only unwanted but also useful actions.
+.br
+A value of '1' TODO
+
+\fBrecord-pending = true\fR
+
+The op_default record-pending defines, whether the intention of an action
+upon the resource is recorded in the Cluster Information Base (CIB).
+Setting this parameter to 'true' allows the user to see pending actions like
+\'starting\' and \'stopping\' in crm_mon. Also the sap_suse_cluster_connector
+interface uses this information.
+.br
+The value 'true' is needed for the sap_suse_cluster_connector interface TODO
+
+\fBfailure-timeout = 86400s\fR
+
+The crm basic parameter failure-timeout defines how long failed actions will
+be kept in the CIB. After that time the failure record will be deleted. 
+See also \fBmigration-threshold\fR below.
+
+\fBmigration-threshold = 3\fR
+
+The crm basic parameter migration-threshold defines how many errors on a
+resource can be detected before this resource will be migrated to another node.
+See also \fBfailure-timeout\fR.
+A value of '3' TODO ENSA2
 .PP
 .\"
 .SH EXAMPLES
 .\" TODO OS network tcp_retries2=8 (8..10)
 .\"
-* Example basic properties
+\fB* crm basic configuration\fR
 .\" TODO scenario specific CIB basic settings
 .\" TODO check against setup guides NW and S/4. Specifics ENSA1 vs. ENSA2?
+
+Below is an example crm basic configuration for ENSA2 three-node cluster.
+Shown are specific parameters which are needed. Some general parameters are
+left out.
 .br
-three-node cluster with diskless SBD
-.br
+This example has been taken from SLE-HA 15 GA with diskless SBD:
 .PP
 .RS 4
 property cib-bootstrap-options: \\
+.br
+ expected-quorum-votes=3 \\
+.br
+ no-quorum-policy=suicide \\
+.br
+ dc-deadtime=20s \\
 .br
  have-watchdog=true \\
 .br
@@ -51,7 +106,9 @@ rsc_defaults rsc-options: \\
 .br
  resource-stickiness=1 \\
 .br
- migration-threshold=3
+ migration-threshold=3 \\
+.br
+ failure-timeout=86400s
 .br
 op_defaults op-options: \\
 .br
@@ -62,18 +119,19 @@ op_defaults op-options: \\
 .PP
 .\" TODO priority fencing: use case, setup
 .\"
-* Example optional ping resource for checking connectivity to the outer world.
+\fB* ping resource for checking connectivity\fR
+
 .\" TODO discuss what ping-based score might break ENSA scoring
+Below is an example of an optional ping resource for checking connectivity to
+the outer world. If the nodes have only one network interface, shared between
+HA cluster and application, this measure does not improve availability.
 .br
 ASCS should run on an node from which more ping targets can be reached than
 from others. If all nodes are same, ASCS stays where it is.
-.br
 Three vital infrastructure servers outside the datacenter are choosen as ping
 targets. If at least two targets are reacheable, the current node is preferred
-for running the ASCS.
-.br
-If the nodes have only one network interface, shared between HA cluster and
-application, this measure does not improve availability.
+for running the ASCS. The maximum time for detecting connectivity changes is
+ca.180 seconds.
 .PP
 .RS 4
 primitive rsc_ping ocf:pacemaker:ping \\
@@ -112,7 +170,7 @@ Please report feedback and suggestions to feedback@suse.com.
 \fBocf_suse_SAPStartSrv\fP(7) , \fBsap_suse_cluster_connector\fP(8) ,
 \fBocf_pacemaker_ping\fP(7) , \fBocf_heartbeat_ethmonitor\fP(7) ,
 \fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) ,
-\fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) 
+\fBcorosync.conf\fP(5) , \fBvotequorum\fP(5)
 .PP
 .\"
 .SH AUTHORS
