@@ -1,0 +1,67 @@
+.\" Version: 0.1.0
+.\"
+.TH sapping/sappong 7 "26 11 2020" "" "SAPStartSrv"
+.\"
+.SH NAME
+sapping \- service for hiding sapservices file from sapinit service at system boot.
+.br
+sappong \- service for un-hiding sapservices file at system boot.
+.PP
+.\"
+.SH DESCRIPTION
+\fBsapping\fP is a systemd service for hiding sapservices file from sapinit service at system boot.
+.br
+\fBsappong\fP is a systemd service for un-hiding sapservices file after sapinit service has been started at system boot.
+.br
+The services are intended to be called at boot time. Administrative use during regular operations is not intended.
+.PP
+.\"
+.SH EXAMPLES
+.TP
+* enabling both services at boot time
+# systemctl enable sapping sappong
+.TP
+* showing status of service sapping, including content of moved sapservices file
+# systemctl status sapping
+.PP
+.\"
+.SH EXIT STATUS
+0 Successful program execution.
+.br
+>0 Usage, syntax or execution errors.
+.PP
+.\"
+.SH FILES
+.TP
+/usr/lib/systemd/system/sapping.service , /usr/lib/systemd/system/sapping.service
+systemd service definitions
+.TP
+/usr/sbin/sapservices-move
+systemd service executables 
+.TP
+/usr/sap/sapservices
+SAP profiles definition file, used by sapstartsrv et al.
+.PP
+.\"
+.SH BUGS
+Please report feedback and suggestions to feedback@suse.com.
+.PP
+.\"
+.SH SEE ALSO
+\fBocf_heartbeat_SAPStartSrv\fP(7) , \fBsapservices-move\fR(8) ,
+\fBsystemctl\fP(1)
+.PP
+.\"
+.SH AUTHORS
+F.Herschel, L.Pinne
+.PP
+.\"
+.SH COPYRIGHT
+.br
+(c) 2020 SUSE LLC
+.br
+sapping/sappong comes with ABSOLUTELY NO WARRANTY.
+.br
+For details see the GNU General Public License at
+http://www.gnu.org/licenses/gpl.html
+.\"
