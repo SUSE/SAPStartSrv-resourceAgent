@@ -171,11 +171,11 @@ SAP system name is EN2, SAP service is ERS, SAP instance number is 10, SAP virtu
 If possible, the ERS instance should run on a different node than the ASCS.
 The also needed ASCSS instance group is shown in another example.
 .PP
-primitive rsc_sapsrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
+primitive rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
 .br
  params InstanceName=EN2_ERS10_sapen2er
 .PP
-primitive rsc_sap_EN2_ERS10 SAPInstance \\
+primitive rsc_SAPInstance_EN2_ERS10 SAPInstance \\
 .br
  op monitor interval=11s timeout=60s \\
 .br
@@ -185,25 +185,25 @@ primitive rsc_sap_EN2_ERS10 SAPInstance \\
 .br
  AUTOMATIC_RECOVER=false IS_ERS=true MINIMAL_PROBE=true
 .PP
-primitive rsc_ip_EN2_ERS10 IPaddr2 \\
+primitive rsc_IPAddr2_EN2_ERS10 IPaddr2 \\
 .br
  params ip=192.168.178.187
 .PP
 group grp_EN2_ERS10 \\
 .br
- rsc_ip_EN2_ERS10 \\
+ rsc_IPAddr2_EN2_ERS10 \\
 .br
- rsc_sapsrv_EN2_ERS10 \\
+ rsc_SAPStartSrv_EN2_ERS10 \\
 .br
- rsc_sap_EN2_ERS10
+ rsc_SAPInstance_EN2_ERS10
 .PP
-colocation ASCS00_ERS10_separated_EN2 \\
+colocation col_EN2_ASCS00_separate \\
 .br
  -5000: grp_EN2_ERS10 grp_EN2_ASCS00
 .PP
-order ord_sap_EN2_first_start_ascs \\
+order ord_EN2_ASCS00_first \\
 .br
- Optional: rsc_sap_EN2_ASCS00:start rsc_sap_EN2_ERS10:stop \\
+ Optional: rsc_SAPInstance_EN2_ASCS00:start rsc_SAPInstance_EN2_ERS10:stop \\
 .br
  symmetrical=false
 .br
