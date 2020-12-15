@@ -121,7 +121,7 @@ The return codes are defined by the OCF cluster framework. Please refer to the O
 * Example configuration for SAP ASCS instance resource group in an ENSA2 setup.
 .br
 SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments.
-The also needed ERS instance group and location constraints are not shown.
+The also needed ERS instance group and location constraint is shown in another example.
 .PP
 .RS 4
 primitive rsc_SAPStartSrv_EVA_ASCS00 SAPStartSrv \\
@@ -162,6 +162,50 @@ group grp_EVA_ASCS00 \\
  rsc_SAPInstance_EVA_ASCS00 \\
 .br
  meta resource-stickiness=3000
+.br
+.RE
+.PP
+* Example configuration for SAP ERS instance resource group in an ENSA2 setup.
+.br
+SAP system name is EN2, SAP service is ERS, SAP instance number is 10, SAP virtual hostname is sapeva. An IP address is configured as usual for on-premise use.
+If possible, the ERS instance should run on a different node than the ASCS.
+The also needed ASCSS instance group is shown in another example.
+.PP
+primitive rsc_sapsrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
+.br
+ params InstanceName=EN2_ERS10_sapen2er
+.PP
+primitive rsc_sap_EN2_ERS10 SAPInstance \\
+.br
+ op monitor interval=11s timeout=60s \\
+.br
+ params InstanceName=EN2_ERS10_sapen2er \\
+.br
+ START_PROFILE=/sapmnt/EN2/profile/EN2_ERS10_sapen2er \\
+.br
+ AUTOMATIC_RECOVER=false IS_ERS=true MINIMAL_PROBE=true
+.PP
+primitive rsc_ip_EN2_ERS10 IPaddr2 \\
+.br
+ params ip=192.168.178.187
+.PP
+group grp_EN2_ERS10 \\
+.br
+ rsc_ip_EN2_ERS10 \\
+.br
+ rsc_sapsrv_EN2_ERS10 \\
+.br
+ rsc_sap_EN2_ERS10
+.PP
+colocation ASCS00_ERS10_separated_EN2 \\
+.br
+ -5000: grp_EN2_ERS10 grp_EN2_ASCS00
+.PP
+order ord_sap_EN2_first_start_ascs \\
+.br
+ Optional: rsc_sap_EN2_ASCS00:start rsc_sap_EN2_ERS10:stop \\
+.br
+ symmetrical=false
 .br
 .RE
 .PP
@@ -258,11 +302,13 @@ https://help.sap.com/doc/e9a0eddf6eb14a82bcbe3be3c9a58c7e/1610%20001/en-US/frame
 .\" .br
 .\" https://blogs.sap.com/2020/08/27/evolution-of-ensa2-and-erp2.../ ,
 .br
-https://launchpad.support.sap.com/#/notes/2464065 ,
+https://launchpad.support.sap.com/#/notes/2711036 ,
 .br
 https://launchpad.support.sap.com/#/notes/2630416 ,
 .br
-https://launchpad.support.sap.com/#/notes/2711036 ,
+https://launchpad.support.sap.com/#/notes/2501860 ,
+.br
+https://launchpad.support.sap.com/#/notes/2464065 ,
 .br
 https://launchpad.support.sap.com/#/notes/2254173 ,
 .br
