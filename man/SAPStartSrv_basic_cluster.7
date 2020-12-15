@@ -15,10 +15,22 @@ might match specific needs.
 .PP
 \fB* Operating System Basics\fR
 
+\fBsystemd services\fR
+
+The services sapinit, sapping and sappong are needed for this cluster.
+.PP
 \fBtcp_retries2 = 8\fR
 
-The OS network parameter tcp_retries2 TODO
-A value of 8 to 10 TODO
+The OS network parameter tcp_retries2 influences the timeout of an alive TCP
+connection, when retransmissions remain unacknowledged. The SAP application
+servers (PAS/AAS) and central services (ASCS/ERS) are relying on TCP timeouts
+for detecting lost connections. On the other hand SAP session timeouts and
+enqueue replication timeouts are defined on application level. Tuning
+tcp_retries2 helps SAP sessions and enqueue replication surviving cluster
+actions.
+.br
+A value of 8 should let Linux TCP connections timeout fast enough.
+.\" TODO NFS mount options for smooth takeover of sap instances, e.g. soft?
 .PP
 \fB* CRM Basics\fR
 
@@ -107,7 +119,7 @@ property cib-bootstrap-options: \\
  stonith-watchdog-timeout=10 \\
 .br
  placement-strategy=balanced \\
-.br
+.PP
 rsc_defaults rsc-options: \\
 .br
  resource-stickiness=1 \\
@@ -115,7 +127,7 @@ rsc_defaults rsc-options: \\
  migration-threshold=3 \\
 .br
  failure-timeout=86400s
-.br
+.PP
 op_defaults op-options: \\
 .br
  timeout=600 \\
@@ -140,7 +152,7 @@ property cib-bootstrap-options: \\
  stonith-timeout=150 \\
 .br
  placement-strategy=balanced \\
-.br
+.PP
 rsc_defaults rsc-options: \\
 .br
  resource-stickiness=1 \\
@@ -148,13 +160,32 @@ rsc_defaults rsc-options: \\
  migration-threshold=3 \\
 .br
  failure-timeout=86400s
-.br
+.PP
 op_defaults op-options: \\
 .br
  timeout=600 \\
 .br
  record-pending=true 
 .RE
+.PP
+\fB* NFS shares for SAP instance filesystems\fR
+
+Below is an fstab example for filesystems needed by the ASCS/ERS pair.
+The filesystems are statically mounted on all nodes of the cluster for SAP
+system EN2. The SAP instance name is used consequently to prepare for optional
+multi-SID setups. The parent directory /usr/sap/ resides on each node locally.
+The file sapservices must not be shared between nodes.
+The correct mount options are depending on the NFS server.
+.PP
+.RS 1
+.\" TODO check NFS options
+nfs1:/s/EN2/sapmnt /sapmnt/EN2 nfs rw,hard,intr,nolock,actimeo=1,proto=tcp 0 0
+.br
+nfs1:/s/EN2/usrsap /usr/sap/EN2 nfs rw,hard,intr,nolock,actimeo=1,proto=tcp 0 0
+.\".br
+.\"nfs1:/s/EN2/saptrans /usr/sap/trans nfs rw,hard,intr,nolock,proto=tcp 0 0
+.RE
+.br
 .PP
 .\" TODO priority fencing: use case, setup
 .\"
@@ -199,8 +230,11 @@ the local hostname resolution database
 /etc/chrony.conf
 basic config for time synchronisation
 .TP
-/etc/sysctl.conf
+/etc/sysctl.d/*.conf
 OS kernel parameters, e.g. TCP tunables
+.TP
+/etc/fstab
+filesystem table, for statically mounted NFS shares
 .\" TODO
 .PP
 .\"
@@ -214,7 +248,9 @@ Please report feedback and suggestions to feedback@suse.com.
 \fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) ,
 \fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) ,
 .br
-https://documentation.suse.com/sbp/all/single-html/SAP_S4HA10_SetupGuide-SLE15/
+https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
+.\" TODO https://pracucci.com/linux-tcp-rto-min-max-and-tcp-retries2.html
+.\" TODO RFC 1122
 .PP
 .\"
 .SH AUTHORS
