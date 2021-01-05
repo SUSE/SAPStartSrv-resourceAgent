@@ -60,7 +60,7 @@ Too high value might prevent not only unwanted but also useful actions.
 
 The crm rsc_defaul parameter migration-threshold defines how many errors on a
 resource can be detected before this resource will be migrated to another node.
-See also \fBfailure-timeout\fR.
+See also \fBfailure-timeout\fR .
 .\" TODO needed for resource monitor option on-fail=restart
 .br
 .\" TODO A value of '3' ... ENSA2
@@ -69,7 +69,7 @@ See also \fBfailure-timeout\fR.
 
 The crm op_default record-pending defines, whether the intention of an action
 upon the resource is recorded in the Cluster Information Base (CIB).
-Setting this parameter to 'true' allows the user to see pending actions like
+Setting this parameter to \'true\' allows the user to see pending actions like
 \'starting\' and \'stopping\' in crm_mon. Also the sap_suse_cluster_connector
 interface uses this information.
 .br
@@ -163,7 +163,7 @@ primitive rsc_stonith_sbd stonith:external/sbd \\
 .PP
 property cib-bootstrap-options: \\
 .br
- dc-deadtime=20s \\
+ dc-deadtime=20 \\
 .br
  cluster-infrastructure=corosync \\
 .br
@@ -211,7 +211,6 @@ nfs1:/s/EN2/usrsap /usr/sap/EN2 nfs rw,hard,intr,nolock,actimeo=1,proto=tcp 0 0
 .RE
 .br
 .PP
-.\" TODO priority fencing: use case, setup
 .\"
 \fB* ping resource for checking connectivity\fR
 
