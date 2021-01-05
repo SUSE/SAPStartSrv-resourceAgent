@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH ocf_suse_SAPStartSrv 7 "14 12 2020" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "05 Jan 2021" "" "OCF resource agents"
 .\"
 .SH NAME
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
@@ -39,7 +39,8 @@ process. Thus that IP address resource (e.g. IPAddr2, aws-vpc-route53) needs to 
 .PP
 The described setup is benefitial particularly for public cloud and NFS-based
 environments. Both NFS shares with instance directories can be mounted
-statically on all nodes. The HA cluster does not need to control that filesystems.
+statically on all nodes. The HA cluster does not need to control that
+filesystems.
 The /usr/sap/sapservices file is stored locally on each cluster node.
 .PP
 .RE
@@ -120,7 +121,7 @@ The return codes are defined by the OCF cluster framework. Please refer to the O
 .SH EXAMPLES
 * Example configuration for SAP ASCS instance resource group in an ENSA2 setup.
 .br
-SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments.
+SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments. The SAPInstance has been given a fencing priority, a crm property priority-fencing-delay is needed to make this work. See SAPStartSrv_basic_cluster(7).
 The also needed ERS instance group and location constraint is shown in another example.
 .PP
 .RS 4
@@ -140,7 +141,9 @@ primitive rsc_SAPInstance_EVA_ASCS00 SAPInstance \\
 .br
  MINIMAL_PROBE=true \\
 .br
- meta resource-stickiness=5000
+ meta resource-stickiness=5000 \\
+.br
+ priority=100
 .PP
 primitive rsc_IPAddr2_EVA_ASCS00 IPaddr2 \\
 .br
@@ -285,6 +288,7 @@ Please report feedback and suggestions to feedback@suse.com.
 .\"
 .SH SEE ALSO
 \fBocf_heartbeat_SAPInstance\fP(7) , \fBocf_heartbeat_IPaddr2\fP(7) ,
+\fBSAPStartSrv_basic_cluster\fP(7) ,
 .\" TODO aws-vpc-route53 gcp-vpc-move-route
 .\" TODO SAPStartSrv-showAttr(8) ?
 \fBsapservices-move\fP(8) , \fBsap_suse_cluster_connector\fP(8) ,
@@ -322,7 +326,7 @@ X.Arbulu, F.Herschel, L.Pinne
 .PP
 .\"
 .SH COPYRIGHT
-(c) 2020 SUSE LLC
+(c) 2020-2021 SUSE LLC
 .br
 The resource agent SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br

@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH SAPStartSrv_basic_cluster 7 "14 12 2020" "" "SAPStartSrv"
+.TH SAPStartSrv_basic_cluster 7 "05 Jan 2021" "" "SAPStartSrv"
 .\"
 .SH NAME
 SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
@@ -54,7 +54,7 @@ rules and resource groups. Particularly additional resources colocated to the
 ASCS resource can affect cluster decisions. 
 Too high value might prevent not only unwanted but also useful actions.
 .br
-A value of '1' TODO
+.\" TODO A value of '1' ...
 
 \fBmigration-threshold = 3\fR
 
@@ -63,7 +63,7 @@ resource can be detected before this resource will be migrated to another node.
 See also \fBfailure-timeout\fR.
 .\" TODO needed for resource monitor option on-fail=restart
 .br
-A value of '3' TODO ENSA2
+.\" TODO A value of '3' ... ENSA2
 
 \fBrecord-pending = true\fR
 
@@ -73,16 +73,33 @@ Setting this parameter to 'true' allows the user to see pending actions like
 \'starting\' and \'stopping\' in crm_mon. Also the sap_suse_cluster_connector
 interface uses this information.
 .br
-The value 'true' is needed for the sap_suse_cluster_connector interface TODO
+.\" TODO The value 'true' is needed for the sap_suse_cluster_connector interface.
 
-\fBfailure-timeout = 86400s\fR
+\fBfailure-timeout = 86400\fR
 
 The crm op_default failure-timeout defines how long failed actions will
-be kept in the CIB. After that time the failure record will be deleted. 
+be kept in the CIB. After that time the failure record will be deleted.
+Time unit is seconds. 
 See also \fBmigration-threshold\fR.
 .br
-The value '86400s' means failure records will be cleaned automatically after
+The value '86400' means failure records will be cleaned automatically after
 one day.
+
+\fBpriority-fencing-delay = 30\fP
+
+The optional crm property priority-fencing-delay specified delay for the
+fencings that are targeting the lost nodes with the highest total resource
+priority in case we do not have the majority of the nodes in our cluster
+partition, so that the more significant nodes potentially win any fencing
+match, which is especially meaningful under split-brain of 2-node cluster.
+A promoted resource instance takes the base priority + 1 on calculation if
+the base priority is not 0. Any delay that are introduced by pcmk_delay_max
+configured for the corresponding fencing resources will be added to this
+delay. A meta attribute priority=100 or alike for the ASCS resource is needed
+to make this work. See ocf_suse_SAPStartSrv(7).
+
+The delay should be significantly greater than, or safely twice,
+pcmk_delay_max.
 .PP
 .\"
 .SH EXAMPLES
@@ -106,7 +123,7 @@ property cib-bootstrap-options: \\
 .br
  no-quorum-policy=suicide \\
 .br
- dc-deadtime=20s \\
+ dc-deadtime=20 \\
 .br
  have-watchdog=true \\
 .br
@@ -126,7 +143,7 @@ rsc_defaults rsc-options: \\
 .br
  migration-threshold=3 \\
 .br
- failure-timeout=86400s
+ failure-timeout=86400
 .PP
 op_defaults op-options: \\
 .br
@@ -136,9 +153,14 @@ op_defaults op-options: \\
 .RE
 
 This example has been taken from a two-node cluster SLE-HA 15 GA with
-disk-based SBD:
+disk-based SBD. An optional priority fecing is configured and the SBD
+pcmk_delay_max has been reduced:
 .PP
 .RS 4
+primitive rsc_stonith_sbd stonith:external/sbd \\
+.br
+ params pcmk_delay_max=15
+.PP
 property cib-bootstrap-options: \\
 .br
  dc-deadtime=20s \\
@@ -152,6 +174,8 @@ property cib-bootstrap-options: \\
  stonith-timeout=150 \\
 .br
  placement-strategy=balanced \\
+.br
+ priority-fencing-delay=30
 .PP
 rsc_defaults rsc-options: \\
 .br
@@ -159,7 +183,7 @@ rsc_defaults rsc-options: \\
 .br
  migration-threshold=3 \\
 .br
- failure-timeout=86400s
+ failure-timeout=86400
 .PP
 op_defaults op-options: \\
 .br
@@ -199,7 +223,7 @@ HA cluster and application, this measure does not improve availability.
 ASCS should run on an node from which more ping targets can be reached than
 from others. If all nodes are same, ASCS stays where it is.
 Three vital infrastructure servers outside the datacenter are choosen as ping
-targets. If at least two targets are reacheable, the current node is preferred
+targets. If at least two targets are reachable, the current node is preferred
 for running the ASCS. The maximum time for detecting connectivity changes is
 ca.180 seconds.
 .PP
@@ -245,7 +269,7 @@ Please report feedback and suggestions to feedback@suse.com.
 .SH SEE ALSO
 \fBocf_suse_SAPStartSrv\fP(7) , \fBsap_suse_cluster_connector\fP(8) ,
 \fBocf_pacemaker_ping\fP(7) , \fBocf_heartbeat_ethmonitor\fP(7) ,
-\fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) ,
+\fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) , \fBcrm\fP(8) ,
 \fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) ,
 .br
 https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
@@ -259,7 +283,7 @@ F.Herschel, L.Pinne
 .\"
 .SH COPYRIGHT
 .br
-(c) 2020 SUSE LLC
+(c) 2020-2021 SUSE LLC
 .br
 SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br
