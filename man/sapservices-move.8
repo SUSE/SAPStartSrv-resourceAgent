@@ -18,7 +18,7 @@ temporarily hiding the sapservices file from sapinit service at system boot.
 .br
  \- sappong is restoring the sapservices file after sapinit service has been started.
 
-Hiding the sapservices file from sapinit is neccessecary in certain HA cluster setups. Affected are HA clusters for SAP enqueue replication where cluster nodes have concurrent access to all instance working directories, e.g. by simplified NFS mount structure.
+Hiding the sapservices file from sapinit is necessary in certain HA cluster setups. Affected are HA clusters for SAP enqueue replication where cluster nodes have concurrent access to all instance working directories, e.g. by simplified NFS mount structure.
 In such environments sapstartsrv needs to be started specific for each SAP instance (e.g. ASCS/ERS), to avoid side effects with other instances.
 
 The sapinit service takes not into account such environments, but starts sapstartsrv for all instances listed in the sapservices profile definition file.
@@ -96,7 +96,7 @@ F.Herschel, L.Pinne
 .\"
 .SH COPYRIGHT
 .br
-(c) 2020 SUSE LLC
+(c) 2020-2021 SUSE LLC
 .br
 sapping/sappong comes with ABSOLUTELY NO WARRANTY.
 .br
