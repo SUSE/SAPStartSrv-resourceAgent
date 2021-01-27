@@ -19,7 +19,7 @@ might match specific needs.
 
 The services sapinit, sapping and sappong are needed for this cluster.
 .PP
-\fBtcp_retries2 = 8\fR
+\fBtcp_retries2 = 9\fR
 
 The OS network parameter tcp_retries2 influences the timeout of an alive TCP
 connection, when retransmissions remain unacknowledged. The SAP application
@@ -29,7 +29,8 @@ enqueue replication timeouts are defined on application level. Tuning
 tcp_retries2 helps SAP sessions and enqueue replication surviving cluster
 actions.
 .br
-A value of 8 should let Linux TCP connections timeout fast enough.
+A value of 9 (for HZ=250) should let Linux TCP connections timeout fast enough
+for default SAP application server and central services configuration.
 .\" TODO NFS mount options for smooth takeover of sap instances, e.g. soft?
 .PP
 \fB* CRM Basics\fR
