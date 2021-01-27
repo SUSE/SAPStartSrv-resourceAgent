@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH ocf_suse_SAPStartSrv 7 "05 Jan 2021" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "27 Jan 2021" "" "OCF resource agents"
 .\"
 .SH NAME
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
@@ -267,7 +267,8 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 .PP
 * Needed NFS shares (e.g. /sapmnt/$SID/, /usr/sap/$SID/) mounted statically or by automounter.
 .PP
-* Directory /usr/sap/ locally mounted on each cluster node.
+.\" TODO discuss read-write vs. /var/.../sapservices.moved
+* Directory /usr/sap/ locally read-write mounted on each cluster node.
 .PP
 * Complete entries in /usr/sap/sapservices file.
 .PP
