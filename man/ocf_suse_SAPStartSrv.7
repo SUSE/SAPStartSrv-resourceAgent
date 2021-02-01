@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH ocf_suse_SAPStartSrv 7 "27 Jan 2021" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "01 Feb 2021" "" "OCF resource agents"
 .\"
 .SH NAME
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
@@ -219,6 +219,12 @@ order ord_EN2_ASCS00_first \\
 .RS 4
 # grep "SAPStartSrv.*RA.*rc=[1-7,9]" /var/log/messages
 .\" TODO output
+.RE
+.PP
+* Show failcount for resource rsc_SAPStartSrv_EN2_ERS10 .
+.PP
+.RS 4
+# cibadmin -Ql | grep rsc_SAPStartSrv_EN2_ERS10.*fail-count
 .RE
 .PP
 * Manually trigger an SAPStartSRv probe action for instance ADA_ASCS00_engine.
