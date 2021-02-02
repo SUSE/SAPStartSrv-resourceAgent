@@ -278,7 +278,9 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 .PP
 * Complete entries in /usr/sap/sapservices file.
 .PP
-* SAP profile Autostart feature is disabled.
+* SAP instance profile Autostart feature is disabled for ASCS and ERS.
+.PP
+* SAP instance profile entry Restart_Program_xx is replaced by Start_Program_xx for ERS. 
 .PP
 * The sapinit boot script does not read entries from sapservices file at boot. Thus services sapping and sappong to handle sapservices file at system boot.
 .PP
@@ -310,6 +312,8 @@ https://www.suse.com/support/kb/doc/?id=7023714 ,
 http://clusterlabs.org/doc/en-US/Pacemaker/1.1/html/Pacemaker_Explained/s-ocf-return-codes.html ,
 .br
 https://help.sap.com/doc/e9a0eddf6eb14a82bcbe3be3c9a58c7e/1610%20001/en-US/frameset.htm?frameset.htm ,
+.br
+https://help.sap.com/viewer/fe1db4ed6c5510148f66fbccd85f175f/7.02.22/en-US/47e023f3bf423c83e10000000a42189c.html
 .\" .br
 .\" https://blogs.sap.com/2018/04/03/high-availability-with-standalone-enqueue-server-2/ ,
 .\" .br
