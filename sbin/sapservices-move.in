@@ -85,9 +85,10 @@ def parse_arguments():
 
     parser.add_argument(
         '-v', '--version', help='Show scrip version', action="store_true")
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
         '--hide', help='Hide sapservices file', action="store_true")
-    parser.add_argument(
+    group.add_argument(
         '--unhide', help='Restore sapservices file', action="store_true")
 
     args = parser.parse_args()
