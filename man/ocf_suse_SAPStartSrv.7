@@ -28,14 +28,8 @@ to read the respective instance profile.
 By default one system-wide sapstartsrv is started at Linux boot time to provide
 the needed service for all SAP instances.
 .PP
-For specific Enqueue Replication setups using instance specific sapstartsrv
-processes might be desireable. So each SAP instance is managed on its own by a
-pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts
-sapstartsrv for one specific SAP instance. By intention it does not monitor the
-service. SAPInstance then utilises that service for managing the SAP instance.
-SAPInstance also is doing in-line recovery of failed sapstartsrv processes.
-The instance's virtual service IP address is used for contacting the sapstartsrv
-process. Thus that IP address resource (e.g. IPAddr2, aws-vpc-route53) needs to start before SAPStartSrv.
+For specific Enqueue Replication setups using instance specific sapstartsrv processes might be desireable. So each SAP instance is managed on its own by a pair of one SAPStartSrv and one SAPInstance resource agent. SAPStartSrv starts sapstartsrv for one specific SAP instance. By intention it does not monitor the service. SAPInstance then utilises that service for managing the SAP instance.  SAPInstance also is doing in-line recovery of failed sapstartsrv processes.
+The instance's virtual service IP address is used for contacting the sapstartsrv process. Thus that IP address resource (e.g. IPAddr2, aws-vpc-route53) needs to start before SAPStartSrv.
 .PP
 The described setup is benefitial particularly for public cloud and NFS-based
 environments. Both NFS shares with instance directories can be mounted
