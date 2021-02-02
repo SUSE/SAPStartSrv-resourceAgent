@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH sapservices-move 8 "09 12 2020" "" "sapstartsrv-resource-agents"
+.TH sapservices-move 8 "27 Jan 2021" "" "SAPStartSrv"
 .\"
 .SH NAME
 sapservices-move \- hiding sapservices file from sapinit service at system boot.
@@ -11,14 +11,14 @@ sapservices-move \- hiding sapservices file from sapinit service at system boot.
 .PP
 .\"
 .SH DESCRIPTION
-\fBsapservices\fP is called by systemd services sapping and sappong for
+\fBsapservices-move\fP is called by systemd services sapping and sappong for
 temporarily hiding the sapservices file from sapinit service at system boot.
 .br
  \- sapping is hiding the sapservices file from sapinit service at system boot.
 .br
  \- sappong is restoring the sapservices file after sapinit service has been started.
 
-Hiding the sapservices file from sapinit is neccessecary in certain HA cluster setups. Affected are HA clusters for SAP enqueue replication where cluster nodes have concurrent access to all instance working directories, e.g. by simplified NFS mount structure.
+Hiding the sapservices file from sapinit is necessary in certain HA cluster setups. Affected are HA clusters for SAP enqueue replication where cluster nodes have concurrent access to all instance working directories, e.g. by simplified NFS mount structure.
 In such environments sapstartsrv needs to be started specific for each SAP instance (e.g. ASCS/ERS), to avoid side effects with other instances.
 
 The sapinit service takes not into account such environments, but starts sapstartsrv for all instances listed in the sapservices profile definition file.
@@ -43,7 +43,7 @@ show version
 hide sapervices file from sapinit
 .TP
 --unhide
-un-hide previously hidden sapservices file
+unhide previously hidden sapservices file
 .PP
 .\"
 .SH EXAMPLES
@@ -75,6 +75,9 @@ systemd service definitions
 /usr/sap/sapservices
 SAP profiles definition file, used by sapstartsrv et al.
 .TP
+/usr/sap/$SID/SYS/profile/$SID_ASCS$nr_$virhost , /usr/sap/$SID/SYS/profile/$SID_ERS$nr_$virhost 
+SAP instance profiles
+.TP
 /etc/init.d/sapinit
 System V SAP init script to enable SAP start framework, including sapstartsrv service for all entries in the sapservices file
 .PP
@@ -84,7 +87,7 @@ Please report feedback and suggestions to feedback@suse.com.
 .PP
 .\"
 .SH SEE ALSO
-\fBocf_heartbeat_SAPStartSrv\fP(7) , \fBsystemctl\fP(1)
+\fBocf_heartbeat_SAPStartSrv\fP(7) , \fBsapping\fR(7) , \fBsystemctl\fP(1)
 .PP
 .\"
 .SH AUTHORS
@@ -93,7 +96,7 @@ F.Herschel, L.Pinne
 .\"
 .SH COPYRIGHT
 .br
-(c) 2020 SUSE LLC
+(c) 2020-2021 SUSE LLC
 .br
 sapping/sappong comes with ABSOLUTELY NO WARRANTY.
 .br
