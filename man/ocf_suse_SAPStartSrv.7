@@ -93,8 +93,8 @@ Suggested minimum timeout: 60\&.
 \fBmonitor\fR
 .RS 4
 The SAPStartSrv resource must by intention not define a monitor operation.
-This is, because the failing sapstartsrv must never force an SAPInstance
-restart which would happen, as the two resources reside in one resource group.
+This is, because the failing sapstartsrv must never force a SAPInstance restart.
+That would happen because the two resources reside in one resource group.
 .\" TODO op monitor on-fail="ignore"
 .RE
 .PP
