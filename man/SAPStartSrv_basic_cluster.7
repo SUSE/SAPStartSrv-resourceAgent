@@ -1,0 +1,292 @@
+.\" Version: 0.1.0
+.\"
+.TH SAPStartSrv_basic_cluster 7 "05 Jan 2021" "" "SAPStartSrv"
+.\"
+.SH NAME
+SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
+.PP
+.\"
+.SH DESCRIPTION
+.\"
+The SAP Enqueue Standalone 2 (ENSA2) scenario needs a certain basic cluster
+configuration. Besides this necessary settings, some additional configurations
+might match specific needs.
+.\" TODO Specifics ENSA1 vs. ENSA2?
+.PP
+\fB* Operating System Basics\fR
+
+\fBsystemd services\fR
+
+The services sapinit, sapping and sappong are needed for this cluster.
+.PP
+\fBtcp_retries2 = 9\fR
+
+The OS network parameter tcp_retries2 influences the timeout of an alive TCP
+connection, when retransmissions remain unacknowledged. The SAP application
+servers (PAS/AAS) and central services (ASCS/ERS) are relying on TCP timeouts
+for detecting lost connections. On the other hand SAP session timeouts and
+enqueue replication timeouts are defined on application level. Tuning
+tcp_retries2 helps SAP sessions and enqueue replication surviving cluster
+actions.
+.br
+A value of 9 (for HZ=250) should let Linux TCP connections timeout fast enough
+for default SAP application server and central services configuration.
+.\" TODO NFS mount options for smooth takeover of sap instances, e.g. soft?
+.PP
+\fB* CRM Basics\fR
+
+\fBstonith-enabled = true\fR
+
+The cib bootstrap option stonith-enabled is crucial for any reliable pacemaker
+cluster.
+.br
+The value 'true' is one pre-requisite for having a cluster supported.  
+.\"
+.\" TODO cib: 	stonith-watdhog-timeout=10 ==> diskless SBD
+.\" TODO cib: 	stonith-timeout=120 ==> disk-based SBD
+
+\fBresource-stickiness = 1\fR
+
+The crm rsc_default resource-stickiness defines the 'stickiness'
+score a resource gets on the node where it is currently running. This prevents
+the cluster from moving resources around whithout an urgent need during a
+cluster transition. The correct value depends on number of resources, colocation
+rules and resource groups. Particularly additional resources colocated to the
+ASCS resource can affect cluster decisions. 
+Too high value might prevent not only unwanted but also useful actions.
+.br
+.\" TODO A value of '1' ...
+
+\fBmigration-threshold = 3\fR
+
+The crm rsc_default parameter migration-threshold defines how many errors on a
+resource can be detected before this resource will be moved to another node.
+See also \fBfailure-timeout\fR .
+.\" TODO needed for resource monitor option on-fail=restart
+.br
+.\" TODO A value of '3' ... ENSA2
+
+\fBrecord-pending = true\fR
+
+The crm op_default record-pending defines, whether the intention of an action
+upon the resource is recorded in the Cluster Information Base (CIB).
+Setting this parameter to \'true\' allows the user to see pending actions like
+\'starting\' and \'stopping\' in crm_mon. Also the sap_suse_cluster_connector
+interface uses this information.
+.br
+.\" TODO The value 'true' is needed for the sap_suse_cluster_connector interface.
+
+\fBfailure-timeout = 86400\fR
+
+The crm op_default failure-timeout defines how long failed actions will
+be kept in the CIB. After that time the failure record will be deleted.
+Time unit is seconds. 
+See also \fBmigration-threshold\fR.
+.br
+The value '86400' means failure records will be cleaned automatically after
+one day.
+
+\fBpriority-fencing-delay = 30\fP
+
+The optional crm property priority-fencing-delay specified delay for the
+fencings that are targeting the lost nodes with the highest total resource
+priority in case we do not have the majority of the nodes in our cluster
+partition, so that the more significant nodes potentially win any fencing
+match, which is especially meaningful under split-brain of 2-node cluster.
+A promoted resource instance takes the base priority + 1 on calculation if
+the base priority is not 0. Any delay that are introduced by pcmk_delay_max
+configured for the corresponding fencing resources will be added to this
+delay. A meta attribute priority=100 or alike for the ASCS resource is needed
+to make this work. See ocf_suse_SAPStartSrv(7).
+
+The delay should be significantly greater than, or safely twice,
+pcmk_delay_max.
+.PP
+.\"
+.SH EXAMPLES
+.\" TODO OS network tcp_retries2=8 (8..10)
+.\"
+\fB* crm basic configuration\fR
+.\" TODO scenario specific CIB basic settings
+.\" TODO check against setup guides NW and S/4. Specifics ENSA1 vs. ENSA2?
+
+Below are examples of crm basic configuration for ENSA2 clusters.
+Shown are specific parameters which are needed. Some general parameters are
+left out.
+.br
+This example has been taken from a three-node cluster SLE-HA 15 GA with
+diskless SBD:
+.PP
+.RS 4
+property cib-bootstrap-options: \\
+.br
+ expected-quorum-votes=3 \\
+.br
+ no-quorum-policy=suicide \\
+.br
+ dc-deadtime=20 \\
+.br
+ have-watchdog=true \\
+.br
+ cluster-infrastructure=corosync \\
+.br
+ cluster-name=hacluster \\
+.br
+ stonith-enabled=true \\
+.br
+ stonith-watchdog-timeout=10 \\
+.br
+ placement-strategy=balanced \\
+.PP
+rsc_defaults rsc-options: \\
+.br
+ resource-stickiness=1 \\
+.br
+ migration-threshold=3 \\
+.br
+ failure-timeout=86400
+.PP
+op_defaults op-options: \\
+.br
+ timeout=600 \\
+.br
+ record-pending=true 
+.RE
+
+This example has been taken from a two-node cluster SLE-HA 15 GA with
+disk-based SBD. An optional priority fecing is configured and the SBD
+pcmk_delay_max has been reduced:
+.PP
+.RS 4
+primitive rsc_stonith_sbd stonith:external/sbd \\
+.br
+ params pcmk_delay_max=15
+.PP
+property cib-bootstrap-options: \\
+.br
+ dc-deadtime=20 \\
+.br
+ cluster-infrastructure=corosync \\
+.br
+ cluster-name=hacluster \\
+.br
+ stonith-enabled=true \\
+.br
+ stonith-timeout=150 \\
+.br
+ placement-strategy=balanced \\
+.br
+ priority-fencing-delay=30
+.PP
+rsc_defaults rsc-options: \\
+.br
+ resource-stickiness=1 \\
+.br
+ migration-threshold=3 \\
+.br
+ failure-timeout=86400
+.PP
+op_defaults op-options: \\
+.br
+ timeout=600 \\
+.br
+ record-pending=true 
+.RE
+.PP
+\fB* NFS shares for SAP instance filesystems\fR
+
+Below is an fstab example for filesystems needed by the ASCS/ERS pair.
+The filesystems are statically mounted on all nodes of the cluster for SAP
+system EN2. The SAP instance name is used consequently to prepare for optional
+multi-SID setups. The parent directory /usr/sap/ resides on each node locally.
+The file sapservices must not be shared between nodes.
+The correct mount options are depending on the NFS server.
+.PP
+.RS 1
+.\" TODO check NFS options
+nfs1:/s/EN2/sapmnt /sapmnt/EN2 nfs rw,hard,intr,nolock,actimeo=1,proto=tcp 0 0
+.br
+nfs1:/s/EN2/usrsap /usr/sap/EN2 nfs rw,hard,intr,nolock,actimeo=1,proto=tcp 0 0
+.\".br
+.\"nfs1:/s/EN2/saptrans /usr/sap/trans nfs rw,hard,intr,nolock,proto=tcp 0 0
+.RE
+.br
+.PP
+.\"
+\fB* ping resource for checking connectivity\fR
+
+.\" TODO discuss what ping-based score might break ENSA scoring
+Below is an example of an optional ping resource for checking connectivity to
+the outer world. If the nodes have only one network interface, shared between
+HA cluster and application, this measure does not improve availability.
+.br
+ASCS should run on an node from which more ping targets can be reached than
+from others. If all nodes are same, ASCS stays where it is.
+Three vital infrastructure servers outside the datacenter are choosen as ping
+targets. If at least two targets are reachable, the current node is preferred
+for running the ASCS. The maximum time for detecting connectivity changes is
+ca.180 seconds.
+.PP
+.RS 4
+primitive rsc_ping ocf:pacemaker:ping \\
+.br
+ op monitor interval=120 timeout=60 start-delay=10 on-fail=ignore \\
+.br
+ params name=ping_ok host_list="proxy1 proxy2 proxy3"
+.PP
+clone cln_ping rsc_ping
+.PP
+location ASCS00_connected grp_EN2_ASCS00 \\
+.br
+ rule 90000: ping_ok gt 1
+.RE
+.br
+.PP
+.\"
+.SH FILES
+.TP
+/etc/passwd
+the local user database
+.TP
+/etc/hosts
+the local hostname resolution database
+.TP
+/etc/chrony.conf
+basic config for time synchronisation
+.TP
+/etc/sysctl.d/*.conf
+OS kernel parameters, e.g. TCP tunables
+.TP
+/etc/fstab
+filesystem table, for statically mounted NFS shares
+.\" TODO
+.PP
+.\"
+.SH BUGS
+Please report feedback and suggestions to feedback@suse.com.
+.PP
+.\"
+.SH SEE ALSO
+\fBocf_suse_SAPStartSrv\fP(7) , \fBsap_suse_cluster_connector\fP(8) ,
+\fBocf_pacemaker_ping\fP(7) , \fBocf_heartbeat_ethmonitor\fP(7) ,
+\fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) , \fBcrm\fP(8) ,
+\fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) ,
+.br
+https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
+.\" TODO https://pracucci.com/linux-tcp-rto-min-max-and-tcp-retries2.html
+.\" TODO RFC 1122
+.PP
+.\"
+.SH AUTHORS
+F.Herschel, L.Pinne
+.PP
+.\"
+.SH COPYRIGHT
+.br
+(c) 2020-2021 SUSE LLC
+.br
+SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
+.br
+For details see the GNU General Public License at
+http://www.gnu.org/licenses/gpl.html
+.\"

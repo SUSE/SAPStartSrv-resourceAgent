@@ -1,5 +1,5 @@
 [Unit]
-Description=Un-Hiding sapservices file from sapinit
+Description=Unhiding sapservices file from sapinit
 Documentation=man:sapservices-move(8)
 After=sapinit.service
 
