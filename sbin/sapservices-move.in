@@ -4,7 +4,7 @@
 #
 # sapservices-move
 #
-# (c) 2020 SUSE LLC
+# (c) 2020-2021 SUSE LLC
 # Author: F.Herschel, L.Pinne
 # GNU General Public License v2. No warranty.
 # http://www.gnu.org/licenses/gpl.html
@@ -15,7 +15,7 @@ import sys
 import argparse
 from pathlib import Path
 
-__version__ = "2020-12-01 14:14"
+__version__ = "2021-01-27 13:45"
 SCRIPT_NAME = sys.argv[0]
 SAPSERVICES = "/usr/sap/sapservices"
 
@@ -84,12 +84,12 @@ def parse_arguments():
     parser = argparse.ArgumentParser(SCRIPT_NAME)
 
     parser.add_argument(
-        '-v', '--version', help='Show scrip version', action="store_true")
+        '-v', '--version', help='Show script version', action="store_true")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         '--hide', help='Hide sapservices file', action="store_true")
     group.add_argument(
-        '--unhide', help='Restore sapservices file', action="store_true")
+        '--unhide', help='Unhide sapservices file', action="store_true")
 
     args = parser.parse_args()
     return parser, args

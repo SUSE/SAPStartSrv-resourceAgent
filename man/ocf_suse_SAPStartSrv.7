@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH ocf_suse_SAPStartSrv 7 "30 11 2020" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "01 Feb 2021" "" "OCF resource agents"
 .\"
 .SH NAME
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
@@ -39,7 +39,8 @@ process. Thus that IP address resource (e.g. IPAddr2, aws-vpc-route53) needs to 
 .PP
 The described setup is benefitial particularly for public cloud and NFS-based
 environments. Both NFS shares with instance directories can be mounted
-statically on all nodes. The HA cluster does not need to control that filesystems.
+statically on all nodes. The HA cluster does not need to control that
+filesystems.
 The /usr/sap/sapservices file is stored locally on each cluster node.
 .PP
 .RE
@@ -120,8 +121,8 @@ The return codes are defined by the OCF cluster framework. Please refer to the O
 .SH EXAMPLES
 * Example configuration for SAP ASCS instance resource group in an ENSA2 setup.
 .br
-SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments.
-The also needed ERS instance group and location constraints are not shown.
+SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments. The SAPInstance has been given a fencing priority, a crm property priority-fencing-delay is needed to make this work. See SAPStartSrv_basic_cluster(7).
+The also needed ERS instance group and location constraint is shown in another example.
 .PP
 .RS 4
 primitive rsc_SAPStartSrv_EVA_ASCS00 SAPStartSrv \\
@@ -130,15 +131,19 @@ primitive rsc_SAPStartSrv_EVA_ASCS00 SAPStartSrv \\
 .PP
 primitive rsc_SAPInstance_EVA_ASCS00 SAPInstance \\
 .br
- params InstanceName=EVA_ASCS00_sapeva \\
+ op monitor interval=11 timeout=60 on-fail=restart \\
 .br
- meta resource-stickiness=5000 \\
+ params InstanceName=EVA_ASCS00_sapeva \\
 .br
  START_PROFILE=/sapmnt/EVA/profile/EVA_ASCS00_sapeva \\
 .br
  AUTOMATIC_RECOVER=false \\
 .br
- MINIMAL_PROBE=true
+ MINIMAL_PROBE=true \\
+.br
+ meta resource-stickiness=5000 \\
+.br
+ priority=100
 .PP
 primitive rsc_IPAddr2_EVA_ASCS00 IPaddr2 \\
 .br
@@ -150,8 +155,6 @@ primitive rsc_Loadbalancer_EVA_ASCS00 azure-lb \\
 .PP
 group grp_EVA_ASCS00 \\
 .br
- meta resource-stickiness=3000 \\
-.br
  rsc_Loadbalancer_EVA_ASCS00 \\
 .br
  rsc_IPAddr2_EVA_ASCS00 \\
@@ -159,17 +162,71 @@ group grp_EVA_ASCS00 \\
 .br
  rsc_SAPStartSrv_EVA_ASCS00 \\
 .br
- rsc_SAPInstance_EVA_ASCS00
+ rsc_SAPInstance_EVA_ASCS00 \\
+.br
+ meta resource-stickiness=3000
 .br
 .RE
 .PP
-.\" TODO example pingd makes sense? 
-.\" TODO example priority fencing makes sense? 
+* Example configuration for SAP ERS instance resource group in an ENSA2 setup.
+.br
+SAP system name is EN2, SAP service is ERS, SAP instance number is 10, SAP virtual hostname is sapeva. An IP address is configured as usual for on-premise use.
+If possible, the ERS instance should run on a different node than the ASCS.
+The also needed ASCSS instance group is shown in another example.
+.PP
+primitive rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
+.br
+ params InstanceName=EN2_ERS10_sapen2er
+.PP
+primitive rsc_SAPInstance_EN2_ERS10 SAPInstance \\
+.br
+ op monitor interval=11s timeout=60s \\
+.br
+ params InstanceName=EN2_ERS10_sapen2er \\
+.br
+ START_PROFILE=/sapmnt/EN2/profile/EN2_ERS10_sapen2er \\
+.br
+ AUTOMATIC_RECOVER=false IS_ERS=true MINIMAL_PROBE=true
+.PP
+primitive rsc_IPAddr2_EN2_ERS10 IPaddr2 \\
+.br
+ params ip=192.168.178.187
+.PP
+group grp_EN2_ERS10 \\
+.br
+ rsc_IPAddr2_EN2_ERS10 \\
+.br
+ rsc_SAPStartSrv_EN2_ERS10 \\
+.br
+ rsc_SAPInstance_EN2_ERS10
+.PP
+colocation col_EN2_ASCS00_separate \\
+.br
+ -5000: grp_EN2_ERS10 grp_EN2_ASCS00
+.PP
+order ord_EN2_ASCS00_first \\
+.br
+ Optional: rsc_SAPInstance_EN2_ASCS00:start \\
+.br
+ rsc_SAPInstance_EN2_ERS10:stop \\
+.br
+ symmetrical=false
+.br
+.RE
+.PP
 * Search for log entries of SAPStartSrv, show errors only:
 .PP
 .RS 4
 # grep "SAPStartSrv.*RA.*rc=[1-7,9]" /var/log/messages
 .\" TODO output
+.RE
+.PP
+* Show failcount for resource rsc_SAPStartSrv_EN2_ERS10 . If the failcount
+exceeds the migration-threshold, the resource will be moved to another node.
+See SAPStartSrv_basic_cluster(7).
+.PP
+.RS 4
+# cibadmin -Ql | grep rsc_SAPStartSrv_EN2_ERS10.*fail-count
 .RE
 .PP
 * Manually trigger an SAPStartSRv probe action for instance ADA_ASCS00_engine.
@@ -204,6 +261,9 @@ default path for DIR_PROFILE
 .TP
 /usr/sap/sapservices
 SAP profiles definition file
+.TP
+/etc/sap_suse_cluster_connector
+sap_suse_cluster_connector configuration, SLE-HA 12
 .\"
 .PP
 .SH REQUIREMENTS
@@ -215,15 +275,22 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 .PP
 * Needed NFS shares (e.g. /sapmnt/$SID/, /usr/sap/$SID/) mounted statically or by automounter.
 .PP
-* Directory /usr/sap/ locally mounted on each cluster node.
+.\" TODO discuss read-write vs. /var/.../sapservices.moved
+* Directory /usr/sap/ locally read-write mounted on each cluster node.
 .PP
 * Complete entries in /usr/sap/sapservices file.
 .PP
-* SAP profile Autostart feature is disabled.
+* SAP instance profile Autostart feature is disabled for ASCS and ERS.
+.PP
+* SAP instance profile entry Restart_Program_xx is replaced by Start_Program_xx for ERS. 
 .PP
 * The sapinit boot script does not read entries from sapservices file at boot. Thus services sapping and sappong to handle sapservices file at system boot.
 .PP
 * The sapinit script is not used while the HA cluster is running on any node.
+.PP
+* SAP instance numbers controlled by the cluster must be unique.
+.PP
+* It is not allowed to block resources from being controlled manually. Thus BLOCK_RESOURCES in /etc/sap_suse_cluster_connector is not allowed anymore.
 .PP
 ./"
 .SH BUGS
@@ -234,6 +301,7 @@ Please report feedback and suggestions to feedback@suse.com.
 .\"
 .SH SEE ALSO
 \fBocf_heartbeat_SAPInstance\fP(7) , \fBocf_heartbeat_IPaddr2\fP(7) ,
+\fBSAPStartSrv_basic_cluster\fP(7) ,
 .\" TODO aws-vpc-route53 gcp-vpc-move-route
 .\" TODO SAPStartSrv-showAttr(8) ?
 \fBsapservices-move\fP(8) , \fBsap_suse_cluster_connector\fP(8) ,
@@ -241,11 +309,31 @@ Please report feedback and suggestions to feedback@suse.com.
 .br
 https://documentation.suse.com/sbp/all/?context=sles-sap ,
 .br
+https://www.suse.com/support/kb/doc/?id=7023714 ,
+.br
 http://clusterlabs.org/doc/en-US/Pacemaker/1.1/html/Pacemaker_Explained/s-ocf-return-codes.html ,
 .br
-https://help.sap.com/doc/e9a0eddf6eb14a82bcbe3be3c9a58c7e/1610%20001/en-US/frameset.htm?frameset.htm
-.\" https://blogs.sap.com/2018/04/03/high-availability-with-standalone-enqueue-server-2/
-.\" https://blogs.sap.com/2020/08/27/evolution-of-ensa2-and-erp2.../
+https://help.sap.com/doc/e9a0eddf6eb14a82bcbe3be3c9a58c7e/1610%20001/en-US/frameset.htm?frameset.htm ,
+.br
+https://help.sap.com/viewer/fe1db4ed6c5510148f66fbccd85f175f/7.02.22/en-US/47e023f3bf423c83e10000000a42189c.html
+.\" .br
+.\" https://blogs.sap.com/2018/04/03/high-availability-with-standalone-enqueue-server-2/ ,
+.\" .br
+.\" https://blogs.sap.com/2020/08/27/evolution-of-ensa2-and-erp2.../ ,
+.br
+https://launchpad.support.sap.com/#/notes/2711036 ,
+.br
+https://launchpad.support.sap.com/#/notes/2630416 ,
+.br
+https://launchpad.support.sap.com/#/notes/2501860 ,
+.br
+https://launchpad.support.sap.com/#/notes/2464065 ,
+.br
+https://launchpad.support.sap.com/#/notes/2254173 ,
+.br
+https://launchpad.support.sap.com/#/notes/2077934 ,
+.br
+https://launchpad.support.sap.com/#/notes/953653
 .PP
 .\"
 .SH AUTHORS
@@ -253,8 +341,7 @@ X.Arbulu, F.Herschel, L.Pinne
 .PP
 .\"
 .SH COPYRIGHT
-.br
-(c) 2020 SUSE LLC
+(c) 2020-2021 SUSE LLC
 .br
 The resource agent SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br
