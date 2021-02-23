@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH ocf_suse_SAPStartSrv 7 "01 Feb 2021" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "21 Feb 2021" "" "OCF resource agents"
 .\"
 .SH NAME
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
@@ -13,7 +13,7 @@ SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
 .\"
 .SH DESCRIPTION
 
-\fBSAPStartSrv\fP is an resource agent for managing the sapstartsrv process for
+\fBSAPStartSrv\fP is a resource agent for managing the sapstartsrv process for
 a single SAP instance as an HA resource.
 .PP
 One SAP instance is defined by having exactly one instance profile.
@@ -172,7 +172,7 @@ group grp_EVA_ASCS00 \\
 .br
 SAP system name is EN2, SAP service is ERS, SAP instance number is 10, SAP virtual hostname is sapeva. An IP address is configured as usual for on-premise use.
 If possible, the ERS instance should run on a different node than the ASCS.
-The also needed ASCSS instance group is shown in another example.
+The also needed ASCS instance group is shown in another example.
 .PP
 primitive rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
 .br
@@ -229,7 +229,7 @@ See SAPStartSrv_basic_cluster(7).
 # cibadmin -Ql | grep rsc_SAPStartSrv_EN2_ERS10.*fail-count
 .RE
 .PP
-* Manually trigger an SAPStartSRv probe action for instance ADA_ASCS00_engine.
+* Manually trigger a SAPStartSRv probe action for instance ADA_ASCS00_engine.
 Output goes to the usual logfiles.
 .PP
 .RS 4
