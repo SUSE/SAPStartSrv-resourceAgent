@@ -10,4 +10,4 @@ StandardOutput=syslog
 StandardError=syslog
 
 [Install]
-WantedBy=multi-user.target pacemaker.service
+WantedBy=multi-user.target
