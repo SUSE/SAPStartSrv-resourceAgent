@@ -6,8 +6,6 @@ After=sapinit.service
 [Service]
 Type=oneshot
 ExecStart=/usr/sbin/sapservices-move --unhide
-StandardOutput=syslog
-StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target
