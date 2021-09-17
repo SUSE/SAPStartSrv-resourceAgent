@@ -1,6 +1,6 @@
 .\ Version: 0.1.0
 .\"
-.TH SAPStartSrv_maintenance_examples 7 "03 Feb 2021" "" "SAPStartSrv"
+.TH SAPStartSrv_maintenance_examples 7 "16 Sep 2021" "" "SAPStartSrv"
 .\"
 .SH NAME
 SAPStartSrv_maintenance_examples \- maintenance examples for SAPStartSrv
@@ -15,6 +15,28 @@ Please see ocf_suse_SAPStartSrv(7), SAPStartSrv_basic_cluster(7) and sap_suse_cl
 .\"
 .SH EXAMPLES
 .PP
+\fB*\fR Check status of Linux cluster and ENSA replication pair.
+.br
+This steps should be performed before doing anything with the cluster, and
+after something has been done.
+.PP
+.RS 4
+# cs_clusterstate -a
+.br
+# crm_mon -1r
+.br
+# crm configure show | grep cli-
+.br
+# TODO sap_suse_cluster_connector ... sapcontrol ??
+.br
+# cs_clusterstate -i
+.RE
+.PP
+.PP
+\fB*\fR Initiate an administrative take-over of ASCS from one node to another by using the Linux cluster.
+.br
+TODO
+
 
 .PP
 .\"
@@ -25,10 +47,10 @@ Please report feedback and suggestions to feedback@suse.com.
 .SH SEE ALSO
 \fBocf_suse_SAPStartSrv\fP(7) ,  \fBSAPStartSrv_basic_cluster\fP(7) ,
 \fBsap_suse_cluster_connector\fP(8) ,
-\fBcrm\fP(8) , \fBcrm_simulate\fP(8) , \fBcibadmin\fP(8) ,
+\fBcrm\fP(8) , \fBcrm_simulate\fP(8) , \fBcrm_report\fP(8) , \fBcibadmin\fP(8) ,
 \fBsbd\fP(8) , \fBcorosync-cfgtool\fP(8) ,
 \fBsystemctl\fP(8) ,
-\fBcs_clusterstate\fP(8) , \fBcs_show_ensa_status\fP(8) ,
+\fBcs_clusterstate\fP(8) , \fBcs_wait_for_idle\fP(8) , \fBcs_show_ensa_status\fP(8) ,
 .PP
 .\"
 .SH AUTHORS
