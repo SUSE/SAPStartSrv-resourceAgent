@@ -1,7 +1,7 @@
 [Unit]
 Description=Hiding sapservices file from sapinit
 Documentation=man:sapservices-move(8)
-Before=sapinit.service pacemaker.service
+Before=sapinit.service
 
 [Service]
 Type=oneshot
@@ -10,4 +10,4 @@ StandardOutput=syslog
 StandardError=syslog
 
 [Install]
-WantedBy=multi-user.target pacemaker.service
+WantedBy=multi-user.target
