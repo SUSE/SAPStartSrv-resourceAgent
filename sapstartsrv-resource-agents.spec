@@ -25,8 +25,8 @@ License:        GPL-2.0
 Group:          Productivity/Clustering/HA
 AutoReqProv:    on
 Summary:        Resource agent for SAP instance specific sapstartsrv service
-Version:        0.1.0
-Release:        0
+Version:        0.9.0
+Release:        1
 Url:            https://github.com/SUSE/SAPStartSrv-resourceAgent
 
 BuildArch:      noarch
@@ -56,6 +56,7 @@ API to start, stop and check an SAP instance.
 Authors:
 --------
     Fabian Herschel
+    Lars Pinne
     Xabier Arbulu
 
 %prep
