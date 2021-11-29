@@ -57,14 +57,14 @@ Too high value might prevent not only unwanted but also useful actions.
 .br
 .\" TODO A value of '1' ...
 
-\fBmigration-threshold = 3\fR
+\fBmigration-threshold = 1\fR
 
 The crm rsc_default parameter migration-threshold defines how many errors on a
 resource can be detected before this resource will be moved to another node.
-See also \fBfailure-timeout\fR .
+For ENSA1 the migration-threshold needs to be 1 always. For ENSA2 the value could
+be higher. See also \fBfailure-timeout\fR .
 .\" TODO needed for resource monitor option on-fail=restart
 .br
-.\" TODO A value of '3' ... ENSA2
 
 \fBrecord-pending = true\fR
 
@@ -74,7 +74,6 @@ Setting this parameter to \'true\' allows the user to see pending actions like
 \'starting\' and \'stopping\' in crm_mon. Also the sap_suse_cluster_connector
 interface uses this information.
 .br
-.\" TODO The value 'true' is needed for the sap_suse_cluster_connector interface.
 
 \fBfailure-timeout = 86400\fR
 
@@ -114,8 +113,8 @@ Below are examples of crm basic configuration for ENSA2 clusters.
 Shown are specific parameters which are needed. Some general parameters are
 left out.
 .br
-This example has been taken from a three-node cluster SLE-HA 15 GA with
-diskless SBD:
+This example has been taken from an ENSA2 three-node cluster SLE-HA 15 GA
+with diskless SBD:
 .PP
 .RS 4
 property cib-bootstrap-options: \\
@@ -153,8 +152,8 @@ op_defaults op-options: \\
  record-pending=true 
 .RE
 
-This example has been taken from a two-node cluster SLE-HA 15 GA with
-disk-based SBD. An optional priority fecing is configured and the SBD
+This example has been taken from an ENSA2 two-node cluster SLE-HA 15 GA
+with disk-based SBD. An optional priority fecing is configured and the SBD
 pcmk_delay_max has been reduced:
 .PP
 .RS 4
