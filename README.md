@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/SUSE/SAPStartSrv-resourceAgent.svg?branch=master)](https://travis-ci.org/SUSE/SAPStartSrv-resourceAgent)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/c7979de8b94a50e48e0d/test_coverage)](https://codeclimate.com/github/SUSE/SAPStartSrv-resourceAgent/test_coverage)
+[![Resouce agent CI](https://github.com/SUSE/SAPStartSrv-resourceAgent/actions/workflows/package-ci.yml/badge.svg)](https://github.com/SUSE/SAPStartSrv-resourceAgent/actions/workflows/package-ci.yml)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/1eb0213b467b9f7291fa/test_coverage)](https://codeclimate.com/github/SUSE/SAPStartSrv-resourceAgent/test_coverage)
 
 # SAPStartSrv-resourceAgent
 pacemaker integration for instance specific sapstartsrv
@@ -49,3 +49,34 @@ source myvirtenv/bin/activate
 myvirtenv/bin/pip install pytest-cov mock
 myvirtenv/bin/py.test -vv --cov=SAPStartSrv --cov-report term tests
 ```
+
+Or using `tox` (this tool will test for a broader set of python versions):
+
+```
+cd SAPStartSrv-resourceAgent
+virtualenv myvirtenv
+source myvirtenv/bin/activate
+pip install tox tox-gh-actions
+tox
+```
+
+# Continuous Integration pipeline
+
+The CI/CD pipelines are executed using github actions. This execution runs:
+
+- Run unit tests
+- Deliver the package content to the configured OBS[1] repository
+- Submit the new package content to the upstream OBS repository
+
+
+In order to make this work in the used fork some secrets must be added in the github repository:
+
+- OBS_USER: Your OBS user
+- OBS_PASSWORD: Your OBS user password
+- OBS_PROJECT: Project where the package is delivered
+- TARGET_PROJECT: Target project where the new package content is submitted
+- CC_TEST_REPORTER_ID (Optional): Sent the code coverage to code climate. If it is not set this step is not executed
+
+The delivery and submission tasks are based in a docker container: https://github.com/arbulu89/continuous-delivery
+
+[1] OBS stands for [Open Build Service](https://build.opensuse.org/)
