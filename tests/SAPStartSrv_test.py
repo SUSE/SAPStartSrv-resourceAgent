@@ -145,9 +145,10 @@ class TestSAPStartSrv(unittest.TestCase):
         mock_run_command.assert_called_once_with(
             '/usr/bin/systemctl list-unit-files SAPPRD_00.service')
 
+    @mock.patch('os.path.exists')
     @mock.patch('ocf.have_binary')
     def test_chk_systemd_support_binary_success(
-            self, mock_have_binary):
+            self, mock_exists, mock_have_binary):
 
         self._agent.sid = 'PRD'
         self._agent.instance_number = '00'
@@ -155,12 +156,14 @@ class TestSAPStartSrv(unittest.TestCase):
 
         mock_have_binary.return_value = True
 
+        mock_exists.return_value = False
+
+        get_systemd_unit_result_mock = mock.Mock(returncode=False)
+        get_systemd_unit_mock = mock.Mock(return_value=get_systemd_unit_result_mock)
+        self._agent._get_systemd_unit = get_systemd_unit_mock
+
         result = self._agent._chk_systemd_support()
         assert result is False
-
-        mock_have_binary.assert_called_once_with(
-            '/usr/bin/systemctl'
-        )
 
     @mock.patch('ocf.have_binary')
     def test_chk_systemd_support_binary_error(
