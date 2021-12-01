@@ -93,13 +93,10 @@ class TestSAPStartSrv(unittest.TestCase):
     def test_is_unit_active(self, mock_run_command):
         mock_result = mock.Mock(output='output', returncode=0)
         mock_run_command.return_value = mock_result
-        expected = True
-        self._agent.sid = 'PRD'
-        self._agent.instance_number = '00'
         self._agent.systemd_unit_name = 'SAPPRD_00.service'
 
         result = self._agent._is_unit_active()
-        assert result == expected
+        assert result is True
         mock_run_command.assert_called_once_with(
             '/usr/bin/systemctl is-active SAPPRD_00.service')
 
@@ -107,13 +104,10 @@ class TestSAPStartSrv(unittest.TestCase):
     def test_is_unit_not_active(self, mock_run_command):
         mock_result = mock.Mock(output='output', returncode=1)
         mock_run_command.return_value = mock_result
-        expected = False
-        self._agent.sid = 'PRD'
-        self._agent.instance_number = '00'
         self._agent.systemd_unit_name = 'SAPPRD_00.service'
 
         result = self._agent._is_unit_active()
-        assert result == expected
+        assert result is False
         mock_run_command.assert_called_once_with(
             '/usr/bin/systemctl is-active SAPPRD_00.service')
 
@@ -121,13 +115,10 @@ class TestSAPStartSrv(unittest.TestCase):
     def test_get_systemd_unit_success(self, mock_run_command):
         mock_result = mock.Mock(output='output', returncode=0)
         mock_run_command.return_value = mock_result
-        expected = True
-        self._agent.sid = 'PRD'
-        self._agent.instance_number = '00'
         self._agent.systemd_unit_name = 'SAPPRD_00.service'
 
         result = self._agent._get_systemd_unit()
-        assert result == expected
+        assert result is True
         mock_run_command.assert_called_once_with(
             '/usr/bin/systemctl list-unit-files SAPPRD_00.service')
 
@@ -135,42 +126,37 @@ class TestSAPStartSrv(unittest.TestCase):
     def test_get_systemd_unit_error(self, mock_run_command):
         mock_result = mock.Mock(output='output', returncode=1)
         mock_run_command.return_value = mock_result
-        expected = False
-        self._agent.sid = 'PRD'
-        self._agent.instance_number = '00'
         self._agent.systemd_unit_name = 'SAPPRD_00.service'
 
         result = self._agent._get_systemd_unit()
-        assert result == expected
+        assert result is False
         mock_run_command.assert_called_once_with(
             '/usr/bin/systemctl list-unit-files SAPPRD_00.service')
 
-    @mock.patch('os.path.exists')
     @mock.patch('ocf.have_binary')
+    @mock.patch('os.path.exists')
     def test_chk_systemd_support_binary_success(
             self, mock_exists, mock_have_binary):
 
-        self._agent.sid = 'PRD'
-        self._agent.instance_number = '00'
         self._agent.systemd_unit_name = 'SAPPRD_00.service'
 
         mock_have_binary.return_value = True
-
         mock_exists.return_value = False
 
-        get_systemd_unit_result_mock = mock.Mock(returncode=False)
-        get_systemd_unit_mock = mock.Mock(return_value=get_systemd_unit_result_mock)
+        get_systemd_unit_mock = mock.Mock(return_value=False)
         self._agent._get_systemd_unit = get_systemd_unit_mock
 
         result = self._agent._chk_systemd_support()
         assert result is False
 
+        mock_have_binary.assert_called_once_with(
+            '/usr/bin/systemctl'
+        )
+
     @mock.patch('ocf.have_binary')
     def test_chk_systemd_support_binary_error(
             self, mock_have_binary):
 
-        self._agent.sid = 'PRD'
-        self._agent.instance_number = '00'
         self._agent.systemd_unit_name = 'SAPPRD_00.service'
 
         mock_have_binary.return_value = False
@@ -185,10 +171,8 @@ class TestSAPStartSrv(unittest.TestCase):
     @mock.patch('ocf.have_binary')
     @mock.patch('os.path.exists')
     def test_chk_systemd_support_binary_success_exists_success(
-            self, mock_have_binary, mock_exists):
+            self, mock_exists, mock_have_binary):
 
-        self._agent.sid = 'PRD'
-        self._agent.instance_number = '00'
         self._agent.systemd_unit_name = 'SAPPRD_00.service'
 
         mock_have_binary.return_value = True
@@ -198,57 +182,57 @@ class TestSAPStartSrv(unittest.TestCase):
         assert result is True
 
         mock_have_binary.assert_called_once_with(
-            '/etc/systemd/system/SAPPRD_00.service'
+            '/usr/bin/systemctl'
         )
         mock_exists.assert_called_once_with(
-            '/usr/bin/systemctl'
+            '/etc/systemd/system/SAPPRD_00.service'
         )
 
     @mock.patch('ocf.have_binary')
     @mock.patch('os.path.exists')
     def test_chk_systemd_support_binary_success_exists_error(
-            self, mock_have_binary, mock_exists):
+            self, mock_exists, mock_have_binary):
 
-        self._agent.sid = 'PRD'
-        self._agent.instance_number = '00'
         self._agent.systemd_unit_name = 'SAPPRD_00.service'
 
         mock_have_binary.return_value = True
         mock_exists.return_value = False
 
+        get_systemd_unit_mock = mock.Mock(return_value=False)
+        self._agent._get_systemd_unit = get_systemd_unit_mock
+
         result = self._agent._chk_systemd_support()
         assert result is False
 
-        mock_exists.assert_called_once_with(
+        mock_have_binary.assert_called_once_with(
             '/usr/bin/systemctl'
         )
+        mock_exists.assert_called_once_with(
+            '/etc/systemd/system/SAPPRD_00.service'
+        )
 
-    @mock.patch('os.path.exists')
     @mock.patch('ocf.have_binary')
-    def test_chk_systemd_support(
+    @mock.patch('os.path.exists')
+    def test_chk_systemd_support_binary_success_exists_error_get_unit(
             self, mock_exists, mock_have_binary):
 
-        self._agent.sid = 'PRD'
-        self._agent.instance_number = '00'
         self._agent.systemd_unit_name = 'SAPPRD_00.service'
 
-        mock_have_binary.side_effect = [True, False]
+        mock_have_binary.return_value = True
+        mock_exists.return_value = False
 
-        mock_exists.side_effect = [True, False]
-
-        get_systemd_unit_result_mock = mock.Mock(returncode=True)
-        get_systemd_unit_mock = mock.Mock(return_value=get_systemd_unit_result_mock)
+        get_systemd_unit_mock = mock.Mock(return_value=True)
         self._agent._get_systemd_unit = get_systemd_unit_mock
 
         result = self._agent._chk_systemd_support()
         assert result is True
 
-        mock_have_binary.assert_has_calls([
-            mock.call('/etc/systemd/system/SAPPRD_00.service'),
-        ])
-        mock_exists.assert_has_calls([
-            mock.call('/usr/bin/systemctl')
-        ])
+        mock_have_binary.assert_called_once_with(
+            '/usr/bin/systemctl'
+        )
+        mock_exists.assert_called_once_with(
+            '/etc/systemd/system/SAPPRD_00.service'
+        )
 
     @mock.patch('ocf.logger.info')
     @mock.patch('SAPStartSrv.run_command')
