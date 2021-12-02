@@ -1,7 +1,7 @@
 [Unit]
 Description=Hiding sapservices file from sapinit
 Documentation=man:sapservices-move(8)
-Before=sapinit.service
+Before=sapinit.service pacemaker.service
 
 [Service]
 Type=oneshot

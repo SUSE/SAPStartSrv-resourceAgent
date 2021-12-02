@@ -9,7 +9,7 @@
 # Based on code from: Fabian Herschel
 # Support:
 # License:      GNU General Public License (GPL)
-# Copyright:    (c) 2020 SUSE LLC
+# Copyright:    (c) 2020-2021 SUSE LLC
 #
 # An example usage:
 #      See usage() function below for more details...
@@ -46,6 +46,8 @@ SHORT_DESC = 'Manages an sapstartsrv of a specific SAP instance as an HA resourc
 
 MONITOR_SERVICES_DEFAULT = \
     'disp+work|msg_server|enserver|enrepserver|jcontrol|jstart|enq_server|enq_replicator'
+
+SYSTEMCTL = '/usr/bin/systemctl'
 
 class ProcessResult(object):
     """
@@ -90,6 +92,7 @@ class SapStartSrv(object):
         self.sidadm = None
         self.instance_name = None
         self.instance_number = None
+        self.systemd_unit_name = None
         self.virtual_host = None
         self.dir_executable = None
         self.saptstartsrv_path = None
@@ -176,19 +179,20 @@ class SapStartSrv(object):
         '''
 
         if len(self.full_name.split('_')) != 3:
-          logger.error('InstanceName parsing error. It must follow SID_NAME00_VIRTHOST syntax')
-          return ocf.OCF_ERR_ARGS
+            logger.error('InstanceName parsing error. It must follow SID_NAME00_VIRTHOST syntax')
+            return ocf.OCF_ERR_ARGS
 
         try:
-          self.sid = self.full_name.split('_')[0]
-          self.instance_name = self.full_name.split('_')[1]
-          self.virtual_host = '_'.join(self.full_name.split('_')[2:])
-          instance_data = re.match('[a-zA-Z]+([0-9]{2})', self.instance_name).groups()
-          self.instance_number = instance_data[0]
-          self.sidadm = '{}adm'.format(self.sid.lower())
+            self.sid = self.full_name.split('_')[0]
+            self.instance_name = self.full_name.split('_')[1]
+            self.virtual_host = '_'.join(self.full_name.split('_')[2:])
+            instance_data = re.match('[a-zA-Z]+([0-9]{2})', self.instance_name).groups()
+            self.instance_number = instance_data[0]
+            self.sidadm = '{}adm'.format(self.sid.lower())
+            self.systemd_unit_name = 'SAP{}_{}.service'.format(self.sid.upper(), self.instance_number)
         except (IndexError, AttributeError):
-          logger.error('InstanceName parsing error. It must follow SID_NAME00_VIRTHOST syntax')
-          return ocf.OCF_ERR_ARGS
+            logger.error('InstanceName parsing error. It must follow SID_NAME00_VIRTHOST syntax')
+            return ocf.OCF_ERR_ARGS
 
         result = self._find_executables()
         if result != ocf.OCF_SUCCESS:
@@ -204,11 +208,64 @@ class SapStartSrv(object):
 
         return ocf.OCF_SUCCESS
 
-    def start(self):
+    def _is_unit_active(self):
+        '''
+        Run systemctl is-active unit_name
+        '''
+        result = run_command(
+            '{} is-active {}'.format(SYSTEMCTL, self.systemd_unit_name))
+        return result.returncode == 0
+
+    def _get_systemd_unit(self):
+        '''
+        Run systemctl list-unit-files unit_name
+        '''
+        result = run_command(
+            '{} list-unit-files {}'.format(SYSTEMCTL, self.systemd_unit_name))
+        return result.returncode == 0
+
+    def _chk_systemd_support(self):
+        '''
+        Check availability of SAP systemd support
+        '''
+        if ocf.have_binary(SYSTEMCTL):
+            unit_file = '/etc/systemd/system/{}'.format(self.systemd_unit_name)
+            if os.path.exists(unit_file):
+                return True
+            if self._get_systemd_unit():
+                return True
+
+        return False
+
+    def _start_systemd_style(self):
+        '''
+        Run systemctl start unit
+        '''
+        if self._is_unit_active():
+            logger.info(
+                'systemd service %s is active' % (self.systemd_unit_name))
+            return ocf.OCF_SUCCESS
+
+        logger.warn(
+            'systemd service %s is not active, it will be started using systemd' %
+            (self.systemd_unit_name))
+        result = run_command(
+            '{} start {}'.format(SYSTEMCTL, self.systemd_unit_name))
+        if result.returncode == 0:
+            return ocf.OCF_SUCCESS
+
+        logger.error(
+            'error during start of systemd unit %s!' %
+            (self.systemd_unit_name))
+        if ocf.is_probe():
+            return ocf.OCF_NOT_RUNNING
+
+        return ocf.OCF_ERR_GENERIC
+
+    def _start_sys5_style(self):
         '''
         Run sapstartsrv command
         '''
-        self._inititialize()
         run_command('rm -f /tmp/.sapstream5{}13'.format(self.instance_number))
         run_command('rm -f /tmp/.sapstream5{}14'.format(self.instance_number))
         start_result = run_command('{} pf={} -D -u {}'.format(
@@ -224,11 +281,24 @@ class SapStartSrv(object):
         logger.error(
             'sapstartsrv for SAP Instance %s-%s start failed: %s' %
             (self.sid, self.instance_name, start_result.err))
+
         return ocf.OCF_NOT_RUNNING
+
+    def start(self):
+        '''
+        Start sapstartsrv
+        '''
+        self._inititialize()
+        if self._chk_systemd_support():
+            result = self._start_systemd_style()
+        else:
+            result = self._start_sys5_style()
+
+        return result
 
     def stop(self):
         '''
-        Run sapcontrol command to with StopService
+        Run sapcontrol command with StopService
         '''
         self._inititialize()
         result = self._get_status()
