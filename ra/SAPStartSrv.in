@@ -107,6 +107,8 @@ class SapStartSrv(object):
         result = run_command(
             'pgrep -f -l "sapstartsrv.*pf=.*{}_{}_{}"'.format(
                 self.sid, self.instance_name, self.virtual_host))
+        if result.returncode == 0 and not re.match(r'.*\bsapstartsrv\b.*', result.output):
+            result.returncode = 1
         logger.info('Current status: %d. Output: %s' % (result.returncode, result.output))
         return result
 
