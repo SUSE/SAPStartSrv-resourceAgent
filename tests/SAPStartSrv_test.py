@@ -238,6 +238,20 @@ class TestSAPStartSrv(unittest.TestCase):
     @mock.patch('SAPStartSrv.run_command')
     def test_get_status(self, mock_run_command, mock_logger):
 
+        mock_result = mock.Mock(output=' sapstartsrv ', returncode=0)
+        mock_run_command.return_value = mock_result
+        self._agent.sid = 'PRD'
+        self._agent.instance_name = 'ASCS00'
+        self._agent.virtual_host = 'virthost'
+
+        result = self._agent._get_status()
+        assert result == mock_result
+        mock_run_command.assert_called_once_with(
+            'pgrep -f -l "sapstartsrv.*pf=.*PRD_ASCS00_virthost"')
+        mock_logger.assert_called_once_with('Current status: 0. Output:  sapstartsrv ')
+
+        mock_run_command.reset_mock()
+        mock_logger.reset_mock()
         mock_result = mock.Mock(output='output', returncode=0)
         mock_run_command.return_value = mock_result
         self._agent.sid = 'PRD'
@@ -248,7 +262,7 @@ class TestSAPStartSrv(unittest.TestCase):
         assert result == mock_result
         mock_run_command.assert_called_once_with(
             'pgrep -f -l "sapstartsrv.*pf=.*PRD_ASCS00_virthost"')
-        mock_logger.assert_called_once_with('Current status: 0. Output: output')
+        mock_logger.assert_called_once_with('Current status: 1. Output: output')
 
     @mock.patch('ocf.OCF_SUCCESS', 0)
     @mock.patch('ocf.have_binary')
