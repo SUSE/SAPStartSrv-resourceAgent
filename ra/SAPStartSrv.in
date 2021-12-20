@@ -222,8 +222,11 @@ class SapStartSrv(object):
         '''
         Run systemctl list-unit-files unit_name
         '''
+        pattern = r'.*\s%s.*' % self.systemd_unit_name
         result = run_command(
             '{} list-unit-files {}'.format(SYSTEMCTL, self.systemd_unit_name))
+        if result.returncode == 0 and not re.match(pattern, result.output):
+            result.returncode = 1
         return result.returncode == 0
 
     def _chk_systemd_support(self):

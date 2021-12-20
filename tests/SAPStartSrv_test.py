@@ -113,7 +113,7 @@ class TestSAPStartSrv(unittest.TestCase):
 
     @mock.patch('SAPStartSrv.run_command')
     def test_get_systemd_unit_success(self, mock_run_command):
-        mock_result = mock.Mock(output='output', returncode=0)
+        mock_result = mock.Mock(output='UNIT FILE    STATE  \nSAPPRD_00.service\n\n1 unit files listed.\n', returncode=0)
         mock_run_command.return_value = mock_result
         self._agent.systemd_unit_name = 'SAPPRD_00.service'
 
