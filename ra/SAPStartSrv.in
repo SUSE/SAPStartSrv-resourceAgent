@@ -15,8 +15,8 @@
 #      See usage() function below for more details...
 #
 # OCF instance parameters:
-#	- OCF_RESKEY_InstanceName
-#	- not currently OCF_RESKEY_START_PROFILE (optional, well known directories will be
+#       - OCF_RESKEY_InstanceName
+#       - not currently OCF_RESKEY_START_PROFILE (optional, well known directories will be
 #     searched by default)
 #
 #   - supports sapstartsrv for SAP instances NW7.40 or newer, SAP S/4HANA ABAP Platform 1909
@@ -49,6 +49,7 @@ MONITOR_SERVICES_DEFAULT = \
 
 SYSTEMCTL = '/usr/bin/systemctl'
 
+
 class ProcessResult(object):
     """
     Class to store subprocess.Popen output information and offer some
@@ -64,7 +65,7 @@ class ProcessResult(object):
     def __init__(self, cmd, returncode, output, err):
         self.cmd = cmd
         self.returncode = returncode
-        self.output = output.decode() # Make it compatiable with python2 and 3
+        self.output = output.decode()  # Make it compatiable with python2 and 3
         self.err = err.decode()
 
 
@@ -139,10 +140,10 @@ class SapStartSrv(object):
 
         if ocf.have_binary(self.saptstartsrv_path) and ocf.have_binary(self.sapcontrol_path):
             return ocf.OCF_SUCCESS
-        else:
-            logger.error(
-                'Cannot find sapstartsrv and sapcontrol executable in %s' %
-                (self.dir_executable))
+
+        logger.error(
+            'Cannot find sapstartsrv and sapcontrol executable in %s' %
+            (self.dir_executable))
 
         # Find executables in standard locations. E.g: /usr/sap/HA1/ASCS00/exe/run
         self.dir_executable = '/usr/sap/{}/{}/exe/run'.format(self.sid, self.instance_name)
@@ -222,8 +223,11 @@ class SapStartSrv(object):
         '''
         Run systemctl list-unit-files unit_name
         '''
+        pattern = r'.*\s%s.*' % self.systemd_unit_name
         result = run_command(
             '{} list-unit-files {}'.format(SYSTEMCTL, self.systemd_unit_name))
+        if result.returncode == 0 and not re.match(pattern, result.output):
+            result.returncode = 1
         return result.returncode == 0
 
     def _chk_systemd_support(self):
@@ -292,11 +296,9 @@ class SapStartSrv(object):
         '''
         self._inititialize()
         if self._chk_systemd_support():
-            result = self._start_systemd_style()
-        else:
-            result = self._start_sys5_style()
+            return self._start_systemd_style()
 
-        return result
+        return self._start_sys5_style()
 
     def stop(self):
         '''
@@ -342,8 +344,8 @@ class SapStartSrv(object):
         if ocf.is_probe():
             if self._get_status().returncode == 0:
                 return ocf.OCF_SUCCESS
-            else:
-                return ocf.OCF_NOT_RUNNING
+
+            return ocf.OCF_NOT_RUNNING
         '''
         For regular monitors always return success, because recover of sapstartsrv is already handeled by SAPInstance
         This might be changed in a next-generation edition
@@ -389,8 +391,8 @@ def main():
     sapstartsrv_agent.add_parameter(
         name='InstanceName',
         shortdesc='Instance name: SID_INSTANCE_VIR-HOSTNAME',
-        longdesc='The full qualified SAP instance name. e.g. HA1_ASCS00_sapha1as. ' \
-            'Usually this is the name of the SAP instance profile.',
+        longdesc='The full qualified SAP instance name. e.g. HA1_ASCS00_sapha1as. '
+                 'Usually this is the name of the SAP instance profile.',
         content_type='string',
         required=True,
         unique=True,
@@ -400,8 +402,8 @@ def main():
     sapstartsrv_agent.add_parameter(
         name='START_PROFILE',
         shortdesc='Start profile name',
-        longdesc='The name of the SAP Instance profile. Specify this parameter, if you have ' \
-            'changed the name of the SAP Instance profile after the default SAP installation.',
+        longdesc='The name of the SAP Instance profile. Specify this parameter, if you have '
+                 'changed the name of the SAP Instance profile after the default SAP installation.',
         content_type='string',
         unique=True,
         default=''
