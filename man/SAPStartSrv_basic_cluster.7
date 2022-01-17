@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH SAPStartSrv_basic_cluster 7 "05 Jan 2021" "" "SAPStartSrv"
+.TH SAPStartSrv_basic_cluster 7 "15 Jan 2022" "" "SAPStartSrv"
 .\"
 .SH NAME
 SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
@@ -32,6 +32,22 @@ actions.
 A value of 9 (for HZ=250) should let Linux TCP connections timeout fast enough
 for default SAP application server and central services configuration.
 .\" TODO NFS mount options for smooth takeover of sap instances, e.g. soft?
+.PP
+\fBUsers and groups\fR
+
+Technical users and groups, such as <sid>adm are defined locally in the Linux
+system. See man page passwd(5).
+
+\fBHostnames\fR
+
+Name resolution of the cluster nodes and the virtual IP address must be done
+locally on all cluster nodes. See man page hosts(5).
+
+\fBTime synchronization\fR
+
+Strict time synchronization between the cluster nodes is mandatory, e.g. per NTP.
+See man page chrony.conf(5).
+
 .PP
 \fB* CRM Basics\fR
 
@@ -269,7 +285,8 @@ Please report feedback and suggestions to feedback@suse.com.
 \fBocf_suse_SAPStartSrv\fP(7) , \fBsap_suse_cluster_connector\fP(8) ,
 \fBocf_pacemaker_ping\fP(7) , \fBocf_heartbeat_ethmonitor\fP(7) ,
 \fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) , \fBcrm\fP(8) ,
-\fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) ,
+\fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) , \fBhosts\fP(5) ,
+ \fBpasswd\fP(5) ,  \fBchrony.conf\fP(5) ,
 .br
 https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
 .\" TODO https://pracucci.com/linux-tcp-rto-min-max-and-tcp-retries2.html
