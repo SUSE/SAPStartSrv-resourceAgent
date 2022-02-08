@@ -42,7 +42,8 @@ for default SAP application server and central services configuration.
 \fBUsers and groups\fR
 
 Technical users and groups, such as <sid>adm are defined locally in the Linux
-system. See man page passwd(5).
+system. Further user <sid>adm needs to be in  group haclient.
+See man page passwd(5) and usermod(8.
 
 \fBHostnames\fR
 
@@ -286,6 +287,34 @@ to be disabled. Example SID is HA1, instance number is 10.
 .RE
 .br
 .PP
+\fB* SAP instance profile\fR
+.PP
+Check the instance profile for HA specific settings.
+Example SID is EN2, instance number is 10.
+.PP
+.RS 4
+.br
+# su - en2adm
+.br
+~> sapcontrol -nr 10 -function GetStartProfile |\\
+.br
+grep -e art_Program_ -e Autostart -e halib
+.br
+~> exit
+.RE
+.br
+.PP
+\fB* sidadm group membership\fR
+.PP
+Check if the sidadm user is member of the HA specific haclient group.
+Example SID is EN2.
+.PP
+.RS 4
+.br
+# groups en2adm
+.RE
+.br
+.PP
 .\"
 .SH FILES
 .TP
@@ -315,7 +344,7 @@ Please report feedback and suggestions to feedback@suse.com.
 \fBocf_pacemaker_ping\fP(7) , \fBocf_heartbeat_ethmonitor\fP(7) ,
 \fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) , \fBcrm\fP(8) ,
 \fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) , \fBhosts\fP(5) , \fBfstab\fP(5) ,
-\fBpasswd\fP(5) ,  \fBchrony.conf\fP(5) ,
+\fBpasswd\fP(5) , \fBgroups\fP(8) , \fBusermod\fP(8) , \fBchrony.conf\fP(5) ,
 .br
 https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
 .\" TODO https://pracucci.com/linux-tcp-rto-min-max-and-tcp-retries2.html
