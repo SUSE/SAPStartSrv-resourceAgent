@@ -343,9 +343,10 @@ For SystemV style, the sapinit script needs to be enabled.
 For systemd style, the service saphostagent needs to be enabled and running.
 Instance services SAP${SID}_${INO} need to be disabled. 
 The systemd enabled saphostagent and sapstartsrv is supported from
-sapstartsrv-resource-agents 0.9.1 onwards. Please refer to the OS documentation
-for the systemd version. Please refer to SAP documentation for the SAP HANA
-version.
+sapstartsrv-resource-agents 0.9.1 onwards.
+An appropriate SAPInstance resource agent is needed, newer than November 2021.
+Please refer to the OS documentation for the systemd version.
+Please refer to SAP documentation for the SAP HANA version.
 All nodes in one Linux cluster have to use the same style.
 .PP
 ./"
