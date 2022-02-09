@@ -1,6 +1,6 @@
 .\" Version: 0.1.0
 .\"
-.TH ocf_suse_SAPStartSrv 7 "25 Nov 2021" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "02 Feb 2022" "" "OCF resource agents"
 .\"
 .SH NAME
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
@@ -289,6 +289,7 @@ OCF_RESKEY_CRM_meta_interval=0 \\
 .PP
 .\" TODO example for checking enqueue table?
 .\" TODO example for checking process list?
+.PP
 .\"
 .SH FILES 
 .TP
@@ -337,6 +338,16 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 .PP
 * It is not allowed to block resources from being controlled manually. Thus BLOCK_RESOURCES in /etc/sap_suse_cluster_connector is not allowed anymore.
 .PP
+* You need SAP hostagent installed and started on your systems.
+For SystemV style, the sapinit script needs to be enabled.
+For systemd style, the service saphostagent needs to be enabled and running.
+Instance services SAP${SID}_${INO} need to be disabled. 
+The systemd enabled saphostagent and sapstartsrv is supported from
+sapstartsrv-resource-agents 0.9.1 onwards. Please refer to the OS documentation
+for the systemd version. Please refer to SAP documentation for the SAP HANA
+version.
+All nodes in one Linux cluster have to use the same style.
+.PP
 ./"
 .SH BUGS
 .\" In case of any problem, please use your favourite SAP support process to
@@ -348,11 +359,12 @@ Please report feedback and suggestions to feedback@suse.com.
 .\"
 .SH SEE ALSO
 \fBocf_heartbeat_SAPInstance\fP(7) , \fBocf_heartbeat_IPaddr2\fP(7) ,
-\fBSAPStartSrv_basic_cluster\fP(7) ,
+\fBSAPStartSrv_basic_cluster\fP(7) , \fBsystemctl\fP(1) ,
 .\" TODO aws-vpc-route53 gcp-vpc-move-route
 .\" TODO SAPStartSrv-showAttr(8) ?
 \fBsapservices-move\fP(8) , \fBsap_suse_cluster_connector\fP(8) ,
-\fBcrm\fP(8) , \fBnfs\fP(5) , \fBmount\fP(8) , \fBha_related_suse_tids\fP(7) ,
+\fBcrm\fP(8) , \fBnfs\fP(5) , \fBmount\fP(8) ,
+\fBha_related_suse_tids\fP(7) , \fBha_related_sap_notes\fP(7) ,
 .br
 https://documentation.suse.com/sbp/all/?context=sles-sap ,
 .br
@@ -406,7 +418,7 @@ X.Arbulu, F.Herschel, L.Pinne
 .PP
 .\"
 .SH COPYRIGHT
-(c) 2020-2021 SUSE LLC
+(c) 2020-2022 SUSE LLC
 .br
 The resource agent SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br
