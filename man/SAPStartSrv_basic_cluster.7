@@ -1,4 +1,4 @@
-.\" Version: 0.1.0
+.\" Version: 0.9.1
 .\"
 .TH SAPStartSrv_basic_cluster 7 "02 Feb 2022" "" "SAPStartSrv"
 .\"
@@ -19,9 +19,9 @@ might match specific needs.
 
 The services sapinit, sapping and sappong are needed for this cluster.
 
-For SystemV-style saphostagent and sapstartsrv, the sapinit script needs to be
+For SystemV style saphostagent and sapstartsrv, the sapinit script needs to be
 enabled.
-For systemd-style saphostagent and sapstartsrv, the service saphostagent needs
+For systemd style saphostagent and sapstartsrv, the service saphostagent needs
 to be enabled and running, instance services SAP${SID}_${INO} need to be disabled.
 See also REQUIREMENTS in man page ocf_suse_SAPStartSrv(7).
 .PP
@@ -270,7 +270,7 @@ location ASCS00_connected grp_EN2_ASCS00 \\
 .PP
 \fB* systemd services for the SAP instance\fR
 .PP
-In case systemd-style init is used for the SAP instance:
+In case systemd style init is used for the SAP instance:
 saphostagent needs to be enabled and running, instance services need
 to be disabled. Example SID is HA1, instance number is 10.
 .PP
@@ -283,7 +283,6 @@ to be disabled. Example SID is HA1, instance number is 10.
 # systemd-cgls -u SAP.slice
 .br
 # systemd-cgls -u SAPHA1_10.service
-.\" TODO check Autostart not set.
 .RE
 .br
 .PP
@@ -321,6 +320,9 @@ Example SID is EN2.
 /etc/passwd
 the local user database
 .TP
+/etc/groups
+the local group database
+.TP
 /etc/hosts
 the local hostname resolution database
 .TP
@@ -357,7 +359,7 @@ F.Herschel, L.Pinne
 .\"
 .SH COPYRIGHT
 .br
-(c) 2020-2021 SUSE LLC
+(c) 2020-2022 SUSE LLC
 .br
 SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br
