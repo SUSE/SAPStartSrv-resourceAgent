@@ -311,18 +311,18 @@ class SapStartSrv(object):
                 '{} -nr {} -function StopService'.format(
                     self.sapcontrol_path, self.instance_number))
             logger.info(
-                'Stopping sapstartsrv of SAP Instance %s-%s: %s' %
-                (self.sid, self.instance_number, stop_result.output))
+                'Stopping sapstartsrv of SAP Instance %s_%s: %s' %
+                (self.sid, self.instance_name, stop_result.output))
             if stop_result.returncode == 0:
                 return ocf.OCF_SUCCESS
 
             logger.error(
-                'SAP Instance %s-%s stop failed: %s' %
-                (self.sid, self.instance_number, stop_result.err))
+                'SAP Instance %s_%s stop failed: %s' %
+                (self.sid, self.instance_name, stop_result.err))
             return ocf.OCF_ERR_GENERIC
 
         logger.info(
-            'SAP Instance %s-%s already stopped' % (self.sid, self.instance_number))
+            'SAP Instance %s_%s already stopped' % (self.sid, self.instance_name))
         return ocf.OCF_SUCCESS
 
     def status(self):
