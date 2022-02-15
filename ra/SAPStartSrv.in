@@ -9,7 +9,7 @@
 # Based on code from: Fabian Herschel
 # Support:
 # License:      GNU General Public License (GPL)
-# Copyright:    (c) 2020-2021 SUSE LLC
+# Copyright:    (c) 2020-2022 SUSE LLC
 #
 # An example usage:
 #      See usage() function below for more details...
@@ -181,7 +181,7 @@ class SapStartSrv(object):
         Initialize variables
         '''
 
-        if len(self.full_name.split('_')) != 3:
+        if len(self.full_name.split('_')) < 3:
             logger.error('InstanceName parsing error. It must follow SID_NAME00_VIRTHOST syntax')
             return ocf.OCF_ERR_ARGS
 
@@ -280,12 +280,12 @@ class SapStartSrv(object):
         result = self._get_status()
         if result.returncode == 0:
             logger.info(
-                'sapstartsrv for SAP Instance %s-%s started: %s' %
+                'sapstartsrv for SAP Instance %s_%s started: %s' %
                 (self.sid, self.instance_name, start_result.output))
             return ocf.OCF_SUCCESS
 
         logger.error(
-            'sapstartsrv for SAP Instance %s-%s start failed: %s' %
+            'sapstartsrv for SAP Instance %s_%s start failed: %s' %
             (self.sid, self.instance_name, start_result.err))
 
         return ocf.OCF_NOT_RUNNING
@@ -311,18 +311,18 @@ class SapStartSrv(object):
                 '{} -nr {} -function StopService'.format(
                     self.sapcontrol_path, self.instance_number))
             logger.info(
-                'Stopping sapstartsrv of SAP Instance %s-%s: %s' %
-                (self.sid, self.instance_number, stop_result.output))
+                'Stopping sapstartsrv of SAP Instance %s_%s: %s' %
+                (self.sid, self.instance_name, stop_result.output))
             if stop_result.returncode == 0:
                 return ocf.OCF_SUCCESS
 
             logger.error(
-                'SAP Instance %s-%s stop failed: %s' %
-                (self.sid, self.instance_number, stop_result.err))
+                'SAP Instance %s_%s stop failed: %s' %
+                (self.sid, self.instance_name, stop_result.err))
             return ocf.OCF_ERR_GENERIC
 
         logger.info(
-            'SAP Instance %s-%s already stopped' % (self.sid, self.instance_number))
+            'SAP Instance %s_%s already stopped' % (self.sid, self.instance_name))
         return ocf.OCF_SUCCESS
 
     def status(self):
