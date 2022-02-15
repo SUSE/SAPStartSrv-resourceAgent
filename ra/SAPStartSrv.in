@@ -280,12 +280,12 @@ class SapStartSrv(object):
         result = self._get_status()
         if result.returncode == 0:
             logger.info(
-                'sapstartsrv for SAP Instance %s-%s started: %s' %
+                'sapstartsrv for SAP Instance %s_%s started: %s' %
                 (self.sid, self.instance_name, start_result.output))
             return ocf.OCF_SUCCESS
 
         logger.error(
-            'sapstartsrv for SAP Instance %s-%s start failed: %s' %
+            'sapstartsrv for SAP Instance %s_%s start failed: %s' %
             (self.sid, self.instance_name, start_result.err))
 
         return ocf.OCF_NOT_RUNNING
