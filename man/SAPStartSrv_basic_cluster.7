@@ -1,6 +1,6 @@
-.\" Version: 0.1.0
+.\" Version: 0.9.1
 .\"
-.TH SAPStartSrv_basic_cluster 7 "05 Jan 2021" "" "SAPStartSrv"
+.TH SAPStartSrv_basic_cluster 7 "02 Feb 2022" "" "SAPStartSrv"
 .\"
 .SH NAME
 SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
@@ -18,6 +18,12 @@ might match specific needs.
 \fBsystemd services\fR
 
 The services sapinit, sapping and sappong are needed for this cluster.
+
+For SystemV style saphostagent and sapstartsrv, the sapinit script needs to be
+enabled.
+For systemd style saphostagent and sapstartsrv, the service saphostagent needs
+to be enabled and running, instance services SAP${SID}_${INO} need to be disabled.
+See also REQUIREMENTS in man page ocf_suse_SAPStartSrv(7).
 .PP
 \fBtcp_retries2 = 9\fR
 
@@ -32,6 +38,27 @@ actions.
 A value of 9 (for HZ=250) should let Linux TCP connections timeout fast enough
 for default SAP application server and central services configuration.
 .\" TODO NFS mount options for smooth takeover of sap instances, e.g. soft?
+.PP
+\fBUsers and groups\fR
+
+Technical users and groups, such as <sid>adm are defined locally in the Linux
+system. Further user <sid>adm needs to be in  group haclient.
+See man page passwd(5) and usermod(8.
+
+\fBHostnames\fR
+
+Name resolution of the cluster nodes and the virtual IP address must be done
+locally on all cluster nodes. See man page hosts(5).
+
+\fBTime synchronization\fR
+
+Strict time synchronization between the cluster nodes is mandatory, e.g. per NTP.
+See man page chrony.conf(5).
+
+\fBNFS mounted filesystems\fR
+
+The shared filesystems /sapmnt/$SID/ and /usr/sap/$SID/ can be statically mounted
+on all cluster nodes. See man page fstab(5) and example below.
 .PP
 \fB* CRM Basics\fR
 
@@ -241,11 +268,60 @@ location ASCS00_connected grp_EN2_ASCS00 \\
 .RE
 .br
 .PP
+\fB* systemd services for the SAP instance\fR
+.PP
+In case systemd style init is used for the SAP instance:
+saphostagent needs to be enabled and running, instance services need
+to be disabled. Example SID is HA1, instance number is 10.
+.PP
+.RS 4
+.br
+# systemctl list-unit-files | grep -i sap
+.br
+# systemctl status SAPHA1_10.service
+.br
+# systemd-cgls -u SAP.slice
+.br
+# systemd-cgls -u SAPHA1_10.service
+.RE
+.br
+.PP
+\fB* SAP instance profile\fR
+.PP
+Check the instance profile for HA specific settings.
+Example SID is EN2, instance number is 10.
+.PP
+.RS 4
+.br
+# su - en2adm
+.br
+~> sapcontrol -nr 10 -function GetStartProfile |\\
+.br
+grep -e art_Program_ -e Autostart -e halib
+.br
+~> exit
+.RE
+.br
+.PP
+\fB* sidadm group membership\fR
+.PP
+Check if the sidadm user is member of the HA specific haclient group.
+Example SID is EN2.
+.PP
+.RS 4
+.br
+# groups en2adm
+.RE
+.br
+.PP
 .\"
 .SH FILES
 .TP
 /etc/passwd
 the local user database
+.TP
+/etc/groups
+the local group database
 .TP
 /etc/hosts
 the local hostname resolution database
@@ -269,7 +345,8 @@ Please report feedback and suggestions to feedback@suse.com.
 \fBocf_suse_SAPStartSrv\fP(7) , \fBsap_suse_cluster_connector\fP(8) ,
 \fBocf_pacemaker_ping\fP(7) , \fBocf_heartbeat_ethmonitor\fP(7) ,
 \fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) , \fBcrm\fP(8) ,
-\fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) ,
+\fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) , \fBhosts\fP(5) , \fBfstab\fP(5) ,
+\fBpasswd\fP(5) , \fBgroups\fP(8) , \fBusermod\fP(8) , \fBchrony.conf\fP(5) ,
 .br
 https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
 .\" TODO https://pracucci.com/linux-tcp-rto-min-max-and-tcp-retries2.html
@@ -282,7 +359,7 @@ F.Herschel, L.Pinne
 .\"
 .SH COPYRIGHT
 .br
-(c) 2020-2021 SUSE LLC
+(c) 2020-2022 SUSE LLC
 .br
 SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br
