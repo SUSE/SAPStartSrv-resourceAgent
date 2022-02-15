@@ -573,7 +573,7 @@ class TestSAPStartSrv(unittest.TestCase):
         ])
 
         mock_logger.assert_called_once_with(
-            'sapstartsrv for SAP Instance PRD-ASCS00 started: output')
+            'sapstartsrv for SAP Instance PRD_ASCS00 started: output')
 
     @mock.patch('ocf.logger.error')
     @mock.patch('ocf.OCF_NOT_RUNNING', 1)
@@ -603,7 +603,7 @@ class TestSAPStartSrv(unittest.TestCase):
         ])
 
         mock_logger.assert_called_once_with(
-            'sapstartsrv for SAP Instance PRD-ASCS00 start failed: error')
+            'sapstartsrv for SAP Instance PRD_ASCS00 start failed: error')
 
     @mock.patch('ocf.logger.info')
     @mock.patch('ocf.OCF_SUCCESS', 0)
@@ -760,6 +760,7 @@ class TestSAPStartSrv(unittest.TestCase):
     @mock.patch('SAPStartSrv.run_command')
     def test_stop_success(self, mock_run_command, mock_logger):
         self._agent._inititialize = mock.Mock()
+        self._agent.instance_name = 'ASCS00'
         self._agent.instance_number = '00'
         self._agent.sapcontrol_path = '/mock/sapcontrol'
         self._agent.sid = 'PRD'
@@ -778,14 +779,14 @@ class TestSAPStartSrv(unittest.TestCase):
         mock_run_command.assert_called_once_with('/mock/sapcontrol -nr 00 -function StopService')
 
         mock_logger.assert_called_once_with(
-            'Stopping sapstartsrv of SAP Instance PRD-00: output')
+            'Stopping sapstartsrv of SAP Instance PRD_ASCS00: output')
 
     @mock.patch('ocf.logger.info')
     @mock.patch('ocf.OCF_SUCCESS', 0)
     @mock.patch('SAPStartSrv.run_command')
     def test_stop_already_stopped(self, mock_run_command, mock_logger):
         self._agent._inititialize = mock.Mock()
-        self._agent.instance_number = '00'
+        self._agent.instance_name = 'ASCS00'
         self._agent.sid = 'PRD'
 
         self._agent._get_status = mock.Mock(return_value=mock.Mock(returncode=1))
@@ -799,13 +800,14 @@ class TestSAPStartSrv(unittest.TestCase):
         assert mock_run_command.call_count == 0
 
         mock_logger.assert_called_once_with(
-            'SAP Instance PRD-00 already stopped')
+            'SAP Instance PRD_ASCS00 already stopped')
 
     @mock.patch('ocf.logger.error')
     @mock.patch('ocf.OCF_ERR_GENERIC', 1)
     @mock.patch('SAPStartSrv.run_command')
     def test_stop_error(self, mock_run_command, mock_logger):
         self._agent._inititialize = mock.Mock()
+        self._agent.instance_name = 'ASCS00'
         self._agent.instance_number = '00'
         self._agent.sapcontrol_path = '/mock/sapcontrol'
         self._agent.sid = 'PRD'
@@ -824,7 +826,7 @@ class TestSAPStartSrv(unittest.TestCase):
         mock_run_command.assert_called_once_with('/mock/sapcontrol -nr 00 -function StopService')
 
         mock_logger.assert_called_once_with(
-            'SAP Instance PRD-00 stop failed: error')
+            'SAP Instance PRD_ASCS00 stop failed: error')
 
     @mock.patch('ocf.OCF_SUCCESS', 0)
     def test_status_success(self):
