@@ -9,7 +9,7 @@
 # Based on code from: Fabian Herschel
 # Support:
 # License:      GNU General Public License (GPL)
-# Copyright:    (c) 2020-2021 SUSE LLC
+# Copyright:    (c) 2020-2022 SUSE LLC
 #
 # An example usage:
 #      See usage() function below for more details...
@@ -181,7 +181,7 @@ class SapStartSrv(object):
         Initialize variables
         '''
 
-        if len(self.full_name.split('_')) != 3:
+        if len(self.full_name.split('_')) < 3:
             logger.error('InstanceName parsing error. It must follow SID_NAME00_VIRTHOST syntax')
             return ocf.OCF_ERR_ARGS
 
