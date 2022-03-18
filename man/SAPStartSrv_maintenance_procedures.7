@@ -1,6 +1,6 @@
 .\ Version: 0.9.1
 .\"
-.TH SAPStartSrv_maintenance_examples 7 "26 Nov 2021" "" "SAPStartSrv"
+.TH SAPStartSrv_maintenance_examples 7 "17 Mar 2022" "" "SAPStartSrv"
 .\"
 .SH NAME
 SAPStartSrv_maintenance_examples \- maintenance examples for SAPStartSrv
@@ -16,41 +16,126 @@ Please see ocf_suse_SAPStartSrv(7), SAPStartSrv_basic_cluster(7) and sap_suse_cl
 .SH EXAMPLES
 .PP
 \fB*\fR Check status of Linux cluster and ENSA replication pair.
-.br
+
 This steps should be performed before doing anything with the cluster, and
 after something has been done.
 .PP
-.RS 4
-# cs_clusterstate -a
+.RS 2
+# cs_clusterstate -i
 .br
 # crm_mon -1r
 .br
 # crm configure show | grep cli-
 .br
-# TODO sap_suse_cluster_connector ... sapcontrol ??
+# su - en1adm -c "sapcontrol -nr 00 -function GetSystemInstanceList"
+.br
+# su - en1adm -c "sapcontrol -nr 00 -function GetProcessList"
+.br
+# su - en1adm -c "sapcontrol -nr 00 -function HACheckMaintenanceMode"
+.br
+# su - en1adm -c "sapcontrol -nr 00 -function HAGetFailoverConfig"
 .br
 # cs_clusterstate -i
 .RE
 .PP
-\fB*\fR Initiate an administrative take-over of ASCS from one node to another by using the Linux cluster.
+\fB*\fR Set resource group of ASCS into maintenance.
+
+This is needed to allow manual actions on the ASCS group´s resources.
+In this example, SID is EN1, instance number of ASCS is 00.
+It is neccessary to wait for each step to complete and to check the result.
+See also exmaple below.
 .PP
-.RS 4
-TODO
-.RE
-.PP
-\fB*\fR Overview on SAP Rolling Kernel Switch procedure.
-.PP
-TODO SAP notes 2254173, 2077934, 1872602, 953653 
-.RS 4
-TODO
-.RE
-.PP
-\fB*\fR Seeting Linux HA cluster into maintenance
-.PP
-TODO SUM
+.RS 2
+# crm resource maintenance grp_EN1_ASCS00 on
 .br
-TODO SAP note 2464065
-.RS 4
+# crm configure show grp_EN1_ASCS00
+.RE
+.PP
+\fB*\fR Get resource group of ASCS back from maintenance.
+
+This is needed to put back under cluster control the ASCS group´s resources.
+In this example, SID is EN1, instance number of ASCS is 00.
+It is neccessary to wait for each step to complete and to check the result.
+See also exmaple above.
+.PP
+.RS 2
+# crm resource refresh grp_EN1_ASCS00
+.br
+# crm resource maintenance grp_EN1_ASCS00 off
+.br
+# crm configure show grp_EN1_ASCS00
+.RE
+.PP
+\fB*\fR Disable Linux cluster on all cluster nodes.
+
+On any cluster node the cluster will not start austomatically on boot anymore.
+Nevertheless a currently running cluster will keep running.
+.PP
+.RS 2
+# crm cluster run "crm cluster disable" 
+.br
+# crm cluster run "systemctl status pacemaker" | grep pacemaker.service
+.RE
+.PP
+\fB*\fR Start Linux cluster on all cluster nodes.
+.PP
+.RS 2
+# crm cluster run "crm cluster start"
+.br
+# crm cluster run "systemctl status pacemaker" | grep pacemaker.service
+.RE
+.PP
+\fB*\fR Perform an ASCS take-over by using SAP tools.
+
+In this example, SID is EN1, instance number of ASCS is 00, instance number
+of ERS is 10.
+Only two nodes are in the Linux cluster.
+As consequence of ASCS take-over, the cluster will move the ERS. 
+It is neccessary to wait for each step to complete and to check the result.
+.PP
+.RS 2
+# su - en1adm -c "sapcontrol -nr 00 -function HAFailoverToNode ''"
+.br
+# crm resource clear rsc_sap_EN1_ASCS00
+.br
+# crm resource cleanup rsc_sap_EN1_ERS10
+.RE
+.PP
+.\" \fB*\fR Overview on SAP Rolling Kernel Switch procedure.
+.\" .PP
+.\" TODO SAP notes 2254173, 2077934, 1872602, 953653 
+.\" TODO SUM
+.\" TODO SAP note 2464065
+.\" .RE
+.\" .PP
+\fB*\fR Overview on simple procedure for stopping and temporarily disabling the Linux cluster,
+ASCS and ERS instances get fully stopped.
+
+This procedure can be used to update SAP instances, OS or hardware.
+ASCS and ERS roles and resource status remains unchanged.
+It is neccessary to wait for each step to complete and to check the result.
+It also is neccessary to test and document the whole procedure before applying
+in production. The ASCS instance will not be available from step 1.2 to step 3.3.
+This is not compliant to official SAP upgrade procedures, like Rolling Kernel Switch.
+.PP
+.RS 2
+1.1 stopping ERS instance
+.br
+1.2 stopping ASCS instance
+.br
+1.3 disabling pacemaker on all cluster node
+.br
+1.4 stopping cluster on all cluster node
+.PP
+2. doing the maintenance activity
+.PP
+3.1 enabling pacemaker on all cluster nodes
+.br
+3.2 starting cluster on all cluster nodes
+.br
+3.3 starting ASCS instance
+.br
+3.4 starting ERS instance
 .RE
 .PP
 .\"
@@ -73,7 +158,7 @@ F.Herschel, L.Pinne
 .\"
 .SH COPYRIGHT
 .br
-(c) 2020-2021 SUSE LLC
+(c) 2020-2022 SUSE LLC
 .br
 SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br
