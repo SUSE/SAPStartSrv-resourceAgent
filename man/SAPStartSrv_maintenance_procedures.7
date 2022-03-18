@@ -66,9 +66,52 @@ See also exmaple above.
 # crm configure show grp_EN1_ASCS00
 .RE
 .PP
+\fB*\fR Set whole Linux cluster into maintenance.
+
+.RS 2
+# crm configure property maintenance-mode=true
+.br
+# crm_attribute --query -t crm_config -n maintenance-mode
+.RE
+.PP
+\fB*\fR Remove left-over maintenance attribute from overall Linux cluster.
+
+This could be done to avoid confusion caused by different maintenance procedures.
+See above overview on maintenance procedures whith running Linux cluster.
+Before doing so, check for cluster attribute maintenance-mode="false".
+.PP
+.RS 2
+# crm_attribute --delete -t crm_config -n maintenance-mode
+.br
+# crm_attribute --query -t crm_config -n maintenance-mode
+.RE
+.PP
+\fB*\fR Remove left-over standby attribute from Linux cluster nodes.
+
+This could be done to avoid confusion caused by different maintenance procedures.
+See above overview on maintenance procedures whith running Linux cluster.
+Before doing so for all nodes, check for node attribute standby="off" on all nodes.
+.PP
+.RS 2
+# crm_attribute --delete -t node -N node1 -n standby
+.br
+# crm_attribute --query -t node -N node1 -n standby
+.RE
+.PP
+\fB*\fR Remove left-over maintenance attribute from resource.
+
+This should usually not be needed.
+See above overview on maintenance procedures whith running Linux cluster.
+.PP
+.RS 2
+# crm_resource --resource grp_EN1_ASCS00 --delete-parameter maintenance --meta
+.\" .br
+.\" # TODO check
+.RE
+.PP
 \fB*\fR Disable Linux cluster on all cluster nodes.
 
-On any cluster node the cluster will not start austomatically on boot anymore.
+On any cluster node the cluster will not start automatically on boot anymore.
 Nevertheless a currently running cluster will keep running.
 .PP
 .RS 2
@@ -108,7 +151,7 @@ It is neccessary to wait for each step to complete and to check the result.
 .\" TODO SAP note 2464065
 .\" .RE
 .\" .PP
-\fB*\fR Overview on simple procedure for stopping and temporarily disabling the Linux cluster,
+\fB*\fR Overview on simple procedure for stopping and temporarily disabling the Linux cluster.
 ASCS and ERS instances get fully stopped.
 
 This procedure can be used to update SAP instances, OS or hardware.
@@ -138,6 +181,27 @@ This is not compliant to official SAP upgrade procedures, like Rolling Kernel Sw
 3.4 starting ERS instance
 .RE
 .PP
+\fB*\fR Overview on maintenance procedure for Linux cluster or OS. ASCS and ERS instances
+remain running.
+
+.RS 2
+1. Check status of Linux cluster and ASCS/ERS, see above.
+.br
+2. Set the Linux cluster into maintenance mode.
+.br
+3. Stop Linux Cluster on all nodes.
+.br
+4. Perform maintenance on Linux cluster or OS.
+.br
+5. Start Linux cluster on all nodes.
+.br
+6. Let Linux cluster detect status of ASCS/ERS resources.
+.br
+7. Set cluster ready for operations.
+.br
+8. Check status of Linux cluster and ASCS/ERS, see above.
+.RE
+.PP
 .\"
 .SH BUGS
 Please report feedback and suggestions to feedback@suse.com.
@@ -150,6 +214,7 @@ Please report feedback and suggestions to feedback@suse.com.
 \fBsbd\fP(8) , \fBcorosync-cfgtool\fP(8) ,
 \fBsystemctl\fP(8) ,
 \fBcs_clusterstate\fP(8) , \fBcs_wait_for_idle\fP(8) , \fBcs_show_ensa_status\fP(8) ,
+\fBha_related_sap_notes\fP(7)
 .PP
 .\"
 .SH AUTHORS
