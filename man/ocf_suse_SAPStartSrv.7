@@ -1,6 +1,6 @@
 .\" Version: 0.9.1
 .\"
-.TH ocf_suse_SAPStartSrv 7 "22 Feb 2022" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "23 Jun 2022" "" "OCF resource agents"
 .\"
 .SH NAME
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
@@ -121,7 +121,7 @@ The return codes are defined by the OCF cluster framework. Please refer to the O
 .SH EXAMPLES
 * Example configuration for SAP ASCS instance resource group in an ENSA2 setup.
 .br
-SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments. The SAPInstance has been given a fencing priority, a crm property priority-fencing-delay is needed to make this work. See SAPStartSrv_basic_cluster(7).
+SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments. The SAPInstance has been given a fencing priority, a crm property priority-fencing-delay is needed to make this work. See SAPStartSrv_basic_cluster(7). The shown SAPInstance monitor timeout is a trade-off between fast recovery of the ASCS vs. resilience against sporadic temporary NFS issues. You may slightly increase it to fit your infrastructure. Too short ASCS monitor timeouts likely will conflict with the instance´s internal recovery.
 The also needed ERS instance group and location constraint is shown in another example.
 .PP
 .RS 4
