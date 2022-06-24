@@ -1,6 +1,6 @@
 .\ Version: 0.9.1
 .\"
-.TH SAPStartSrv_maintenance_examples 7 "17 Mar 2022" "" "SAPStartSrv"
+.TH SAPStartSrv_maintenance_examples 7 "23 Jun 2022" "" "SAPStartSrv"
 .\"
 .SH NAME
 SAPStartSrv_maintenance_examples \- maintenance examples for SAPStartSrv
@@ -128,12 +128,12 @@ Nevertheless a currently running cluster will keep running.
 # crm cluster run "systemctl status pacemaker" | grep pacemaker.service
 .RE
 .PP
-\fB*\fR Perform an ASCS take-over by using SAP tools.
+\fB*\fR Perform an ASCS takeover by using SAP tools.
 
 In this example, SID is EN1, instance number of ASCS is 00, instance number
 of ERS is 10.
 Only two nodes are in the Linux cluster.
-As consequence of ASCS take-over, the cluster will move the ERS. 
+As consequence of ASCS takeover, the cluster will move the ERS. 
 It is neccessary to wait for each step to complete and to check the result.
 .PP
 .RS 2
