@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jul  5 15:32:26 UTC 2022 - abriel@suse.com
+
+- Version bump to 0.9.1
+- man page updates based on customer feedback on conferences
+
+-------------------------------------------------------------------
 Fri Feb 25 11:18:02 UTC 2022 - abriel@suse.com
 
 - Add systemd support for the resource agent to interact with the
