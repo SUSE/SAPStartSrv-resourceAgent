@@ -34,7 +34,6 @@ Requires:       resource-agents
 Requires:       pacemaker > 1.1.1
 Requires:       python3
 %if %{with test}
-BuildRequires:  python3-mock
 BuildRequires:  python3-pytest
 %endif
 
