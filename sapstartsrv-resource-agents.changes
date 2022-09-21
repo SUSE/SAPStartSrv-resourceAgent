@@ -1,8 +1,10 @@
 -------------------------------------------------------------------
-Tue Jul  5 15:32:26 UTC 2022 - abriel@suse.com
+Wed Sep 14 09:37:25 UTC 2022 - abriel@suse.com
 
 - Version bump to 0.9.1
 - man page updates based on customer feedback on conferences
+- remove 'BuildRequire python3-mock' as this is no longer needed
+  for the tests
 
 -------------------------------------------------------------------
 Fri Feb 25 11:18:02 UTC 2022 - abriel@suse.com
