@@ -1,7 +1,7 @@
 [Unit]
 Description=Unhiding sapservices file from sapinit
 Documentation=man:sapservices-move(8)
-After=sapinit.service
+After=sapinit.service sapping.service
 
 [Service]
 Type=oneshot
