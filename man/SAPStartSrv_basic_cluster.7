@@ -1,6 +1,6 @@
 .\" Version: 0.9.1
 .\"
-.TH SAPStartSrv_basic_cluster 7 "02 Feb 2022" "" "SAPStartSrv"
+.TH SAPStartSrv_basic_cluster 7 "30 Jan 2023" "" "SAPStartSrv"
 .\"
 .SH NAME
 SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
@@ -286,6 +286,17 @@ to be disabled. Example SID is HA1, instance number is 10.
 .RE
 .br
 .PP
+\fB* check saphostagent and show SAP instances\fR
+.PP
+Basic check for the saphostagent.
+.PP
+.RS 4
+# /usr/sap/hostctrl/exe/saphostctrl -function Ping
+.br
+# /usr/sap/hostctrl/exe/saphostctrl -function ListInstances
+.RE
+.br
+.PP
 \fB* SAP instance profile\fR
 .PP
 Check the instance profile for HA specific settings.
@@ -334,10 +345,15 @@ OS kernel parameters, e.g. TCP tunables
 .TP
 /etc/fstab
 filesystem table, for statically mounted NFS shares
+.TP
+/etc/systemd/system/SAP<SID>_<NR>.service
+systemd unit file for SAP instance
 .\" TODO
 .PP
 .\"
 .SH BUGS
+In case of any problem, please use your favourite SAP support process to open
+a request for the component BC-OP-LNX-SUSE.
 Please report feedback and suggestions to feedback@suse.com.
 .PP
 .\"
@@ -347,6 +363,15 @@ Please report feedback and suggestions to feedback@suse.com.
 \fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) , \fBcrm\fP(8) ,
 \fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) , \fBhosts\fP(5) , \fBfstab\fP(5) ,
 \fBpasswd\fP(5) , \fBgroups\fP(8) , \fBusermod\fP(8) , \fBchrony.conf\fP(5) ,
+\fBsystemctl\fP(1) ,
+\fBsystemd-cgls\fP(1) , \fBsystemd-analyze\fP(1) , \fBsystemd-delta\fP(1) ,
+\fBha_related_suse_tids\fP(7) , \fBha_related_sap_notes\fP(7) ,
+.br
+https://documentation.suse.com/sbp/all/?context=sles-sap ,
+.br
+https://documentation.suse.com/sles-sap/ ,
+.br
+https://www.suse.com/support/kb/ ,
 .br
 https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
 .\" TODO https://pracucci.com/linux-tcp-rto-min-max-and-tcp-retries2.html
@@ -359,7 +384,7 @@ F.Herschel, L.Pinne
 .\"
 .SH COPYRIGHT
 .br
-(c) 2020-2022 SUSE LLC
+(c) 2020-2023 SUSE LLC
 .br
 SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br
