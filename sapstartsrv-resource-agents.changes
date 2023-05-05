@@ -9,7 +9,8 @@ Fri May  5 08:18:17 UTC 2023 - abriel@suse.com
     sapstartsrv process
     (bsc#1210790)
 
-- add python3-psutil as package requirement
+- add python3-psutil as package requirement and as build
+  requirement in case of testing
   needed for bsc#1210790
 
 -------------------------------------------------------------------
