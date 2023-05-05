@@ -12,12 +12,12 @@ env:
 
 jobs:
   unit-tests:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: [2.7, 3.6, 3.7, 3.8, 3.9]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest pytest-cov mock
+        pip install pytest pytest-cov mock psutil
     - name: Test with pytest
       run: py.test -vv --cov=SAPStartSrv --cov-config .coveragerc --cov-report term --cov-report xml tests
     - name: Publish code coverage
@@ -40,7 +40,7 @@ jobs:
 
   delivery:
     needs: unit-tests
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: ${{ github.event_name != 'pull_request' }}
     container:
       image: shap/continuous_deliver
@@ -49,7 +49,7 @@ jobs:
         OBS_PASS: ${{ secrets.OBS_PASS }}
         OBS_PROJECT: ${{ secrets.OBS_PROJECT }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
     # OSC credentials must be configured beforehand as the HOME variables cannot be changed from /github/home
@@ -67,7 +67,7 @@ jobs:
 
   submission:
     needs: [unit-tests, delivery]
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
     container:
       image: shap/continuous_deliver
@@ -77,7 +77,7 @@ jobs:
         OBS_PROJECT: ${{ secrets.OBS_PROJECT }}
         TARGET_PROJECT: ${{ secrets.TARGET_PROJECT }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - name: configure OSC

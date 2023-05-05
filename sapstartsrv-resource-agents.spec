@@ -1,7 +1,7 @@
 #
 # spec file for package sapstartsrv-resource-agents
 #
-# Copyright (c) 2020-2022 SUSE LLC.
+# Copyright (c) 2020-2023 SUSE LLC.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -33,8 +33,10 @@ BuildRequires:  resource-agents
 Requires:       resource-agents
 Requires:       pacemaker > 1.1.1
 Requires:       python3
+Requires:       python3-psutil
 %if %{with test}
 BuildRequires:  python3-pytest
+BuildRequires:  python3-psutil
 %endif
 
 %define raname SAPStartSrv
