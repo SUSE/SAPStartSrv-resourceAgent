@@ -2,8 +2,8 @@
 # - *- coding: utf- 8 - *-
 #
 #
-# Description:  Manages a single sapstartrv on an SAP Instance as a High-Availability
-#               resource.
+# Description:  Manages a single sapstartrv on an SAP Instance as
+#               a High-Availability resource.
 #
 # Author:       Xabier Arbulu, September 2020
 # Based on code from: Fabian Herschel
@@ -16,11 +16,12 @@
 #
 # OCF instance parameters:
 #       - OCF_RESKEY_InstanceName
-#       - not currently OCF_RESKEY_START_PROFILE (optional, well known directories will be
-#     searched by default)
+#       - not currently OCF_RESKEY_START_PROFILE (optional, well known
+#         directories will be searched by default)
 #
-#   - supports sapstartsrv for SAP instances NW7.40 or newer, SAP S/4HANA ABAP Platform 1909
-#     or newer (central services and enqueue replication)
+#   - supports sapstartsrv for SAP instances NW7.40 or newer,
+#     SAP S/4HANA ABAP Platform 1909 or newer
+#     (central services and enqueue replication)
 #   - MUST NOT be used for SAP HANA in system replication
 #   - MUST NOT be used for SAP HANA standalone Scale-Up or Scale-Out systems
 #
@@ -31,6 +32,7 @@ import sys
 import re
 import subprocess
 import shlex
+import psutil
 
 OCF_FUNCTIONS_DIR = os.environ.get(
     "OCF_FUNCTIONS_DIR",
@@ -38,7 +40,7 @@ OCF_FUNCTIONS_DIR = os.environ.get(
 sys.path.append(OCF_FUNCTIONS_DIR)
 
 import ocf  # noqa: E402
-from ocf import logger
+from ocf import logger  # noqa: E402
 
 LONG_DESC = '''Long description of SAPStartSrv to be done (python version)'''
 
@@ -105,12 +107,23 @@ class SapStartSrv(object):
         '''
         Get sapstartsrv status returning ProcessResult object
         '''
-        result = run_command(
-            'pgrep -f -l "sapstartsrv.*pf=.*{}_{}_{}"'.format(
-                self.sid, self.instance_name, self.virtual_host))
-        if result.returncode == 0 and not re.match(r'.*\bsapstartsrv\b.*', result.output):
-            result.returncode = 1
-        logger.info('Current status: %d. Output: %s' % (result.returncode, result.output))
+        sap_inst_pf = 'pf={}'.format(self.sap_instance_profile)
+        result = 1
+        res_out = 'No running sapstartsrv process found for {} with {}'.format(
+            self.saptstartsrv_path, sap_inst_pf)
+        for process in psutil.process_iter(['pid', 'ppid', 'name', 'cmdline']):
+            try:
+                cmdline = process.cmdline()
+            except (psutil.AccessDenied, psutil.ZombieProcess, psutil.NoSuchProcess):
+                continue
+            if process.name() == "sapstartsrv":
+                if self.saptstartsrv_path in cmdline and sap_inst_pf in cmdline:
+                    result = 0
+                    res_out = 'Found runnig sapstartsrv process - PID:{} PPID:{} CMDLINE:{}'.format(
+                        process.pid, process.ppid(), cmdline)
+                    break
+
+        logger.info('Current status: %d. Output: %s' % (result, res_out))
         return result
 
     def _find_executables(self):
@@ -277,8 +290,7 @@ class SapStartSrv(object):
         start_result = run_command('{} pf={} -D -u {}'.format(
             self.saptstartsrv_path, self.sap_instance_profile, self.sidadm))
 
-        result = self._get_status()
-        if result.returncode == 0:
+        if self._get_status() == 0:
             logger.info(
                 'sapstartsrv for SAP Instance %s_%s started: %s' %
                 (self.sid, self.instance_name, start_result.output))
@@ -305,8 +317,7 @@ class SapStartSrv(object):
         Run sapcontrol command with StopService
         '''
         self._inititialize()
-        result = self._get_status()
-        if result.returncode == 0:
+        if self._get_status() == 0:
             stop_result = run_command(
                 '{} -nr {} -function StopService'.format(
                     self.sapcontrol_path, self.instance_number))
@@ -330,8 +341,7 @@ class SapStartSrv(object):
         Get sapstartsrv status
         '''
         self._inititialize()
-        result = self._get_status()
-        if result.returncode == 0:
+        if self._get_status() == 0:
             return ocf.OCF_SUCCESS
 
         return ocf.OCF_NOT_RUNNING
@@ -342,7 +352,7 @@ class SapStartSrv(object):
         '''
         self._inititialize()
         if ocf.is_probe():
-            if self._get_status().returncode == 0:
+            if self._get_status() == 0:
                 return ocf.OCF_SUCCESS
 
             return ocf.OCF_NOT_RUNNING

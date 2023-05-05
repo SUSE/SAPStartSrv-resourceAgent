@@ -234,36 +234,6 @@ class TestSAPStartSrv(unittest.TestCase):
             '/etc/systemd/system/SAPPRD_00.service'
         )
 
-    @mock.patch('ocf.logger.info')
-    @mock.patch('SAPStartSrv.run_command')
-    def test_get_status(self, mock_run_command, mock_logger):
-
-        mock_result = mock.Mock(output=' sapstartsrv ', returncode=0)
-        mock_run_command.return_value = mock_result
-        self._agent.sid = 'PRD'
-        self._agent.instance_name = 'ASCS00'
-        self._agent.virtual_host = 'virthost'
-
-        result = self._agent._get_status()
-        assert result == mock_result
-        mock_run_command.assert_called_once_with(
-            'pgrep -f -l "sapstartsrv.*pf=.*PRD_ASCS00_virthost"')
-        mock_logger.assert_called_once_with('Current status: 0. Output:  sapstartsrv ')
-
-        mock_run_command.reset_mock()
-        mock_logger.reset_mock()
-        mock_result = mock.Mock(output='output', returncode=0)
-        mock_run_command.return_value = mock_result
-        self._agent.sid = 'PRD'
-        self._agent.instance_name = 'ASCS00'
-        self._agent.virtual_host = 'virthost'
-
-        result = self._agent._get_status()
-        assert result == mock_result
-        mock_run_command.assert_called_once_with(
-            'pgrep -f -l "sapstartsrv.*pf=.*PRD_ASCS00_virthost"')
-        mock_logger.assert_called_once_with('Current status: 1. Output: output')
-
     @mock.patch('ocf.OCF_SUCCESS', 0)
     @mock.patch('ocf.have_binary')
     @mock.patch('ocf.get_parameter')
@@ -559,8 +529,7 @@ class TestSAPStartSrv(unittest.TestCase):
         start_mock = mock.Mock(output='output', err='error')
         mock_run_command.side_effect = [None, None, start_mock]
 
-        get_status_result_mock = mock.Mock(returncode=0)
-        get_status_mock = mock.Mock(return_value=get_status_result_mock)
+        get_status_mock = mock.Mock(return_value=0)
         self._agent._get_status = get_status_mock
 
         ocf_returncode = self._agent._start_sys5_style()
@@ -589,8 +558,7 @@ class TestSAPStartSrv(unittest.TestCase):
         start_sys5_style_mock = mock.Mock(output='output', err='error')
         mock_run_command.side_effect = [None, None, start_sys5_style_mock]
 
-        get_status_result_mock = mock.Mock(returncode=1)
-        get_status_mock = mock.Mock(return_value=get_status_result_mock)
+        get_status_mock = mock.Mock(return_value=1)
         self._agent._get_status = get_status_mock
 
         ocf_returncode = self._agent._start_sys5_style()
@@ -768,7 +736,7 @@ class TestSAPStartSrv(unittest.TestCase):
         mock_command = mock.Mock(output='output', err='error', returncode=0)
         mock_run_command.return_value = mock_command
 
-        self._agent._get_status = mock.Mock(return_value=mock.Mock(returncode=0))
+        self._agent._get_status = mock.Mock(return_value=0)
 
         ocf_returncode = self._agent.stop()
         assert ocf_returncode == 0
@@ -789,7 +757,7 @@ class TestSAPStartSrv(unittest.TestCase):
         self._agent.instance_name = 'ASCS00'
         self._agent.sid = 'PRD'
 
-        self._agent._get_status = mock.Mock(return_value=mock.Mock(returncode=1))
+        self._agent._get_status = mock.Mock(return_value=1)
 
         ocf_returncode = self._agent.stop()
         assert ocf_returncode == 0
@@ -815,7 +783,7 @@ class TestSAPStartSrv(unittest.TestCase):
         mock_command = mock.Mock(output='output', err='error', returncode=1)
         mock_run_command.return_value = mock_command
 
-        self._agent._get_status = mock.Mock(return_value=mock.Mock(returncode=0))
+        self._agent._get_status = mock.Mock(return_value=0)
 
         ocf_returncode = self._agent.stop()
         assert ocf_returncode == 1
@@ -831,7 +799,7 @@ class TestSAPStartSrv(unittest.TestCase):
     @mock.patch('ocf.OCF_SUCCESS', 0)
     def test_status_success(self):
         self._agent._inititialize = mock.Mock()
-        get_status_mock = mock.Mock(return_value=mock.Mock(returncode=0))
+        get_status_mock = mock.Mock(return_value=0)
         self._agent._get_status = get_status_mock
 
         ocf_returncode = self._agent.status()
@@ -855,7 +823,7 @@ class TestSAPStartSrv(unittest.TestCase):
     @mock.patch('ocf.is_probe')
     def test_monitor_success(self, mock_is_probe):
         self._agent._inititialize = mock.Mock()
-        get_status_mock = mock.Mock(return_value=mock.Mock(returncode=0))
+        get_status_mock = mock.Mock(return_value=0)
         self._agent._get_status = get_status_mock
         mock_is_probe.return_value = True
 

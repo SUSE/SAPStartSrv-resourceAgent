@@ -33,6 +33,7 @@ BuildRequires:  resource-agents
 Requires:       resource-agents
 Requires:       pacemaker > 1.1.1
 Requires:       python3
+Requires:       python3-psutil
 %if %{with test}
 BuildRequires:  python3-pytest
 %endif
