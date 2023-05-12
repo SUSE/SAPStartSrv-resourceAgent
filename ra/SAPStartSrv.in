@@ -118,7 +118,7 @@ class SapStartSrv(object):
             except (psutil.AccessDenied, psutil.ZombieProcess, psutil.NoSuchProcess):
                 continue
             if process.name() == "sapstartsrv":
-                if self.saptstartsrv_path in cmdline and any((match := sap_inst_regex.match(item)) for item in cmdline):
+                if self.saptstartsrv_path in cmdline and any(sap_inst_regex.match(item) for item in cmdline):
                     result = 0
                     res_out = 'Found runnig sapstartsrv process - PID:{} PPID:{} CMDLINE:{}'.format(
                         process.pid, process.ppid(), cmdline)
