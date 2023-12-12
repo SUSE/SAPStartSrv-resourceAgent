@@ -115,18 +115,18 @@ class SapStartSrv(object):
         for proc in psutil.process_iter():
             try:
                 process = proc.as_dict(attrs=['pid', 'ppid', 'name', 'cmdline'])
-            except psutil.NoSuchProcess:
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
             else:
-                try:
-                    cmdline = process['cmdline']
-                except (psutil.AccessDenied, psutil.ZombieProcess):
-                    continue
-                if process['name'] == "sapstartsrv":
+                cmdline = process.get('cmdline', '-')
+                pname = process.get('name', '-')
+                pid = process.get('pid', '-')
+                ppid = process.get('ppid', '-')
+                if pname == "sapstartsrv":
                     if any(sap_inst_regex.match(item) for item in cmdline):
                         result = 0
-                        res_out = 'Found runnig sapstartsrv process - PID:{} PPID:{} CMDLINE:{}'.format(
-                            process['pid'], process['ppid'], cmdline)
+                        res_out = 'Found running sapstartsrv process - PID:{} PPID:{} CMDLINE:{}'.format(
+                            pid, ppid, cmdline)
                         break
 
         logger.info('Current status: %d. Output: %s' % (result, res_out))
