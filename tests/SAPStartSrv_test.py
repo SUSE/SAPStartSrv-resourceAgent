@@ -12,10 +12,28 @@ Unitary tests for SAPStartSrv resource agent.
 
 import os
 import sys
-import imp
 import unittest
 import subprocess
 import logging
+
+try:
+    import imp
+    load_source = imp.load_source
+except ImportError:
+    # Python >= 3.12
+    # https://docs.python.org/3/whatsnew/3.12.html#whatsnew312-removed-imp
+    import importlib.util
+    import importlib.machinery
+
+    def load_source(modname, filename):
+        loader = importlib.machinery.SourceFileLoader(modname, filename)
+        spec = importlib.util.spec_from_file_location(modname, filename, loader=loader)
+        module = importlib.util.module_from_spec(spec)
+        # The module is always executed and not cached in sys.modules.
+        # Uncomment the following line to cache the module.
+        sys.modules[module.__name__] = module
+        loader.exec_module(module)
+        return module
 
 try:
     from unittest import mock
@@ -23,7 +41,7 @@ except ImportError:
     import mock
 
 sys.modules['ocf'] = mock.Mock()
-SAPStartSrv = imp.load_source(
+SAPStartSrv = load_source(
     'SAPStartSrv',
     os.path.abspath(os.path.join(os.path.dirname(__file__), '../ra/SAPStartSrv.in')))
 
