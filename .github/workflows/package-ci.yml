@@ -55,6 +55,8 @@ jobs:
         fetch-depth: 0
     - name: configure OSC
       run: /scripts/init_osc_creds.sh
+    - name: add directory exception
+      run: git config --global --add safe.directory $(pwd)
     - name: deliver package
       run: |
         sed -i 's~%%VERSION%%~${{ github.sha }}~' _service && \
@@ -79,6 +81,8 @@ jobs:
         fetch-depth: 0
     - name: configure OSC
       run: /scripts/init_osc_creds.sh
+    - name: add directory exception
+      run: git config --global --add safe.directory $(pwd)
     - name: submit package
       run: |
         sed -i 's~%%VERSION%%~${{ github.sha }}~' _service && \
