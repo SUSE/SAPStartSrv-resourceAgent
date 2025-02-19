@@ -40,7 +40,7 @@ jobs:
 
   delivery:
     needs: unit-tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ github.event_name != 'pull_request' }}
     container:
       image: shap/continuous_deliver
@@ -67,7 +67,7 @@ jobs:
 
   submission:
     needs: [unit-tests, delivery]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
     container:
       image: shap/continuous_deliver
