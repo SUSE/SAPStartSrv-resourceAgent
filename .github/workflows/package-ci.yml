@@ -44,6 +44,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' }}
     container:
       image: ghcr.io/trento-project/continuous-delivery:0.1.x
+      options: -u 0:0
       env:
         OBS_USER: ${{ secrets.OBS_USER }}
         OBS_PASS: ${{ secrets.OBS_PASS }}
@@ -66,6 +67,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
     container:
       image: ghcr.io/trento-project/continuous-delivery:0.1.x
+      options: -u 0:0
       env:
         OBS_USER: ${{ secrets.OBS_USER }}
         OBS_PASS: ${{ secrets.OBS_PASS }}
