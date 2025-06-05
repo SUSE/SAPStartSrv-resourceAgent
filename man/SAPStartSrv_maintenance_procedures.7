@@ -1,8 +1,9 @@
 .\ Version: 0.9.1
 .\"
-.TH SAPStartSrv_maintenance_examples 7 "23 Jun 2022" "" "SAPStartSrv"
+.TH SAPStartSrv_maintenance_examples 7 "05 Jul 2025" "" "SAPStartSrv"
 .\"
 .SH NAME
+.\"
 SAPStartSrv_maintenance_examples \- maintenance examples for SAPStartSrv
 .PP
 .\"
@@ -14,9 +15,9 @@ Please see ocf_suse_SAPStartSrv(7), SAPStartSrv_basic_cluster(7) and sap_suse_cl
 .PP
 .\"
 .SH EXAMPLES
-.PP
+.\"
 \fB*\fR Check status of Linux cluster and ENSA replication pair.
-
+.PP
 This steps should be performed before doing anything with the cluster, and
 after something has been done.
 .PP
@@ -39,7 +40,7 @@ after something has been done.
 .RE
 .PP
 \fB*\fR Set resource group of ASCS into maintenance.
-
+.PP
 This is needed to allow manual actions on the ASCS group´s resources.
 In this example, SID is EN1, instance number of ASCS is 00.
 It is neccessary to wait for each step to complete and to check the result.
@@ -52,7 +53,7 @@ See also exmaple below.
 .RE
 .PP
 \fB*\fR Get resource group of ASCS back from maintenance.
-
+.PP
 This is needed to put back under cluster control the ASCS group´s resources.
 In this example, SID is EN1, instance number of ASCS is 00.
 It is neccessary to wait for each step to complete and to check the result.
@@ -67,7 +68,7 @@ See also exmaple above.
 .RE
 .PP
 \fB*\fR Set whole Linux cluster into maintenance.
-
+.PP
 .RS 2
 # crm configure property maintenance-mode=true
 .br
@@ -75,7 +76,7 @@ See also exmaple above.
 .RE
 .PP
 \fB*\fR Remove left-over maintenance attribute from overall Linux cluster.
-
+.PP
 This could be done to avoid confusion caused by different maintenance procedures.
 See above overview on maintenance procedures whith running Linux cluster.
 Before doing so, check for cluster attribute maintenance-mode="false".
@@ -87,7 +88,7 @@ Before doing so, check for cluster attribute maintenance-mode="false".
 .RE
 .PP
 \fB*\fR Remove left-over standby attribute from Linux cluster nodes.
-
+.PP
 This could be done to avoid confusion caused by different maintenance procedures.
 See above overview on maintenance procedures whith running Linux cluster.
 Before doing so for all nodes, check for node attribute standby="off" on all nodes.
@@ -99,7 +100,7 @@ Before doing so for all nodes, check for node attribute standby="off" on all nod
 .RE
 .PP
 \fB*\fR Remove left-over maintenance attribute from resource.
-
+.PP
 This should usually not be needed.
 See above overview on maintenance procedures whith running Linux cluster.
 .PP
@@ -110,7 +111,7 @@ See above overview on maintenance procedures whith running Linux cluster.
 .RE
 .PP
 \fB*\fR Disable Linux cluster on all cluster nodes.
-
+.PP
 On any cluster node the cluster will not start automatically on boot anymore.
 Nevertheless a currently running cluster will keep running.
 .PP
@@ -129,7 +130,7 @@ Nevertheless a currently running cluster will keep running.
 .RE
 .PP
 \fB*\fR Perform an ASCS takeover by using SAP tools.
-
+.PP
 In this example, SID is EN1, instance number of ASCS is 00, instance number
 of ERS is 10.
 Only two nodes are in the Linux cluster.
@@ -153,7 +154,7 @@ It is neccessary to wait for each step to complete and to check the result.
 .\" .PP
 \fB*\fR Overview on simple procedure for stopping and temporarily disabling the Linux cluster.
 ASCS and ERS instances get fully stopped.
-
+.PP
 This procedure can be used to update SAP instances, OS or hardware.
 ASCS and ERS roles and resource status remains unchanged.
 It is neccessary to wait for each step to complete and to check the result.
@@ -204,26 +205,29 @@ remain running.
 .PP
 .\"
 .SH BUGS
+.\"
 Please report feedback and suggestions to feedback@suse.com.
 .PP
 .\"
 .SH SEE ALSO
+.\"
 \fBocf_suse_SAPStartSrv\fP(7) ,  \fBSAPStartSrv_basic_cluster\fP(7) ,
 \fBsap_suse_cluster_connector\fP(8) ,
 \fBcrm\fP(8) , \fBcrm_simulate\fP(8) , \fBcrm_report\fP(8) , \fBcibadmin\fP(8) ,
-\fBsbd\fP(8) , \fBcorosync-cfgtool\fP(8) ,
+\fBfence_sbd\fP(8) , \fBsbd\fP(8) , \fBcorosync-cfgtool\fP(8) ,
 \fBsystemctl\fP(8) ,
 \fBcs_clusterstate\fP(8) , \fBcs_wait_for_idle\fP(8) , \fBcs_show_ensa_status\fP(8) ,
 \fBha_related_sap_notes\fP(7)
 .PP
 .\"
 .SH AUTHORS
+.\"
 F.Herschel, L.Pinne
 .PP
 .\"
 .SH COPYRIGHT
-.br
-(c) 2020-2022 SUSE LLC
+.\"
+(c) 2020-2025 SUSE LLC
 .br
 SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br

@@ -1,11 +1,12 @@
 .\" Version: 0.9.1
 .\"
-.TH SAPStartSrv_basic_cluster 7 "30 Jan 2023" "" "SAPStartSrv"
+.TH SAPStartSrv_basic_cluster 7 "05 Jul 2025" "" "SAPStartSrv"
 .\"
 .SH NAME
-SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
-.PP
 .\"
+SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
+.\"
+.PP
 .SH DESCRIPTION
 .\"
 The SAP Enqueue Standalone 2 (ENSA2) scenario needs a certain basic cluster
@@ -14,11 +15,11 @@ might match specific needs.
 .\" TODO Specifics ENSA1 vs. ENSA2?
 .PP
 \fB* Operating System Basics\fR
-
+.PP
 \fBsystemd services\fR
-
+.PP
 The services sapinit, sapping and sappong are needed for this cluster.
-
+.PP
 For SystemV style saphostagent and sapstartsrv, the sapinit script needs to be
 enabled.
 For systemd style saphostagent and sapstartsrv, the service saphostagent needs
@@ -26,7 +27,7 @@ to be enabled and running, instance services SAP${SID}_${INO} need to be disable
 See also REQUIREMENTS in man page ocf_suse_SAPStartSrv(7).
 .PP
 \fBtcp_retries2 = 9\fR
-
+.PP
 The OS network parameter tcp_retries2 influences the timeout of an alive TCP
 connection, when retransmissions remain unacknowledged. The SAP application
 servers (PAS/AAS) and central services (ASCS/ERS) are relying on TCP timeouts
@@ -40,30 +41,30 @@ for default SAP application server and central services configuration.
 .\" TODO NFS mount options for smooth takeover of sap instances, e.g. soft?
 .PP
 \fBUsers and groups\fR
-
+.PP
 Technical users and groups, such as <sid>adm are defined locally in the Linux
 system. Further user <sid>adm needs to be in  group haclient.
 See man page passwd(5) and usermod(8.
-
+.PP
 \fBHostnames\fR
-
+.PP
 Name resolution of the cluster nodes and the virtual IP address must be done
 locally on all cluster nodes. See man page hosts(5).
-
+.PP
 \fBTime synchronization\fR
-
+.PP
 Strict time synchronization between the cluster nodes is mandatory, e.g. per NTP.
 See man page chrony.conf(5).
-
+.PP
 \fBNFS mounted filesystems\fR
-
+.PP
 The shared filesystems /sapmnt/$SID/ and /usr/sap/$SID/ can be statically mounted
 on all cluster nodes. See man page fstab(5) and example below.
 .PP
 \fB* CRM Basics\fR
-
+.PP
 \fBstonith-enabled = true\fR
-
+.PP
 The cib bootstrap option stonith-enabled is crucial for any reliable pacemaker
 cluster.
 .br
@@ -71,9 +72,9 @@ The value 'true' is one pre-requisite for having a cluster supported.
 .\"
 .\" TODO cib: 	stonith-watdhog-timeout=10 ==> diskless SBD
 .\" TODO cib: 	stonith-timeout=120 ==> disk-based SBD
-
+.PP
 \fBresource-stickiness = 1\fR
-
+.PP
 The crm rsc_default resource-stickiness defines the 'stickiness'
 score a resource gets on the node where it is currently running. This prevents
 the cluster from moving resources around whithout an urgent need during a
@@ -83,27 +84,25 @@ ASCS resource can affect cluster decisions.
 Too high value might prevent not only unwanted but also useful actions.
 .br
 .\" TODO A value of '1' ...
-
+.PP
 \fBmigration-threshold = 1\fR
-
+.PP
 The crm rsc_default parameter migration-threshold defines how many errors on a
 resource can be detected before this resource will be moved to another node.
 For ENSA1 the migration-threshold needs to be 1 always. For ENSA2 the value could
 be higher. See also \fBfailure-timeout\fR .
 .\" TODO needed for resource monitor option on-fail=restart
-.br
-
+.PP
 \fBrecord-pending = true\fR
-
+.PP
 The crm op_default record-pending defines, whether the intention of an action
 upon the resource is recorded in the Cluster Information Base (CIB).
 Setting this parameter to \'true\' allows the user to see pending actions like
 \'starting\' and \'stopping\' in crm_mon. Also the sap_suse_cluster_connector
 interface uses this information.
-.br
-
+.PP
 \fBfailure-timeout = 86400\fR
-
+.PP
 The crm op_default failure-timeout defines how long failed actions will
 be kept in the CIB. After that time the failure record will be deleted.
 Time unit is seconds. 
@@ -111,9 +110,9 @@ See also \fBmigration-threshold\fR.
 .br
 The value '86400' means failure records will be cleaned automatically after
 one day.
-
+.PP
 \fBpriority-fencing-delay = 30\fP
-
+.PP
 The optional crm property priority-fencing-delay specified delay for the
 fencings that are targeting the lost nodes with the highest total resource
 priority in case we do not have the majority of the nodes in our cluster
@@ -124,7 +123,7 @@ the base priority is not 0. Any delay that are introduced by pcmk_delay_max
 configured for the corresponding fencing resources will be added to this
 delay. A meta attribute priority=100 or alike for the ASCS resource is needed
 to make this work. See ocf_suse_SAPStartSrv(7).
-
+.PP
 The delay should be significantly greater than, or safely twice,
 pcmk_delay_max.
 .PP
@@ -135,8 +134,8 @@ pcmk_delay_max.
 \fB* crm basic configuration\fR
 .\" TODO scenario specific CIB basic settings
 .\" TODO check against setup guides NW and S/4. Specifics ENSA1 vs. ENSA2?
-
-Below are examples of crm basic configuration for ENSA2 clusters.
+.PP
+Below are examples of crm basic configuration for ENSA2 clusters on SLE 15.
 Shown are specific parameters which are needed. Some general parameters are
 left out.
 .br
@@ -178,7 +177,7 @@ op_defaults op-options: \\
 .br
  record-pending=true 
 .RE
-
+.PP
 This example has been taken from an ENSA2 two-node cluster SLE-HA 15 GA
 with disk-based SBD. An optional priority fecing is configured and the SBD
 pcmk_delay_max has been reduced:
@@ -219,8 +218,20 @@ op_defaults op-options: \\
  record-pending=true 
 .RE
 .PP
+\fB* crm simple SBD stonith configuration on SLE 16\fR
+.PP
+The SBD STONITH/fencing mechanism on SLE-HA 16 uses fence_sbd instead of
+externa/sbd. See manual page fence_sbd(8) for details. 
+Example for a basic disk-based SBD resource on SLE 16:
+.PP
+.RS 2
+primitive rsc_stonith_sbd stonith:fence_sbd \\
+.br
+ params pcmk-delay-max=15
+.RE
+.PP
 \fB* NFS shares for SAP instance filesystems\fR
-
+.PP
 Below is an fstab example for filesystems needed by the ASCS/ERS pair.
 The filesystems are statically mounted on all nodes of the cluster for SAP
 system EN2. The SAP instance name is used consequently to prepare for optional
@@ -236,11 +247,10 @@ nfs1:/s/EN2/usrsap /usr/sap/EN2 nfs rw,hard,intr,nolock,actimeo=1,proto=tcp 0 0
 .\".br
 .\"nfs1:/s/EN2/saptrans /usr/sap/trans nfs rw,hard,intr,nolock,proto=tcp 0 0
 .RE
-.br
 .PP
 .\"
 \fB* ping resource for checking connectivity\fR
-
+.PP
 .\" TODO discuss what ping-based score might break ENSA scoring
 Below is an example of an optional ping resource for checking connectivity to
 the outer world. If the nodes have only one network interface, shared between
@@ -312,7 +322,6 @@ grep -e art_Program_ -e Autostart -e halib
 .br
 ~> exit
 .RE
-.br
 .PP
 \fB* sidadm group membership\fR
 .PP
@@ -323,10 +332,10 @@ Example SID is EN2.
 .br
 # groups en2adm
 .RE
-.br
 .PP
 .\"
 .SH FILES
+.\"
 .TP
 /etc/passwd
 the local user database
@@ -352,18 +361,20 @@ systemd unit file for SAP instance
 .PP
 .\"
 .SH BUGS
+.\"
 In case of any problem, please use your favourite SAP support process to open
 a request for the component BC-OP-LNX-SUSE.
 Please report feedback and suggestions to feedback@suse.com.
 .PP
 .\"
 .SH SEE ALSO
+.\"
 \fBocf_suse_SAPStartSrv\fP(7) , \fBsap_suse_cluster_connector\fP(8) ,
 \fBocf_pacemaker_ping\fP(7) , \fBocf_heartbeat_ethmonitor\fP(7) ,
-\fBattrd_updater\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) , \fBcrm\fP(8) ,
-\fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) , \fBhosts\fP(5) , \fBfstab\fP(5) ,
-\fBpasswd\fP(5) , \fBgroups\fP(8) , \fBusermod\fP(8) , \fBchrony.conf\fP(5) ,
-\fBsystemctl\fP(1) ,
+\fBattrd_updater\fP(8) , \fBfence_sbd\fP(8) , \fBsbd\fP(8) , \fBstonith_sbd\fP(8) ,
+\fBcrm\fP(8) , \fBcorosync.conf\fP(5) , \fBvotequorum\fP(5) , \fBhosts\fP(5) ,
+\fBfstab\fP(5) , \fBpasswd\fP(5) , \fBgroups\fP(8) , \fBusermod\fP(8) ,
+\fBchrony.conf\fP(5) , \fBsystemctl\fP(1) ,
 \fBsystemd-cgls\fP(1) , \fBsystemd-analyze\fP(1) , \fBsystemd-delta\fP(1) ,
 \fBha_related_suse_tids\fP(7) , \fBha_related_sap_notes\fP(7) ,
 .br
@@ -379,12 +390,13 @@ https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
 .PP
 .\"
 .SH AUTHORS
+.\"
 F.Herschel, L.Pinne
 .PP
 .\"
 .SH COPYRIGHT
-.br
-(c) 2020-2023 SUSE LLC
+.\"
+(c) 2020-2025 SUSE LLC
 .br
 SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br
