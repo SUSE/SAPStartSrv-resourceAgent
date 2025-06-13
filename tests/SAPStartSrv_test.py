@@ -604,7 +604,7 @@ class TestSAPStartSrv(unittest.TestCase):
         mock_logger.assert_called_once_with(
             'systemd service SAPPRD_00.service is active')
 
-    @mock.patch('ocf.logger.warn')
+    @mock.patch('ocf.logger.info')
     @mock.patch('ocf.OCF_SUCCESS', 0)
     @mock.patch('SAPStartSrv.run_command')
     def test_start_systemd_style_success_not_running(self, mock_run_command, mock_logger):

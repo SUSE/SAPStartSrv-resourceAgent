@@ -271,7 +271,7 @@ class SapStartSrv(object):
                 'systemd service %s is active' % (self.systemd_unit_name))
             return ocf.OCF_SUCCESS
 
-        logger.warn(
+        logger.info(
             'systemd service %s is not active, it will be started using systemd' %
             (self.systemd_unit_name))
         result = run_command(
