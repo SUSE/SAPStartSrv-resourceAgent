@@ -30,13 +30,13 @@ jobs:
         pip install pytest pytest-cov mock psutil
     - name: Test with pytest
       run: py.test -vv --cov=SAPStartSrv --cov-config .coveragerc --cov-report term --cov-report xml tests
-    - name: Publish code coverage
-      uses: paambaati/codeclimate-action@v2.7.5
-      if: env.CC_TEST_REPORTER_ID != null
-      env:
-        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-      with:
-        coverageLocations: coverage.xml:coverage.py
+    # - name: Publish code coverage
+    #   uses: paambaati/codeclimate-action@v2.7.5
+    #   if: env.CC_TEST_REPORTER_ID != null
+    #   env:
+    #     CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+    #   with:
+    #     coverageLocations: coverage.xml:coverage.py
 
   delivery:
     needs: unit-tests
