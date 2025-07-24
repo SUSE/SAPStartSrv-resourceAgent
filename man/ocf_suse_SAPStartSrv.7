@@ -1,18 +1,20 @@
-.\" Version: 0.9.1
+.\" Version: 0.9.5
 .\"
-.TH ocf_suse_SAPStartSrv 7 "23 Jun 2022" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "24 Jul 2025" "" "OCF resource agents"
 .\"
 .SH NAME
+.\"
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
 .PP
 .\"
 .SH SYNOPSYS
+.\"
 \fBSAPStartSrv\fP [ start | stop | status | monitor | meta\-data | validate\-all | usage ]
 .\" TODO monitor?
 .PP
 .\"
 .SH DESCRIPTION
-
+.\"
 \fBSAPStartSrv\fP is a resource agent for managing the sapstartsrv process for
 a single SAP instance as an HA resource.
 .PP
@@ -35,17 +37,19 @@ sapstartsrv for one specific SAP instance. By intention it does not monitor the
 service. SAPInstance then utilises that service for managing the SAP instance.
 SAPInstance also is doing in-line recovery of failed sapstartsrv processes.
 The instance's virtual service IP address is used for contacting the sapstartsrv
-process. Thus that IP address resource (e.g. IPAddr2, aws-vpc-route53) needs to start before SAPStartSrv.
+process. Thus that IP address resource (e.g. IPAddr2, aws-vpc-route53) needs to
+start before SAPStartSrv.
 .PP
 The described setup is benefitial particularly for public cloud and NFS-based
 environments. Both NFS shares with instance directories can be mounted
 statically on all nodes. The HA cluster does not need to control that
 filesystems.
 The /usr/sap/sapservices file is stored locally on each cluster node.
-.PP
 .RE
+.PP
 .\"
 .SH SUPPORTED PARAMETERS
+.\"
 This resource agent supports the following parameters:
 .PP
 \fBInstanceName\fR
@@ -56,7 +60,6 @@ Usually this is the name of the SAP instance profile.
 Unique, required, string, no default.
 .RE
 .PP
-.\"
 \fBSTART_PROFILE\fR
 .RS 4
 The name of the SAP START profile. Specify this parameter, if you have changed
@@ -67,6 +70,7 @@ Unique, optional, string, no default.
 .PP
 .\"
 .SH SUPPORTED ACTIONS
+.\"
 This resource agent supports the following actions (operations):
 .PP
 \fBstart\fR
@@ -114,11 +118,13 @@ Suggested minimum timeout: 5\&.
 .PP
 .\"
 .SH RETURN CODES
+.\"
 The return codes are defined by the OCF cluster framework. Please refer to the OCF definition on the website mentioned below.
 .RE
 .PP
 .\"
 .SH EXAMPLES
+.\"
 * Example configuration for SAP ASCS instance resource group in an ENSA2 setup.
 .br
 SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments. The SAPInstance has been given a fencing priority, a crm property priority-fencing-delay is needed to make this work. See SAPStartSrv_basic_cluster(7). The shown SAPInstance monitor timeout is a trade-off between fast recovery of the ASCS vs. resilience against sporadic temporary NFS issues. You may slightly increase it to fit your infrastructure. Too short ASCS monitor timeouts likely will conflict with the instance´s internal recovery.
@@ -170,7 +176,8 @@ group grp_EVA_ASCS00 \\
 .PP
 * Example configuration for SAP ERS instance resource group in an ENSA2 setup.
 .br
-SAP system name is EN2, SAP service is ERS, SAP instance number is 10, SAP virtual hostname is sapeva. An IP address is configured as usual for on-premise use.
+SAP system name is EN2, SAP service is ERS, SAP instance number is 10, SAP virtual
+hostname is sapeva. An IP address is configured as usual for on-premise use.
 If possible, the ERS instance should run on a different node than the ASCS.
 The also needed ASCS instance group is shown in another example.
 .PP
@@ -233,7 +240,6 @@ Execute_05 = local ln -s -f $(DIR_EXECUTABLE)/enq_server$(FT_EXE) $(_ENQ)
 Start_Program_01 = local $(_ENQ) pf=$(_PF)
 .br
 # some more below ...
-.br
 .RE
 .PP
 * Example SAP ERS instance profile adapted for ENSA2 HA setup.
@@ -286,12 +292,12 @@ OCF_RESKEY_CRM_meta_interval=0 \\
 .br
 /usr/lib/ocf/resource.d/suse/SAPStartSrv monitor
 .RE
-.PP
 .\" TODO example for checking enqueue table?
 .\" TODO example for checking process list?
 .PP
 .\"
-.SH FILES 
+.SH FILES
+.\"
 .TP
 /usr/lib/ocf/resource.d/suse/SAPStartSrv
 the resource agent
@@ -310,9 +316,11 @@ SAP profiles definition file
 .TP
 /etc/sap_suse_cluster_connector
 sap_suse_cluster_connector configuration, SLE-HA 12
-.\"
 .PP
+.\"
 .SH REQUIREMENTS
+.\"
+* Python 3.6 runtime environment or compatible.
 .PP
 * At least SAP instances NW7.40 for ENSA1.
 At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
@@ -330,13 +338,15 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 .PP
 * For ENSA1 and ENSA2 HA setups, the ASCS instance profile entry for the enqueue service _ENQ, Restart_Program_xx is replaced by Start_Program_xx. Same for the ERS instance profile entry for the enqueue replicator service _ENQR. Other services stay untouched. 
 .PP
-* The sapinit boot script does not read entries from sapservices file at boot. Thus services sapping and sappong to handle sapservices file at system boot.
+* The sapinit boot script does not read entries from sapservices file at boot.
+Thus services sapping and sappong to handle sapservices file at system boot.
 .PP
 * The sapinit script is not used while the HA cluster is running on any node.
 .PP
 * SAP instance numbers controlled by the cluster must be unique.
 .PP
-* It is not allowed to block resources from being controlled manually. Thus BLOCK_RESOURCES in /etc/sap_suse_cluster_connector is not allowed anymore.
+* It is not allowed to block resources from being controlled manually.
+Thus BLOCK_RESOURCES in /etc/sap_suse_cluster_connector is not allowed anymore.
 .PP
 * You need SAP hostagent installed and started on your systems.
 For SystemV style, the sapinit script needs to be enabled.
@@ -350,20 +360,24 @@ Please refer to SAP documentation for the SAP HANA version.
 Combining systemd style hostagent with SystemV style instance is allowed.
 However, all nodes in one Linux cluster have to use the same style.
 .PP
+* No firewall rules must block any needed port.
+.PP
+* No SELinux rules must block any needed action.
+.PP
 ./"
 .SH BUGS
-.\" In case of any problem, please use your favourite SAP support process to
-.\" open a request for the component BC-OP-LNX-SUSE.
+.\"
 The trace_ra resourcre tracing feature is not implemented so far.
 .br
-Please report feedback and suggestions to feedback@suse.com.
+In case of any problem, please use your favourite SAP support process to open a
+request for the component BC-OP-LNX-SUSE.
+Please report any other feedback to feedback@suse.com.
 .PP
 .\"
 .SH SEE ALSO
+.\"
 \fBocf_heartbeat_SAPInstance\fP(7) , \fBocf_heartbeat_IPaddr2\fP(7) ,
 \fBSAPStartSrv_basic_cluster\fP(7) , \fBsystemctl\fP(1) ,
-.\" TODO aws-vpc-route53 gcp-vpc-move-route
-.\" TODO SAPStartSrv-showAttr(8) ?
 \fBsapservices-move\fP(8) , \fBsap_suse_cluster_connector\fP(8) ,
 \fBcrm\fP(8) , \fBnfs\fP(5) , \fBmount\fP(8) ,
 \fBha_related_suse_tids\fP(7) , \fBha_related_sap_notes\fP(7) ,
@@ -416,11 +430,13 @@ https://launchpad.support.sap.com/#/notes/953653
 .PP
 .\"
 .SH AUTHORS
+.\"
 X.Arbulu, F.Herschel, L.Pinne
 .PP
 .\"
 .SH COPYRIGHT
-(c) 2020-2022 SUSE LLC
+.\"
+(c) 2020-2025 SUSE LLC
 .br
 The resource agent SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br
