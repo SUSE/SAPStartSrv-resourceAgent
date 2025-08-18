@@ -5,13 +5,11 @@
 .SH NAME
 .\"
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
-.PP
 .\"
 .SH SYNOPSYS
 .\"
 \fBSAPStartSrv\fP [ start | stop | status | monitor | meta\-data | validate\-all | usage ]
 .\" TODO monitor?
-.PP
 .\"
 .SH DESCRIPTION
 .\"
@@ -46,7 +44,6 @@ statically on all nodes. The HA cluster does not need to control that
 filesystems.
 The /usr/sap/sapservices file is stored locally on each cluster node.
 .RE
-.PP
 .\"
 .SH SUPPORTED PARAMETERS
 .\"
@@ -67,7 +64,6 @@ the name of the SAP START profile after the default SAP installation.
 .br
 Unique, optional, string, no default.
 .RE
-.PP
 .\"
 .SH SUPPORTED ACTIONS
 .\"
@@ -115,13 +111,11 @@ Retrieves resource agent metadata (internal use only).
 .br
 Suggested minimum timeout: 5\&.
 .RE
-.PP
 .\"
 .SH RETURN CODES
 .\"
 The return codes are defined by the OCF cluster framework. Please refer to the OCF definition on the website mentioned below.
 .RE
-.PP
 .\"
 .SH EXAMPLES
 .\"
@@ -219,7 +213,6 @@ order ord_EN2_ASCS00_first \\
  rsc_SAPInstance_EN2_ERS10:stop \\
 .br
  symmetrical=false
-.br
 .RE
 .PP
 * Example SAP ASCS instance profile adapted for ENSA2 HA setup.
@@ -294,7 +287,6 @@ OCF_RESKEY_CRM_meta_interval=0 \\
 .RE
 .\" TODO example for checking enqueue table?
 .\" TODO example for checking process list?
-.PP
 .\"
 .SH FILES
 .\"
@@ -316,7 +308,6 @@ SAP profiles definition file
 .TP
 /etc/sap_suse_cluster_connector
 sap_suse_cluster_connector configuration, SLE-HA 12
-.PP
 .\"
 .SH REQUIREMENTS
 .\"
@@ -363,8 +354,7 @@ However, all nodes in one Linux cluster have to use the same style.
 * No firewall rules must block any needed port.
 .PP
 * No SELinux rules must block any needed action.
-.PP
-./"
+.\"
 .SH BUGS
 .\"
 The trace_ra resourcre tracing feature is not implemented so far.
@@ -372,7 +362,6 @@ The trace_ra resourcre tracing feature is not implemented so far.
 In case of any problem, please use your favourite SAP support process to open a
 request for the component BC-OP-LNX-SUSE.
 Please report any other feedback to feedback@suse.com.
-.PP
 .\"
 .SH SEE ALSO
 .\"
@@ -427,12 +416,10 @@ https://launchpad.support.sap.com/#/notes/2711036 ,
 https://launchpad.support.sap.com/#/notes/2717369 ,
 .br
 https://launchpad.support.sap.com/#/notes/953653
-.PP
 .\"
 .SH AUTHORS
 .\"
 X.Arbulu, F.Herschel, L.Pinne
-.PP
 .\"
 .SH COPYRIGHT
 .\"

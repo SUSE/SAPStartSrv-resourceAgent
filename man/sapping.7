@@ -1,22 +1,23 @@
-.\" Version: 0.9.1
+.\" Version: 0.9.5
 .\"
-.TH sapping/sappong 7 "02 Feb 2022" "" "SAPStartSrv"
+.TH sapping/sappong 7 "15 Aug 2025" "" "SAPStartSrv"
 .\"
 .SH NAME
+.\"
 sapping \- service for hiding sapservices file from sapinit service at system boot.
 .br
 sappong \- service for unhiding sapservices file at system boot.
-.PP
 .\"
 .SH DESCRIPTION
+.\"
 \fBsapping\fP is a systemd service for hiding sapservices file from sapinit service at system boot.
 .br
 \fBsappong\fP is a systemd service for unhiding sapservices file after sapinit service has been started at system boot.
 .br
 The services are intended to be called at boot time. Administrative use during regular operations is not intended.
-.PP
 .\"
 .SH EXAMPLES
+.\"
 .TP
 * enabling both services at boot time
 # systemctl enable sapping sappong
@@ -29,9 +30,9 @@ The services are intended to be called at boot time. Administrative use during r
 0 Successful program execution.
 .br
 >0 Usage, syntax or execution errors.
-.PP
 .\"
 .SH FILES
+.\"
 .TP
 /usr/lib/systemd/system/sapping.service , /usr/lib/systemd/system/sapping.service
 systemd service definitions
@@ -41,24 +42,25 @@ systemd service executable
 .TP
 /usr/sap/sapservices
 SAP profiles definition file, used by sapstartsrv et al.
-.PP
 .\"
 .SH BUGS
-Please report feedback and suggestions to feedback@suse.com.
-.PP
+.\"
+In case of any problem, please use your favourite SAP support process to open a
+request for the component BC-OP-LNX-SUSE.
+Please report any other feedback to feedback@suse.com.
 .\"
 .SH SEE ALSO
+.\"
 \fBocf_heartbeat_SAPStartSrv\fP(7) , \fBsapservices-move\fR(8) ,
 \fBsystemctl\fP(1)
-.PP
 .\"
 .SH AUTHORS
+.\"
 F.Herschel, L.Pinne
-.PP
 .\"
 .SH COPYRIGHT
-.br
-(c) 2020-2022 SUSE LLC
+.\"
+(c) 2020-2025 SUSE LLC
 .br
 sapping/sappong comes with ABSOLUTELY NO WARRANTY.
 .br

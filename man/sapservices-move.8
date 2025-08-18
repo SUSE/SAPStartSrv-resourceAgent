@@ -1,37 +1,37 @@
-.\" Version: 0.9.1
+.\" Version: 0.9.5
 .\"
-.TH sapservices-move 8 "02 Feb 2022" "" "SAPStartSrv"
+.TH sapservices-move 8 "15 Aug 2025" "" "SAPStartSrv"
 .\"
 .SH NAME
 sapservices-move \- hiding sapservices file from sapinit service at system boot.
-.PP
 .\"
 .SH SYNOPSYS
+.\"
 \fBsapservices-move\fP [ --help | --version | --hide | --unhide ]
-.PP
 .\"
 .SH DESCRIPTION
+.\"
 \fBsapservices-move\fP is called by systemd services sapping and sappong for
 temporarily hiding the sapservices file from sapinit service at system boot.
 .br
  \- sapping is hiding the sapservices file from sapinit service at system boot.
 .br
  \- sappong is unhiding the sapservices file after sapinit service has been started.
-
+.PP
 Hiding the sapservices file from sapinit is necessary in certain HA cluster setups. Affected are HA clusters for SAP enqueue replication where cluster nodes have concurrent access to all instance working directories, e.g. by simplified NFS mount structure.
 In such environments sapstartsrv needs to be started specific for each SAP instance (e.g. ASCS/ERS), to avoid side effects with other instances.
-
+.PP
 The sapinit service takes not into account such environments, but starts sapstartsrv for all instances listed in the sapservices profile definition file.
 This could damage the working directory content of already running instances,
 even on remote cluster nodes.
-
+.PP
 The script is intended to be called at boot time. Administrative use during regular operations is not intended. Consequently calling the sapinit script during regular operation will cause trouble in an above mentioned HA cluster, even on remote nodes.
-
+.PP
 For details on concept and requirements see ocf_suse_SAPStartSrv(8).
 .\" TODO
-.PP
 .\"
 .SH OPTIONS
+.\"
 .TP
 --help
 show help
@@ -44,9 +44,9 @@ hide sapervices file from sapinit
 .TP
 --unhide
 unhide previously hidden sapservices file
-.PP
 .\"
 .SH EXAMPLES
+.\"
 .TP
 * enable both services at boot time
 # systemctl enable sapping sappong
@@ -56,15 +56,15 @@ unhide previously hidden sapservices file
 .TP
 * show journal log entries for service sapping since 2020-02-02 20:20:20
 # journalctl --unit=sapping --since="2020-02-02 20:20:20"
-.PP
 .\"
 .SH EXIT STATUS
+.\"
 0 Successful program execution.
 .br
 >0 Usage, syntax or execution errors.
-.PP
 .\"
 .SH FILES
+.\"
 .TP
 /usr/sbin/sapservices-move
 systemd service executable 
@@ -80,23 +80,24 @@ SAP instance profiles
 .TP
 /etc/init.d/sapinit
 System V SAP init script to enable SAP start framework, including sapstartsrv service for all entries in the sapservices file
-.PP
 .\"
 .SH BUGS
-Please report feedback and suggestions to feedback@suse.com.
-.PP
+.\"
+In case of any problem, please use your favourite SAP support process to open a
+request for the component BC-OP-LNX-SUSE.
+Please report any other feedback to feedback@suse.com.
 .\"
 .SH SEE ALSO
+.\"
 \fBocf_heartbeat_SAPStartSrv\fP(7) , \fBsapping\fR(7) , \fBsystemctl\fP(1)
-.PP
 .\"
 .SH AUTHORS
+.\"
 F.Herschel, L.Pinne
-.PP
 .\"
 .SH COPYRIGHT
-.br
-(c) 2020-2022 SUSE LLC
+.\"
+(c) 2020-2025 SUSE LLC
 .br
 sapservices-move comes with ABSOLUTELY NO WARRANTY.
 .br
