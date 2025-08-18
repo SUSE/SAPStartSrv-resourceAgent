@@ -18,16 +18,22 @@ temporarily hiding the sapservices file from sapinit service at system boot.
 .br
  \- sappong is unhiding the sapservices file after sapinit service has been started.
 .PP
-Hiding the sapservices file from sapinit is necessary in certain HA cluster setups. Affected are HA clusters for SAP enqueue replication where cluster nodes have concurrent access to all instance working directories, e.g. by simplified NFS mount structure.
-In such environments sapstartsrv needs to be started specific for each SAP instance (e.g. ASCS/ERS), to avoid side effects with other instances.
+Hiding the sapservices file from sapinit is necessary in certain HA cluster setups.
+Affected are HA clusters for SAP enqueue replication where cluster nodes have concurrent
+access to all instance working directories, e.g. by simplified NFS mount structure.
+In such environments sapstartsrv needs to be started specific for each SAP instance
+(e.g. ASCS/ERS), to avoid side effects with other instances.
 .PP
-The sapinit service takes not into account such environments, but starts sapstartsrv for all instances listed in the sapservices profile definition file.
+The sapinit service takes not into account such environments, but starts sapstartsrv
+for all instances listed in the sapservices profile definition file.
 This could damage the working directory content of already running instances,
 even on remote cluster nodes.
 .PP
-The script is intended to be called at boot time. Administrative use during regular operations is not intended. Consequently calling the sapinit script during regular operation will cause trouble in an above mentioned HA cluster, even on remote nodes.
+The script is intended to be called at boot time. Administrative use during regular
+operations is not intended. Consequently calling the sapinit script during regular
+operation will cause trouble in an above mentioned HA cluster, even on remote nodes.
 .PP
-For details on concept and requirements see ocf_suse_SAPStartSrv(8).
+For details on concept and requirements see ocf_suse_SAPStartSrv(7).
 .\" TODO
 .\"
 .SH OPTIONS
