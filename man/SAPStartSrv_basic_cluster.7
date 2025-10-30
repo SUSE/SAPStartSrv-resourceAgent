@@ -1,6 +1,6 @@
 .\" Version: 0.9.5
 .\"
-.TH SAPStartSrv_basic_cluster 7 "05 Jul 2025" "" "SAPStartSrv"
+.TH SAPStartSrv_basic_cluster 7 "30 Oct 2025" "" "SAPStartSrv"
 .\"
 .SH NAME
 .\"
@@ -331,6 +331,24 @@ Example SID is EN2.
 .RS 4
 .br
 # groups en2adm
+.RE
+.PP
+.PP
+\fB* check running pacemakerd daemon for PCMK_ settings
+.PP
+No output means default, which is f.e. PCMK_fail_fast=no. See
+/etc/sysconfig/pacemakerd for details.
+.PP
+.RS 4
+# cat /proc/$(pgrep pacemakerd)/environ | tr '\0' '\n' | grep PCMK_
+.RE
+.PP
+\fB* check what SBD_ settings pacemakerd knows from running sbd daemon
+.PP
+No output means default. See /etc/sysconfig/sbd for details.
+.PP
+.RS 4
+# cat /proc/$(pgrep pacemakerd)/environ | tr '\0' '\n' | grep SBD_
 .RE
 .PP
 .\"
