@@ -127,6 +127,7 @@ to make this work. See ocf_suse_SAPStartSrv(7).
 The delay should be significantly greater than, or safely twice,
 pcmk_delay_max.
 .PP
+.\" TODO /etc/sysconfig/pacemaker PCMK_fail_fast=yes ?
 .\"
 .SH EXAMPLES
 .\" TODO OS network tcp_retries2=8 (8..10)
@@ -224,7 +225,7 @@ The SBD STONITH/fencing mechanism on SLE-HA 16 uses fence_sbd instead of
 externa/sbd. See manual page fence_sbd(8) for details. 
 Example for a basic disk-based SBD resource on SLE 16:
 .PP
-.RS 2
+.RS 4
 primitive rsc_stonith_sbd stonith:fence_sbd \\
 .br
  params pcmk-delay-max=15
@@ -276,7 +277,6 @@ location ASCS00_connected grp_EN2_ASCS00 \\
 .br
  rule 90000: ping_ok gt 1
 .RE
-.br
 .PP
 \fB* systemd services for the SAP instance\fR
 .PP
@@ -285,7 +285,6 @@ saphostagent needs to be enabled and running, instance services need
 to be disabled. Example SID is HA1, instance number is 10.
 .PP
 .RS 4
-.br
 # systemctl list-unit-files | grep -i sap
 .br
 # systemctl status SAPHA1_10.service
@@ -294,7 +293,6 @@ to be disabled. Example SID is HA1, instance number is 10.
 .br
 # systemd-cgls -u SAPHA1_10.service
 .RE
-.br
 .PP
 \fB* check saphostagent and show SAP instances\fR
 .PP
@@ -305,7 +303,6 @@ Basic check for the saphostagent.
 .br
 # /usr/sap/hostctrl/exe/saphostctrl -function ListInstances
 .RE
-.br
 .PP
 \fB* SAP instance profile\fR
 .PP
@@ -313,7 +310,6 @@ Check the instance profile for HA specific settings.
 Example SID is EN2, instance number is 10.
 .PP
 .RS 4
-.br
 # su - en2adm
 .br
 ~> sapcontrol -nr 10 -function GetStartProfile |\\
@@ -329,10 +325,8 @@ Check if the sidadm user is member of the HA specific haclient group.
 Example SID is EN2.
 .PP
 .RS 4
-.br
 # groups en2adm
 .RE
-.PP
 .PP
 \fB* check running pacemakerd daemon for PCMK_ settings
 .PP
@@ -340,7 +334,7 @@ No output means default, which is f.e. PCMK_fail_fast=no. See
 /etc/sysconfig/pacemakerd for details.
 .PP
 .RS 4
-# cat /proc/$(pgrep pacemakerd)/environ | tr '\0' '\n' | grep PCMK_
+# cat /proc/$(pgrep pacemakerd)/environ | tr '\\0' '\\n' | grep PCMK_
 .RE
 .PP
 \fB* check what SBD_ settings pacemakerd knows from running sbd daemon
@@ -348,10 +342,16 @@ No output means default, which is f.e. PCMK_fail_fast=no. See
 No output means default. See /etc/sysconfig/sbd for details.
 .PP
 .RS 4
-# cat /proc/$(pgrep pacemakerd)/environ | tr '\0' '\n' | grep SBD_
+# cat /proc/$(pgrep pacemakerd)/environ | tr '\\0' '\\n' | grep SBD_
 .RE
 .PP
-.\"
+\fB* check for pacemaker IPC timeouts
+.PP
+.RS 4
+# grep "pacemaker-.*unresponsive.to.ipc" /var/log/messags
+.RE
+.PP
+\"
 .SH FILES
 .\"
 .TP
