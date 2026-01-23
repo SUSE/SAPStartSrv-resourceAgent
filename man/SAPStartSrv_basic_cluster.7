@@ -70,7 +70,7 @@ cluster.
 .br
 The value 'true' is one pre-requisite for having a cluster supported.  
 .\"
-.\" TODO cib: 	stonith-watdhog-timeout=10 ==> diskless SBD
+.\" TODO cib: 	stonith-watchdog-timeout= > (2x SBD_WATCHDOG_TIMEOUT)  ==> diskless SBD
 .\" TODO cib: 	stonith-timeout=120 ==> disk-based SBD
 .PP
 \fBresource-stickiness = 1\fR
@@ -160,7 +160,7 @@ property cib-bootstrap-options: \\
 .br
  stonith-enabled=true \\
 .br
- stonith-watchdog-timeout=10 \\
+ stonith-watchdog-timeout=31 \\
 .br
  placement-strategy=balanced \\
 .PP
