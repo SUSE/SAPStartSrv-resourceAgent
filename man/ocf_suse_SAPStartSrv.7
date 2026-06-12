@@ -1,15 +1,17 @@
 .\" Version: 0.9.5
 .\"
-.TH ocf_suse_SAPStartSrv 7 "24 Jul 2025" "" "OCF resource agents"
+.TH ocf_suse_SAPStartSrv 7 "12 Jun 2026" "" "OCF resource agents"
 .\"
 .SH NAME
 .\"
 SAPStartSrv \- Manages sapstartsv for a single SAP instance as an HA resource.
+.PP
 .\"
 .SH SYNOPSYS
 .\"
 \fBSAPStartSrv\fP [ start | stop | status | monitor | meta\-data | validate\-all | usage ]
 .\" TODO monitor?
+.PP
 .\"
 .SH DESCRIPTION
 .\"
@@ -43,7 +45,7 @@ environments. Both NFS shares with instance directories can be mounted
 statically on all nodes. The HA cluster does not need to control that
 filesystems.
 The /usr/sap/sapservices file is stored locally on each cluster node.
-.RE
+.PP
 .\"
 .SH SUPPORTED PARAMETERS
 .\"
@@ -64,6 +66,7 @@ the name of the SAP START profile after the default SAP installation.
 .br
 Unique, optional, string, no default.
 .RE
+.PP
 .\"
 .SH SUPPORTED ACTIONS
 .\"
@@ -114,8 +117,9 @@ Suggested minimum timeout: 5\&.
 .\"
 .SH RETURN CODES
 .\"
-The return codes are defined by the OCF cluster framework. Please refer to the OCF definition on the website mentioned below.
-.RE
+The return codes are defined by the OCF cluster framework. Please refer to the OCF
+definition on the website mentioned below.
+.PP
 .\"
 .SH EXAMPLES
 .\"
@@ -165,7 +169,6 @@ group grp_EVA_ASCS00 \\
  rsc_SAPInstance_EVA_ASCS00 \\
 .br
  meta resource-stickiness=3000
-.br
 .RE
 .PP
 * Example configuration for SAP ERS instance resource group in an ENSA2 setup.
@@ -256,6 +259,7 @@ service/halib_cluster_connector = /usr/bin/sap_suse_cluster_connector
 .br
 service/halib = $(DIR_CT_RUN)/saphascriptco.so
 .br
+# some more below ...
 .RE
 .PP
 * Search for log entries of SAPStartSrv, show errors only:
@@ -287,6 +291,7 @@ OCF_RESKEY_CRM_meta_interval=0 \\
 .RE
 .\" TODO example for checking enqueue table?
 .\" TODO example for checking process list?
+.PP
 .\"
 .SH FILES
 .\"
@@ -308,6 +313,7 @@ SAP profiles definition file
 .TP
 /etc/sap_suse_cluster_connector
 sap_suse_cluster_connector configuration, SLE-HA 12
+.PP
 .\"
 .SH REQUIREMENTS
 .\"
@@ -327,7 +333,10 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 .PP
 * SAP instance profile Autostart feature is disabled for ASCS and ERS.
 .PP
-* For ENSA1 and ENSA2 HA setups, the ASCS instance profile entry for the enqueue service _ENQ, Restart_Program_xx is replaced by Start_Program_xx. Same for the ERS instance profile entry for the enqueue replicator service _ENQR. Other services stay untouched. 
+* For ENSA2 (and ENSA1) HA setups, the ASCS instance profile entry for the enqueue
+service _ENQ (_EN), Restart_Program_xx is replaced by Start_Program_xx. Same for
+the ERS instance profile entry for the enqueue replicator service _ENQR (_ER).
+Other services stay untouched. 
 .PP
 * The sapinit boot script does not read entries from sapservices file at boot.
 Thus services sapping and sappong to handle sapservices file at system boot.
@@ -354,6 +363,7 @@ However, all nodes in one Linux cluster have to use the same style.
 * No firewall rules must block any needed port.
 .PP
 * No SELinux rules must block any needed action.
+.PP
 .\"
 .SH BUGS
 .\"
@@ -361,7 +371,8 @@ The trace_ra resourcre tracing feature is not implemented so far.
 .br
 In case of any problem, please use your favourite SAP support process to open a
 request for the component BC-OP-LNX-SUSE.
-Please report any other feedback to feedback@suse.com.
+.\" TODO Please report any other feedback to feedback@suse.com.
+.PP
 .\"
 .SH SEE ALSO
 .\"
@@ -416,14 +427,16 @@ https://launchpad.support.sap.com/#/notes/2711036 ,
 https://launchpad.support.sap.com/#/notes/2717369 ,
 .br
 https://launchpad.support.sap.com/#/notes/953653
+.PP
 .\"
 .SH AUTHORS
 .\"
 X.Arbulu, F.Herschel, L.Pinne
+.PP
 .\"
 .SH COPYRIGHT
 .\"
-(c) 2020-2025 SUSE LLC
+(c) 2020-2026 SUSE LLC
 .br
 The resource agent SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br

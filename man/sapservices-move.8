@@ -3,11 +3,14 @@
 .TH sapservices-move 8 "15 Aug 2025" "" "SAPStartSrv"
 .\"
 .SH NAME
+.\"
 sapservices-move \- hiding sapservices file from sapinit service at system boot.
+.PP
 .\"
 .SH SYNOPSYS
 .\"
 \fBsapservices-move\fP [ --help | --version | --hide | --unhide ]
+.PP
 .\"
 .SH DESCRIPTION
 .\"
@@ -35,6 +38,7 @@ operation will cause trouble in an above mentioned HA cluster, even on remote no
 .PP
 For details on concept and requirements see ocf_suse_SAPStartSrv(7).
 .\" TODO
+.PP
 .\"
 .SH OPTIONS
 .\"
@@ -50,6 +54,7 @@ hide sapervices file from sapinit
 .TP
 --unhide
 unhide previously hidden sapservices file
+.PP
 .\"
 .SH EXAMPLES
 .\"
@@ -62,12 +67,14 @@ unhide previously hidden sapservices file
 .TP
 * show journal log entries for service sapping since 2020-02-02 20:20:20
 # journalctl --unit=sapping --since="2020-02-02 20:20:20"
+.PP
 .\"
 .SH EXIT STATUS
 .\"
 0 Successful program execution.
 .br
 >0 Usage, syntax or execution errors.
+.PP
 .\"
 .SH FILES
 .\"
@@ -86,24 +93,28 @@ SAP instance profiles
 .TP
 /etc/init.d/sapinit
 System V SAP init script to enable SAP start framework, including sapstartsrv service for all entries in the sapservices file
+.PP
 .\"
 .SH BUGS
 .\"
 In case of any problem, please use your favourite SAP support process to open a
 request for the component BC-OP-LNX-SUSE.
-Please report any other feedback to feedback@suse.com.
+.\" TODO Please report any other feedback to feedback@suse.com.
+.PP
 .\"
 .SH SEE ALSO
 .\"
 \fBocf_heartbeat_SAPStartSrv\fP(7) , \fBsapping\fR(7) , \fBsystemctl\fP(1)
+.PP
 .\"
 .SH AUTHORS
 .\"
 F.Herschel, L.Pinne
+.PP
 .\"
 .SH COPYRIGHT
 .\"
-(c) 2020-2025 SUSE LLC
+(c) 2020-2026 SUSE LLC
 .br
 sapservices-move comes with ABSOLUTELY NO WARRANTY.
 .br
