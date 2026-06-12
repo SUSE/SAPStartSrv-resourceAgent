@@ -167,10 +167,10 @@ group grp_EN1_SCS00 \\
 .br
 SAP system name is EN1, SAP service is ERS, SAP instance number is 10, SAP virtual
 hostname is sapen1er. An IP address is configured as usual for on-premise use. If
-possible, the ERS instance should run on a different node than the SCS (ASCS).
+possible, the ERS instance should run on a different node than the ASCS (SCS).
 The SAP instance profile needs to be adapted to make this work.
-The also needed SCS (ASCS) instance group is shown in another example.
-If the SCS (ASCS) failed and is going to be recovered, it needs to move to the ERS
+The also needed ENSA1 ASCS (SCS) instance group is shown in another example.
+If the ASCS (SCS) failed and is going to be recovered, it needs to move to the ERS
 node for restoring its lock table.
 See also manual page SAPStarrSrv_basic_cluster(7) and ocf_heartbeat_SAPInstance(7).
 .PP
