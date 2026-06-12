@@ -37,7 +37,7 @@ sapstartsrv for one specific SAP instance. By intention it does not monitor the
 service. SAPInstance then utilises that service for managing the SAP instance.
 SAPInstance also is doing in-line recovery of failed sapstartsrv processes.
 The instance's virtual service IP address is used for contacting the sapstartsrv
-process. Thus that IP address resource (e.g. IPAddr2, aws-vpc-route53) needs to
+process. Thus that IP address resource (e.g. IPaddr2, aws-vpc-route53) needs to
 start before SAPStartSrv.
 .PP
 The described setup is benefitial particularly for public cloud and NFS-based
@@ -66,6 +66,7 @@ the name of the SAP START profile after the default SAP installation.
 .br
 Unique, optional, string, no default.
 .RE
+.\" TODO IS_ERS=true
 .PP
 .\"
 .SH SUPPORTED ACTIONS
@@ -123,10 +124,91 @@ definition on the website mentioned below.
 .\"
 .SH EXAMPLES
 .\"
-* Example configuration for SAP ASCS instance resource group in an ENSA2 setup.
+\fB*\fR Example configuration for SAP SCS instance resource group in an ENSA1 setup.
+.br
+SAP system name is EN1, SAP service is SCS, SAP instance number is 00, SAP virtual hostname is sapen1as. The shown SAPInstance monitor timeout is a trade-off between fast recovery of the SCS vs. resilience against sporadic temporary NFS issues. You may slightly increase it to fit your infrastructure. Too short SCS monitor timeouts likely will conflict with the instance´s internal recovery.
+The also needed ENSA1 ERS instance group and location constraint is shown in another example.
+See also manual page ocf_heartbeat_SAPInstance(7).
+.PP
+.RS 4
+primitive rsc_ip_EN1_SCS00 IPaddr2 \\
+.br
+ params ip=192.168.1.112 \\
+.br
+ op monitor interval=10 timeout=20
+.PP
+primitive rsc_SAPStartSrv_EN1_SCS00 ocf:suse:SAPStartSrv \\
+.br
+ params InstanceName=EN1_SCS00_sapen1as
+.PP
+primitive rsc_sap_EN1_SCS00 SAPInstance \\
+.br
+ op monitor interval=11 timeout=60 on-fail=restart \\
+.br
+ params InstanceName=EN1_SCS00_sapen2as \\
+.br
+ START_PROFILE="/usr/sap/EN1/SYS/profile/EN1_SCS00_sapen1as" \\
+.br
+ AUTOMATIC_RECOVER=false MINIMAL_PROBE=true \\
+.br
+ meta resource-stickiness=5000 failure-timeout=60 \\
+.br
+ migration-threshold=1 priority=10
+.PP
+group grp_EN1_SCS00 \\
+.br
+ rsc_ip_EN1_SCS00 rsc_SAPStartSrv_EN1_SCS00 rsc_sap_EN1_SCS00 \\
+.br
+ meta resource-stickiness=3000
+.RE
+.PP
+\fB*\fR Example configuration for SAP ERS instance resource group in an ENSA1 setup.
+.br
+SAP system name is EN1, SAP service is ERS, SAP instance number is 10, SAP virtual hostname is sapen1er.
+An IP address is configured as usual for on-premise use. If possible, the ERS instance should run on a different node than the SCS (ASCS). The also needed SCS (ASCS) instance group is shown in another example.
+See also manual page ocf_heartbeat_SAPInstance(7).
+.PP
+.RS 4
+primitive rsc_ip_EN1_ERS10 IPaddr2 \\
+.br
+ params ip=192.168.1.113 \\
+.br
+ op monitor interval=10 timeout=20
+.PP
+primitive rsc_SAPStartSrv_EN1_ERS10 ocf:suse:SAPStartSrv \\
+.br
+  params InstanceName=EN1_ERS10_sapen2er
+.PP
+primitive rsc_sap_EN1_ERS10 SAPInstance \\
+.br
+ op monitor interval=11 timeout=60 on-fail=restart \\
+.br
+ params InstanceName=EN1_ERS10_sapen2er \\
+.br
+ START_PROFILE="/usr/sap/EN2/SYS/profile/EN1_ERS10_sapen1er" \\
+.br
+ AUTOMATIC_RECOVER=false IS_ERS=true MINIMAL_PROBE=true \\
+.br
+ meta priority=1000
+.PP
+group grp_EN1_ERS10 \\
+.br
+ sc_ip_EN1_ERS10 rsc_SAPStartSrv_EN1_ERS10 rsc_sap_EN1_ERS10
+.PP
+colocation col_sap_EN1_separate -5000: grp_EN1_ERS10 grp_EN1_SCS00
+.PP
+location loc_sap_EN1_failover_to_ers rsc_sap_EN1_SCS00 \\
+ rule 2000: runs_ers_EN1 eq 1
+.PP
+order ord_sap_EN1_scs_first Optional: rsc_sap_EN1_SCS00:start \\
+ rsc_sap_EN1_ERS10:stop symmetrical=false
+.RE
+.PP
+\fB*\fR Example configuration for SAP ASCS instance resource group in an ENSA2 setup.
 .br
 SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments. The SAPInstance has been given a fencing priority, a crm property priority-fencing-delay is needed to make this work. See SAPStartSrv_basic_cluster(7). The shown SAPInstance monitor timeout is a trade-off between fast recovery of the ASCS vs. resilience against sporadic temporary NFS issues. You may slightly increase it to fit your infrastructure. Too short ASCS monitor timeouts likely will conflict with the instance´s internal recovery.
 The also needed ERS instance group and location constraint is shown in another example.
+See also manual page ocf_heartbeat_SAPInstance(7).
 .PP
 .RS 4
 primitive rsc_SAPStartSrv_EVA_ASCS00 ocf:suse:SAPStartSrv \\
@@ -149,7 +231,7 @@ primitive rsc_SAPInstance_EVA_ASCS00 SAPInstance \\
 .br
  priority=100
 .PP
-primitive rsc_IPAddr2_EVA_ASCS00 IPaddr2 \\
+primitive rsc_IPaddr2_EVA_ASCS00 IPaddr2 \\
 .br
  params ip=192.168.178.188 cidr_netmask=32
 .PP
@@ -161,7 +243,7 @@ group grp_EVA_ASCS00 \\
 .br
  rsc_Loadbalancer_EVA_ASCS00 \\
 .br
- rsc_IPAddr2_EVA_ASCS00 \\
+ rsc_IPaddr2_EVA_ASCS00 \\
 .\" TODO meta resource-stickiness=1
 .br
  rsc_SAPStartSrv_EVA_ASCS00 \\
@@ -171,12 +253,13 @@ group grp_EVA_ASCS00 \\
  meta resource-stickiness=3000
 .RE
 .PP
-* Example configuration for SAP ERS instance resource group in an ENSA2 setup.
+\fB*\fR Example configuration for SAP ERS instance resource group in an ENSA2 setup.
 .br
 SAP system name is EN2, SAP service is ERS, SAP instance number is 10, SAP virtual
 hostname is sapeva. An IP address is configured as usual for on-premise use.
 If possible, the ERS instance should run on a different node than the ASCS.
 The also needed ASCS instance group is shown in another example.
+See also manual page ocf_heartbeat_SAPInstance(7).
 .PP
 .RS 4
 primitive rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
@@ -193,13 +276,13 @@ primitive rsc_SAPInstance_EN2_ERS10 SAPInstance \\
 .br
  AUTOMATIC_RECOVER=false IS_ERS=true MINIMAL_PROBE=true
 .PP
-primitive rsc_IPAddr2_EN2_ERS10 IPaddr2 \\
+primitive rsc_IPaddr2_EN2_ERS10 IPaddr2 \\
 .br
  params ip=192.168.178.187
 .PP
 group grp_EN2_ERS10 \\
 .br
- rsc_IPAddr2_EN2_ERS10 \\
+ rsc_IPaddr2_EN2_ERS10 \\
 .br
  rsc_SAPStartSrv_EN2_ERS10 \\
 .br
@@ -218,7 +301,7 @@ order ord_EN2_ASCS00_first \\
  symmetrical=false
 .RE
 .PP
-* Example SAP ASCS instance profile adapted for ENSA2 HA setup.
+\fB*\fR Example SAP ASCS instance profile adapted for ENSA2 HA setup.
 .br
 SAP SID is EN2, instance number is 00, virtual hostname is sapen2er, service is _ENQ .
 Optionally you could limit the number of restarts of services, this is not done here. 
@@ -238,7 +321,7 @@ Start_Program_01 = local $(_ENQ) pf=$(_PF)
 # some more below ...
 .RE
 .PP
-* Example SAP ERS instance profile adapted for ENSA2 HA setup.
+\fB*\fR Example SAP ERS instance profile adapted for ENSA2 HA setup.
 .br
 SAP SID is EN2, instance number is 10, virtual hostname is sapen2er, service is _ENQR .
 See also man page sap_suse_cluster_connector(8).
@@ -262,22 +345,23 @@ service/halib = $(DIR_CT_RUN)/saphascriptco.so
 # some more below ...
 .RE
 .PP
-* Search for log entries of SAPStartSrv, show errors only:
+\fB*\fR Search for log entries of SAPStartSrv, show errors only:
 .PP
 .RS 4
 # grep "SAPStartSrv.*RA.*rc=[1-7,9]" /var/log/messages
 .\" TODO output
 .RE
 .PP
-* Show failcount for resource rsc_SAPStartSrv_EN2_ERS10 . If the failcount
-exceeds the migration-threshold, the resource will be moved to another node.
-See SAPStartSrv_basic_cluster(7).
+\fB*\fR Show failcount for resource rsc_SAPStartSrv_EN2_ERS10 .
+.br
+If the failcount exceeds the migration-threshold, the resource will be moved to
+another node. See SAPStartSrv_basic_cluster(7).
 .PP
 .RS 4
 # cibadmin -Ql | grep rsc_SAPStartSrv_EN2_ERS10.*fail-count
 .RE
 .PP
-* Manually trigger a SAPStartSrv probe action for instance ADA_ASCS00_engine.
+\fB*\fR Manually trigger a SAPStartSrv probe action for instance ADA_ASCS00_engine.
 Output goes to the usual logfiles.
 .PP
 .RS 4
@@ -333,7 +417,7 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 .PP
 * SAP instance profile Autostart feature is disabled for ASCS and ERS.
 .PP
-* For ENSA2 (and ENSA1) HA setups, the ASCS instance profile entry for the enqueue
+* For ENSA2 (ENSA1) HA setups, the ASCS instance profile entry for the enqueue
 service _ENQ (_EN), Restart_Program_xx is replaced by Start_Program_xx. Same for
 the ERS instance profile entry for the enqueue replicator service _ENQR (_ER).
 Other services stay untouched. 
