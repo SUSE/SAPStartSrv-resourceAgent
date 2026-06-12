@@ -127,8 +127,9 @@ definition on the website mentioned below.
 \fB*\fR Example configuration for SAP SCS instance resource group in an ENSA1 setup.
 .br
 SAP system name is EN1, SAP service is SCS, SAP instance number is 00, SAP virtual hostname is sapen1as. The shown SAPInstance monitor timeout is a trade-off between fast recovery of the SCS vs. resilience against sporadic temporary NFS issues. You may slightly increase it to fit your infrastructure. Too short SCS monitor timeouts likely will conflict with the instance´s internal recovery.
+The SAP start profile needs to be adapted to make this work.
 The also needed ENSA1 ERS instance group and location constraint is shown in another example.
-See also manual page ocf_heartbeat_SAPInstance(7).
+See also manual page SAPStarrSrv_basic_cluster(7) and ocf_heartbeat_SAPInstance(7).
 .PP
 .RS 4
 primitive rsc_ip_EN1_SCS00 IPaddr2 \\
@@ -167,10 +168,11 @@ group grp_EN1_SCS00 \\
 SAP system name is EN1, SAP service is ERS, SAP instance number is 10, SAP virtual
 hostname is sapen1er. An IP address is configured as usual for on-premise use. If
 possible, the ERS instance should run on a different node than the SCS (ASCS).
+The SAP start profile needs to be adapted to make this work.
 The also needed SCS (ASCS) instance group is shown in another example.
 If the SCS (ASCS) failed and is going to be recovered, it needs to move to the ERS
 node for restoring its lock table.
-See also manual page ocf_heartbeat_SAPInstance(7).
+See also manual page SAPStarrSrv_basic_cluster(7) and ocf_heartbeat_SAPInstance(7).
 .PP
 .RS 4
 primitive rsc_ip_EN1_ERS10 IPaddr2 \\
@@ -211,8 +213,9 @@ order ord_sap_EN1_scs_first Optional: rsc_sap_EN1_SCS00:start \\
 \fB*\fR Example configuration for SAP ASCS instance resource group in an ENSA2 setup.
 .br
 SAP system name is EVA, SAP service is ASCS, SAP instance number is 00, SAP virtual hostname is sapeva. An loadbalancer is used together with dedicated IP netmask configuration for specific public cloud environments. The SAPInstance has been given a fencing priority, a crm property priority-fencing-delay is needed to make this work. See SAPStartSrv_basic_cluster(7). The shown SAPInstance monitor timeout is a trade-off between fast recovery of the ASCS vs. resilience against sporadic temporary NFS issues. You may slightly increase it to fit your infrastructure. Too short ASCS monitor timeouts likely will conflict with the instance´s internal recovery.
+The SAP start profile needs to be adapted to make this work.
 The also needed ERS instance group and location constraint is shown in another example.
-See also manual page ocf_heartbeat_SAPInstance(7).
+See also manual page SAPStartSrv_basic_cluster and ocf_heartbeat_SAPInstance(7).
 .PP
 .RS 4
 primitive rsc_SAPStartSrv_EVA_ASCS00 ocf:suse:SAPStartSrv \\
@@ -262,8 +265,9 @@ group grp_EVA_ASCS00 \\
 SAP system name is EN2, SAP service is ERS, SAP instance number is 10, SAP virtual
 hostname is sapeva. An IP address is configured as usual for on-premise use.
 If possible, the ERS instance should run on a different node than the ASCS.
+The SAP start profile needs to be adapted to make this work.
 The also needed ASCS instance group is shown in another example.
-See also manual page ocf_heartbeat_SAPInstance(7).
+See also manual page SAPStartSrv_basic_cluster and ocf_heartbeat_SAPInstance(7).
 .PP
 .RS 4
 primitive rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
