@@ -164,8 +164,12 @@ group grp_EN1_SCS00 \\
 .PP
 \fB*\fR Example configuration for SAP ERS instance resource group in an ENSA1 setup.
 .br
-SAP system name is EN1, SAP service is ERS, SAP instance number is 10, SAP virtual hostname is sapen1er.
-An IP address is configured as usual for on-premise use. If possible, the ERS instance should run on a different node than the SCS (ASCS). The also needed SCS (ASCS) instance group is shown in another example.
+SAP system name is EN1, SAP service is ERS, SAP instance number is 10, SAP virtual
+hostname is sapen1er. An IP address is configured as usual for on-premise use. If
+possible, the ERS instance should run on a different node than the SCS (ASCS).
+The also needed SCS (ASCS) instance group is shown in another example.
+If the SCS (ASCS) failed and is going to be recovered, it needs to move to the ERS
+node for restoring its lock table.
 See also manual page ocf_heartbeat_SAPInstance(7).
 .PP
 .RS 4
