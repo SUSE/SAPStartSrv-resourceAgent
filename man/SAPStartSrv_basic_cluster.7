@@ -1,12 +1,12 @@
-.\" Version: 0.9.1
+.\" Version: 0.9.5
 .\"
-.TH SAPStartSrv_basic_cluster 7 "05 Jul 2025" "" "SAPStartSrv"
+.TH SAPStartSrv_basic_cluster 7 "12 Jun 2026" "" "SAPStartSrv"
 .\"
 .SH NAME
 .\"
 SAPStartSrv_basic_cluster \- basic settings to make SAPStartSrv work
-.\"
 .PP
+.\"
 .SH DESCRIPTION
 .\"
 The SAP Enqueue Standalone 2 (ENSA2) scenario needs a certain basic cluster
@@ -69,9 +69,6 @@ The cib bootstrap option stonith-enabled is crucial for any reliable pacemaker
 cluster.
 .br
 The value 'true' is one pre-requisite for having a cluster supported.  
-.\"
-.\" TODO cib: 	stonith-watdhog-timeout=10 ==> diskless SBD
-.\" TODO cib: 	stonith-timeout=120 ==> disk-based SBD
 .PP
 \fBresource-stickiness = 1\fR
 .PP
@@ -82,16 +79,14 @@ cluster transition. The correct value depends on number of resources, colocation
 rules and resource groups. Particularly additional resources colocated to the
 ASCS resource can affect cluster decisions. 
 Too high value might prevent not only unwanted but also useful actions.
-.br
 .\" TODO A value of '1' ...
 .PP
-\fBmigration-threshold = 1\fR
+\fBmigration-threshold = 3\fR
 .PP
 The crm rsc_default parameter migration-threshold defines how many errors on a
 resource can be detected before this resource will be moved to another node.
-For ENSA1 the migration-threshold needs to be 1 always. For ENSA2 the value could
-be higher. See also \fBfailure-timeout\fR .
-.\" TODO needed for resource monitor option on-fail=restart
+See also \fBfailure-timeout\fR .
+.\" TODO = 1 needed for resource monitor option on-fail=restart ?
 .PP
 \fBrecord-pending = true\fR
 .PP
@@ -127,11 +122,12 @@ to make this work. See ocf_suse_SAPStartSrv(7).
 The delay should be significantly greater than, or safely twice,
 pcmk_delay_max.
 .PP
+.\" TODO /etc/sysconfig/pacemaker PCMK_fail_fast=yes ?
 .\"
 .SH EXAMPLES
 .\" TODO OS network tcp_retries2=8 (8..10)
 .\"
-\fB* crm basic configuration\fR
+\fB* crm basic configuration ENSA2\fR
 .\" TODO scenario specific CIB basic settings
 .\" TODO check against setup guides NW and S/4. Specifics ENSA1 vs. ENSA2?
 .PP
@@ -159,7 +155,7 @@ property cib-bootstrap-options: \\
 .br
  stonith-enabled=true \\
 .br
- stonith-watchdog-timeout=10 \\
+ stonith-watchdog-timeout=31 \\
 .br
  placement-strategy=balanced \\
 .PP
@@ -218,13 +214,33 @@ op_defaults op-options: \\
  record-pending=true 
 .RE
 .PP
+\fB* crm basic configuration ENSA1\fR
+.PP
+Below is an examples of crm basic configuration for an ENSA1 two-node cluster on
+SLE 15. Shown are specific parameters which are needed. Some general parameters
+are left out.
+.PP
+rsc_defaults rsc-options: \\
+.br
+ resource-stickiness=1 \\
+.br
+ migration-threshold=3 \\
+.br
+ priority=1
+.br
+op_defaults op-options: \\
+.br
+ timeout=600 \\
+.br
+ record-pending=true
+.PP
 \fB* crm simple SBD stonith configuration on SLE 16\fR
 .PP
 The SBD STONITH/fencing mechanism on SLE-HA 16 uses fence_sbd instead of
-externa/sbd. See manual page fence_sbd(8) for details. 
+external/sbd. See manual page fence_sbd(8) for details. 
 Example for a basic disk-based SBD resource on SLE 16:
 .PP
-.RS 2
+.RS 4
 primitive rsc_stonith_sbd stonith:fence_sbd \\
 .br
  params pcmk-delay-max=15
@@ -248,7 +264,6 @@ nfs1:/s/EN2/usrsap /usr/sap/EN2 nfs rw,hard,intr,nolock,actimeo=1,proto=tcp 0 0
 .\"nfs1:/s/EN2/saptrans /usr/sap/trans nfs rw,hard,intr,nolock,proto=tcp 0 0
 .RE
 .PP
-.\"
 \fB* ping resource for checking connectivity\fR
 .PP
 .\" TODO discuss what ping-based score might break ENSA scoring
@@ -276,7 +291,6 @@ location ASCS00_connected grp_EN2_ASCS00 \\
 .br
  rule 90000: ping_ok gt 1
 .RE
-.br
 .PP
 \fB* systemd services for the SAP instance\fR
 .PP
@@ -285,7 +299,6 @@ saphostagent needs to be enabled and running, instance services need
 to be disabled. Example SID is HA1, instance number is 10.
 .PP
 .RS 4
-.br
 # systemctl list-unit-files | grep -i sap
 .br
 # systemctl status SAPHA1_10.service
@@ -294,7 +307,6 @@ to be disabled. Example SID is HA1, instance number is 10.
 .br
 # systemd-cgls -u SAPHA1_10.service
 .RE
-.br
 .PP
 \fB* check saphostagent and show SAP instances\fR
 .PP
@@ -305,7 +317,6 @@ Basic check for the saphostagent.
 .br
 # /usr/sap/hostctrl/exe/saphostctrl -function ListInstances
 .RE
-.br
 .PP
 \fB* SAP instance profile\fR
 .PP
@@ -313,7 +324,6 @@ Check the instance profile for HA specific settings.
 Example SID is EN2, instance number is 10.
 .PP
 .RS 4
-.br
 # su - en2adm
 .br
 ~> sapcontrol -nr 10 -function GetStartProfile |\\
@@ -329,11 +339,33 @@ Check if the sidadm user is member of the HA specific haclient group.
 Example SID is EN2.
 .PP
 .RS 4
-.br
 # groups en2adm
 .RE
 .PP
-.\"
+\fB* check running pacemakerd daemon for PCMK_ settings
+.PP
+No output means default, which is f.e. PCMK_fail_fast=no. See
+/etc/sysconfig/pacemakerd for details.
+.PP
+.RS 4
+# cat /proc/$(pgrep pacemakerd)/environ | tr '\\0' '\\n' | grep PCMK_
+.RE
+.PP
+\fB* check what SBD_ settings pacemakerd knows from running sbd daemon
+.PP
+No output means default. See /etc/sysconfig/sbd for details.
+.PP
+.RS 4
+# cat /proc/$(pgrep pacemakerd)/environ | tr '\\0' '\\n' | grep SBD_
+.RE
+.PP
+\fB* check for pacemaker IPC timeouts
+.PP
+.RS 4
+# grep "pacemaker-.*unresponsive.to.ipc" /var/log/messags
+.RE
+.PP
+\"
 .SH FILES
 .\"
 .TP
@@ -362,9 +394,9 @@ systemd unit file for SAP instance
 .\"
 .SH BUGS
 .\"
-In case of any problem, please use your favourite SAP support process to open
-a request for the component BC-OP-LNX-SUSE.
-Please report feedback and suggestions to feedback@suse.com.
+In case of any problem, please use your favourite SAP support process to open a
+request for the component BC-OP-LNX-SUSE.
+.\" TODO Please report feedback and suggestions to feedback@suse.com.
 .PP
 .\"
 .SH SEE ALSO
@@ -396,7 +428,7 @@ F.Herschel, L.Pinne
 .\"
 .SH COPYRIGHT
 .\"
-(c) 2020-2025 SUSE LLC
+(c) 2020-2026 SUSE LLC
 .br
 SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br

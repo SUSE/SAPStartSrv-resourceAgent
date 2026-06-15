@@ -1,10 +1,10 @@
-.\ Version: 0.9.1
+.\" Version: 0.9.5
 .\"
-.TH SAPStartSrv_maintenance_examples 7 "05 Jul 2025" "" "SAPStartSrv"
+.TH SAPStartSrv_maintenance_procedures 7 "15 Aug 2025" "" "SAPStartSrv"
 .\"
 .SH NAME
 .\"
-SAPStartSrv_maintenance_examples \- maintenance examples for SAPStartSrv
+SAPStartSrv_maintenance_procdures \- maintenance examples for SAPStartSrv
 .PP
 .\"
 .SH DESCRIPTION
@@ -184,7 +184,7 @@ This is not compliant to official SAP upgrade procedures, like Rolling Kernel Sw
 .PP
 \fB*\fR Overview on maintenance procedure for Linux cluster or OS. ASCS and ERS instances
 remain running.
-
+.PP
 .RS 2
 1. Check status of Linux cluster and ASCS/ERS, see above.
 .br
@@ -206,18 +206,20 @@ remain running.
 .\"
 .SH BUGS
 .\"
-Please report feedback and suggestions to feedback@suse.com.
+In case of any problem, please use your favourite SAP support process to open a
+request for the component BC-OP-LNX-SUSE.
+.\" TODO Please report any other feedback and suggestions to feedback@suse.com.
 .PP
 .\"
 .SH SEE ALSO
 .\"
-\fBocf_suse_SAPStartSrv\fP(7) ,  \fBSAPStartSrv_basic_cluster\fP(7) ,
+\fBocf_suse_SAPStartSrv\fP(7) , \fBSAPStartSrv_basic_cluster\fP(7) ,
 \fBsap_suse_cluster_connector\fP(8) ,
 \fBcrm\fP(8) , \fBcrm_simulate\fP(8) , \fBcrm_report\fP(8) , \fBcibadmin\fP(8) ,
 \fBfence_sbd\fP(8) , \fBsbd\fP(8) , \fBcorosync-cfgtool\fP(8) ,
 \fBsystemctl\fP(8) ,
 \fBcs_clusterstate\fP(8) , \fBcs_wait_for_idle\fP(8) , \fBcs_show_ensa_status\fP(8) ,
-\fBha_related_sap_notes\fP(7)
+\fBha_related_suse_tids\fP(7) , \fBha_related_sap_notes\fP(7)
 .PP
 .\"
 .SH AUTHORS
@@ -227,7 +229,7 @@ F.Herschel, L.Pinne
 .\"
 .SH COPYRIGHT
 .\"
-(c) 2020-2025 SUSE LLC
+(c) 2020-2026 SUSE LLC
 .br
 SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
 .br
