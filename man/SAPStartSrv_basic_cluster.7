@@ -133,18 +133,6 @@ subdaemons, while "yes" means fencing the node. Setting "yes" might help to avoi
 undefined situations.
 .br
 Optional, default no.
-.\" .PP
-.\" \fBpacemaker service dependency to SAP instance service\fR
-.\" .PP
-.\" \fB[Unit]\fR
-.\" .br
-.\" \fBWants=SAP${SID}_${INO}.service\fR
-.\" .br
-.\" \fBAfter=SAP${SID}_${INO}.service\fR
-.\" .PP
-.\" In case systemd-style init is used for the SAP instances, it might be desired
-.\" to have the SAP instance service stopping after pacemaker at system shutdown.
-.\" Therefor a drop-in file for the pacemaker service might help. See examples below.
 .PP
 .\"
 .SH EXAMPLES
@@ -389,26 +377,6 @@ No output means default. See /etc/sysconfig/sbd for details.
 .RS 2
 # grep "pacemaker-.*unresponsive.to.ipc" /var/log/messags
 .RE
-.\" .PP
-.\" \fB* show pacemaker service drop-in file\fR
-.\" .PP
-.\" In case systemd-style init is used for the SAP instance, it might be desired
-.\" to have the  SAP instance service stopping after pacemaker at system shutdown.
-.\" A drop-in file might help. Example SID is S07, instance number is 00.
-.\" .PP
-.\" .RS 2 
-.\" # cat /etc/systemd/system/pacemaker.service.d/00-pacemaker.conf
-.\" .br
-.\" [Unit]
-.\" .br 
-.\" Description=pacemaker needs SAP instance service 
-.\" .br
-.\" Documentation=man:SAPHanaSR_basic_cluster(7)
-.\" .br 
-.\" Wants=SAPS07_00.service
-.\" .br
-.\" After=SAPS07_00.service
-.\" .RE
 .PP
 \fB* check for pacemaker dependency to SAP instance service\fR
 .PP
@@ -446,10 +414,6 @@ filesystem table, for statically mounted NFS shares
 .TP
 /etc/systemd/system/SAP<SID>_<NR>.service
 systemd unit file for SAP instance
-.\" .TP
-.\" /etc/systemd/system/pacemaker.service.d/00-pacemaker.conf
-.\" drop-in file (optional)
-.\" TODO
 .PP
 .\"
 .SH BUGS
