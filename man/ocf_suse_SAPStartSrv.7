@@ -416,19 +416,20 @@ At least NW7.52 or SAP S/4HANA ABAP Platform 1909 for ENSA2.
 .PP
 * SAPInstance resource agent with MINIMAL_PROBE support, November 2020.
 .PP
-* Needed NFS shares (e.g. /sapmnt/$SID/, /usr/sap/$SID/) mounted statically or by automounter.
+* Needed NFS shares (e.g. /sapmnt/$SID/, /usr/sap/$SID/) mounted statically or
+by automounter.
 .PP
 .\" TODO discuss read-write vs. /var/.../sapservices.moved
 * Directory /usr/sap/ locally read-write mounted on each cluster node.
 .PP
 * Complete entries in /usr/sap/sapservices file.
 .PP
-* SAP instance profile Autostart feature is disabled for ASCS and ERS.
+* SAP instance profile Autostart feature is disabled for ASCS (SCS) and ERS.
 .PP
-* For ENSA2 (ENSA1) HA setups, the ASCS instance profile entry for the enqueue
-service _ENQ (_EN), Restart_Program_xx is replaced by Start_Program_xx. Same for
-the ERS instance profile entry for the enqueue replicator service _ENQR (_ER).
-Other services stay untouched. 
+* For ENSA2 (ENSA1) HA setups, the ASCS or SCS instance profile entry for the
+enqueue service _ENQ (_EN), Restart_Program_xx is replaced by Start_Program_xx.
+Same for the ERS instance profile entry for the enqueue replicator service _ENQR
+(_ER). Other services stay untouched. 
 .PP
 * The sapinit boot script does not read entries from sapservices file at boot.
 Thus services sapping and sappong to handle sapservices file at system boot.
@@ -448,9 +449,13 @@ The systemd enabled saphostagent and sapstartsrv is supported from
 sapstartsrv-resource-agents 0.9.1 onwards.
 An appropriate SAPInstance resource agent is needed, newer than November 2021.
 Please refer to the OS documentation for the systemd version.
-Please refer to SAP documentation for the SAP HANA version.
+Please refer to SAP documentation for the SAP software version.
 Combining systemd style hostagent with SystemV style instance is allowed.
 However, all nodes in one Linux cluster have to use the same style.
+.PP
+.\" TODO remove below, once fixed
+* The SAPInstance RA regularly checks systemd integration. The SAPInstance monitor
+interval might be increased to reduce side effects in Multi-SID setups.
 .PP
 * No firewall rules must block any needed port.
 .PP
@@ -459,7 +464,7 @@ However, all nodes in one Linux cluster have to use the same style.
 .\"
 .SH BUGS
 .\"
-The trace_ra resourcre tracing feature is not implemented so far.
+The trace_ra resource tracing feature is not implemented so far.
 .br
 In case of any problem, please use your favourite SAP support process to open a
 request for the component BC-OP-LNX-SUSE.
