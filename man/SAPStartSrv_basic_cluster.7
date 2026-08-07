@@ -400,16 +400,16 @@ Note: Understand the impact before trying.
 .PP
 1. Check ASCS and ERS and Linux cluster for clean and idle state.
 .PP
-2. On secondary, block corosync ports.
+2. On ERS node, block corosync ports.
 .RS 2
 # PORTS="5404,5405,5406,5407,5408,5409,5410,5411,5412"
 .br
 # iptables -I INPUT -p udp -m multiport --ports "$PORTS" -j DROP & exit
 .RE
 .PP
-3. On ASCS, watch cluster reaction.
+3. On ASCS node, watch cluster reaction.
 .RS 2
-# watch -n9 cs_show_ensa_state
+# crm_mon -r
 .RE
 .PP
 .\"
