@@ -850,7 +850,7 @@ class TestSAPStartSrv(unittest.TestCase):
 
         if not mock_is_probe:
             self._agent._inititialize.assert_called_once_with()
-        self._agent._get_status.assert_called_once_with()
+            self._agent._get_status.assert_called_once_with()
 
     @mock.patch('ocf.OCF_SUCCESS', 0)
     @mock.patch('ocf.is_probe')
