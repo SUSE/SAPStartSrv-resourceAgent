@@ -1106,7 +1106,7 @@ class TestSAPStartSrv(unittest.TestCase):
             mock.call(name='stop', timeout=60, handler=mock_sapstartrv_intance.stop),
             mock.call(name='status', timeout=60, handler=mock_sapstartrv_intance.status),
             mock.call(
-                name='monitor', timeout=20, interval=120, handler=mock_sapstartrv_intance.monitor),
+                name='monitor', timeout=20, handler=mock_sapstartrv_intance.monitor),
             mock.call(name='validate-all', timeout=5, handler=mock_sapstartrv_intance.validate),
         ])
 
