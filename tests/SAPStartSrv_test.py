@@ -848,7 +848,8 @@ class TestSAPStartSrv(unittest.TestCase):
         ocf_returncode = self._agent.monitor()
         assert ocf_returncode == 0
 
-        if mock_is_probe:
+        #if mock_is_probe:
+        if true:
             self._agent._inititialize.assert_called_once_with()
             self._agent._get_status.assert_called_once_with()
 
