@@ -356,8 +356,8 @@ class SapStartSrv(object):
         '''
         Is the sapstartsrv server process running?
         '''
-        self._inititialize()
         if ocf.is_probe():
+            self._inititialize()
             if self._get_status() == 0:
                 return ocf.OCF_SUCCESS
 
@@ -433,8 +433,7 @@ def main():
     sapstartsrv_agent.add_action(name='start', timeout=60, handler=sapstartsrv_instance.start)
     sapstartsrv_agent.add_action(name='stop', timeout=60, handler=sapstartsrv_instance.stop)
     sapstartsrv_agent.add_action(name='status', timeout=60, handler=sapstartsrv_instance.status)
-    sapstartsrv_agent.add_action(
-        name='monitor', timeout=20, interval=120, handler=sapstartsrv_instance.monitor)
+    sapstartsrv_agent.add_action(name='monitor', timeout=20, handler=sapstartsrv_instance.monitor)
     sapstartsrv_agent.add_action(
         name='validate-all', timeout=5, handler=sapstartsrv_instance.validate)
 
