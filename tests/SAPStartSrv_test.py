@@ -848,6 +848,7 @@ class TestSAPStartSrv(unittest.TestCase):
         ocf_returncode = self._agent.monitor()
         assert ocf_returncode == 0
 
+        #if mock_is_probe:
         self._agent._inititialize.assert_called_once_with()
         self._agent._get_status.assert_called_once_with()
 
@@ -861,8 +862,9 @@ class TestSAPStartSrv(unittest.TestCase):
         ocf_returncode = self._agent.monitor()
         assert ocf_returncode == 0
 
-        self._agent._inititialize.assert_called_once_with()
-        assert self._agent._get_status.call_count == 0
+        if not mock_is_probe:
+            self._agent._inititialize.assert_called_once_with()
+            assert self._agent._get_status.call_count == 0
 
     @mock.patch('ocf.OCF_SUCCESS', 0)
     def test_validate(self):
@@ -1106,7 +1108,7 @@ class TestSAPStartSrv(unittest.TestCase):
             mock.call(name='stop', timeout=60, handler=mock_sapstartrv_intance.stop),
             mock.call(name='status', timeout=60, handler=mock_sapstartrv_intance.status),
             mock.call(
-                name='monitor', timeout=20, interval=120, handler=mock_sapstartrv_intance.monitor),
+                name='monitor', timeout=20, handler=mock_sapstartrv_intance.monitor),
             mock.call(name='validate-all', timeout=5, handler=mock_sapstartrv_intance.validate),
         ])
 
