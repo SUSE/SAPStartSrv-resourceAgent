@@ -5,7 +5,7 @@
 # Support:      linux@sap.com
 # License:      GNU General Public License (GPL)
 # Copyright:    (c) 2026 SUSE LLC
-# Version:	    2026-08-13-14:20
+# Version:	    2026-08-14-12:20
 #
 # https://oneuptime.com/blog/post/2026-03-04-configure-pacemaker-alerts-and-notifications-on-rhel/view
 # https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/high_availability_add-on_reference/ch-alertscripts-haar
