@@ -16,7 +16,7 @@
 # TODO: timeout 30s default okay?
 #
 
-logger_tag="SAPHanaSR-alert-failing"
+logger_tag="SAPStartSrv-alert-timeout"
 logger="/usr/bin/logger"
 
 crm_alert_recipient="${CRM_alert_recipient:-/dev/null}"
