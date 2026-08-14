@@ -11,8 +11,6 @@
 # https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/high_availability_add-on_reference/ch-alertscripts-haar
 #
 # crm configure alert resources-1 "/usr/bin/SAPHanaSR-alert-failing" select resources attributes alert_sid=EN2 alert_ino=00 alert_cmd="/bin/true"
-# TODO: attribute = path to custom script?
-# TODO: attribute = resource to react on?
 # TODO: timeout 30s default okay?
 #
 
@@ -53,7 +51,7 @@ case "$crm_alert_kind" in
         fi
         ;;
     *)
-	msg="Unhandled '$crm_alert_kind' alert (${crm_alert_desc})"
+        msg="Unhandled '$crm_alert_kind' alert (${crm_alert_desc})"
         $logger -t "$logger_tag" "INFO: $msg"
         ;;
 esac
