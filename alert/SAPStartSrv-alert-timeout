@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# SAPHanaSR-alert-failing
+# Author:       Lars Pinne, Fabian Herschel, 2026
+# Support:      linux@sap.com
+# License:      GNU General Public License (GPL)
+# Copyright:    (c) 2026 SUSE LLC
+# Version:	    2026-08-13-14:20
+#
+# https://oneuptime.com/blog/post/2026-03-04-configure-pacemaker-alerts-and-notifications-on-rhel/view
+# https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/high_availability_add-on_reference/ch-alertscripts-haar
+#
+# crm configure alert resources-1 "/usr/bin/SAPHanaSR-alert-failing" select resources attributes alert_inst=SAPEN2_00
+# TODO: attribute = path to custom script?
+# TODO: attribute = resource to react on?
+# TODO: timeout 30s default okay?
+#
+
+logger_tag="SAPHanaSR-alert-failing"
+logger="/usr/bin/logger"
+
+crm_alert_recipient="${CRM_alert_recipient:-/dev/null}"
+crm_alert_kind="${CRM_alert_kind:-manual call}"         # nodes, fencing, resources, attribute
+crm_alert_node="${CRM_alert_node:-$HOSTNAME}"
+crm_alert_desc="${CRM_alert_desc:-no description}"
+crm_alert_status="${CRM_alert_status:-no status}"
+crm_alert_rc="${CRM_alert_rc:-no rc}"
+crm_alert_target_rc="${CRM_alert_target_rc:-no target rc}"
+crm_alert_rsc="${CRM_alert_rsc:-no resource}"
+
+alert_sid="${alert_sid:-EN2}"
+alert_ino="${alert_ino:-00}"
+alert_cmd="${alert_cmd:-/bin/true}"
+
+$logger -t "$logger_tag" "AH: begin event '$crm_alert_kind'"
+
+function process_failure()
+{
+    $logger -t "$logger_tag" "AH: calling: $alert_cmd $alert_sid $alert_ino"
+    alert_cmd_out=$("$alert_cmd" "$alert_sid" "$alert_ino" 2>&1); alert_cmd_rc=$?
+    $logger -t "$logger_tag" "AH: alert_cmd_out='$alert_cmd_out': alert_cmd_rc='$alert_cmd_rc'"
+}
+
+case "$crm_alert_kind" in
+    resource|resources)
+	msg="Resource '${crm_alert_rsc}' is now status '${crm_alert_status}' ('${crm_alert_desc}')"
+        $logger -t "$logger_tag" "INFO: $msg"
+        process_failure
+        ;;
+    *)
+	msg="Unhandled '$crm_alert_kind' alert (${crm_alert_desc})"
+        $logger -t "$logger_tag" "INFO: $msg"
+        ;;
+esac
+$logger -t "$logger_tag" "AH: end event '$crm_alert_kind'"
+#
