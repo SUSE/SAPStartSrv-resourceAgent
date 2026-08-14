@@ -1,0 +1,11 @@
+<primitive id="rsc_SAPInstance_EN2_ERS10" class="ocf" provider="heartbeat" type="SAPInstance">
+          <!--#-->
+          <instance_attributes id="rsc_SAPInstance_EN2_ERS10-instance_attributes">
+            <nvpair name="InstanceName" value="EN2_ERS10_somm12ers" id="rsc_SAPInstance_EN2_ERS10-instance_attributes-InstanceName"/>
+            <nvpair name="START_PROFILE" value="/sapmnt/EN2/profile/EN2_ERS10_somm12ers" id="rsc_SAPInstance_EN2_ERS10-instance_attributes-START_PROFILE"/>
+            <nvpair name="AUTOMATIC_RECOVER" value="False" id="rsc_SAPInstance_EN2_ERS10-instance_attributes-AUTOMATIC_RECOVER"/>
+            <nvpair name="IS_ERS" value="True" id="rsc_SAPInstance_EN2_ERS10-instance_attributes-IS_ERS"/>
+            <nvpair name="MINIMAL_PROBE" value="True" id="rsc_SAPInstance_EN2_ERS10-instance_attributes-MINIMAL_PROBE"/>
+          </instance_attributes>
+...
+</primitive>
