@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+
+#
+# params sid ino
+#
+
+logger -s -t SAPInstance-Helper "Called with $* (as $(id))"
+
+SID="$1"
+# sid=${1,,}
+ino="${2}"
+
+sPID="$(pgrep -f "sapstartsrv.*${SID}.*${ino}")"
+logger -s -t SAPInstance-Helper "PID of sapstartsrv is $sPID"
+
+/usr/sbin/psauxlog
+/sbin/meminfolog
+
+exit 0
+
