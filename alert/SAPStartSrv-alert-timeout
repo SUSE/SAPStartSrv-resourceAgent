@@ -36,9 +36,14 @@ $logger -t "$logger_tag" "AH: begin event '$crm_alert_kind'"
 
 function process_failure()
 {
-    $logger -t "$logger_tag" "AH: calling: $alert_cmd $alert_sid $alert_ino"
-    alert_cmd_out=$("$alert_cmd" "$alert_sid" "$alert_ino" 2>&1); alert_cmd_rc=$?
-    $logger -t "$logger_tag" "AH: alert_cmd_out='$alert_cmd_out': alert_cmd_rc='$alert_cmd_rc'"
+    if [ -x "$alert_cmd" ]; then
+        # TODO sudo root?
+        $logger -t "$logger_tag" "AH: calling: $alert_cmd $alert_sid $alert_ino"
+        alert_cmd_out=$("$alert_cmd" "$alert_sid" "$alert_ino" 2>&1); alert_cmd_rc=$?
+        $logger -t "$logger_tag" "AH: alert_cmd_out='$alert_cmd_out': alert_cmd_rc='$alert_cmd_rc'"
+    else
+        $logger -t "$logger_tag" "AH: no executable alert_cmd '$alert_cmd'"
+    fi
 }
 
 case "$crm_alert_kind" in

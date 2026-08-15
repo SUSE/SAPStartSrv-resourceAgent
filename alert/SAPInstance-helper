@@ -24,8 +24,8 @@ logger -s -t SAPInstance-Helper "PID of sapstartsrv is $sPID"
 /usr/sbin/meminfolog /var/log/meminfo.log
 # TODO add when new ClusterTools2 ships
 #/usr/sbin/vmstatlog /var/log/vmstat.log
-# TODO define directories and timeout
-#/usr/sbin/lsoflog /var/log/lsof.log "+D/usr/sap/${SID}/*${ino}/" 22
+# wildcards do not work for lsof
+/usr/sbin/lsoflog /var/log/lsof.log "+D/usr/sap/${SID}/" 22
 
 exit 0
 # 
