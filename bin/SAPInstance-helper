@@ -17,10 +17,21 @@ InstanceName="$2"
 
 function process_stack()
 {
-    sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
-    echo "pgrep -f sapstartsrv.*${InstanceName}"
-    $logger -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
+    SID=""
+    if [[ "$InstanceName" =~ ^([A-Z][A-Z0-9][A-Z0-9])_ ]]; then
+        SID="${BASH_REMAP[1]}"
+    fi
+    if [[ -z "$SID" ]]; then
+        ARCH_KERNEL="linux$HOSTTYPE"
+        sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
+        echo "pgrep -f sapstartsrv.*${InstanceName}"
+        $logger -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
+        /sapmnt/"$SID"/exe/uc/"$ARCH_KERNEL"/sapstack "$sPID"
+    else
+        $logger -i -t "$logger_tag" "Not able to find <SID>"
+    fi
 }
+
 function process_log()
 {
     # TODO permissions on /var/log/*.log ?
