@@ -5,26 +5,43 @@
 # Support:      linux@sap.com
 # License:      GNU General Public License (GPL)
 # Copyright:    (c) 2026 SUSE LLC
-# Version:          2026-08-14-11:11
+# Version:      2026-08-15-00:00
 #
-# params sid ino
+# params: cmd InstanceName
 #
 
-logger -i -t SAPInstance-helper "Called with $* (as $(id))"
+logger_tag="SAPInstance-helper"
+logger="/usr/bin/logger"
+cmd="$1"
+InstanceName="$2"
 
-InstanceName="$1"
+function process_stack()
+{
+    sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
+    echo "pgrep -f sapstartsrv.*${InstanceName}"
+    $logger -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
+}
+function process_log()
+{
+    # TODO permissions on /var/log/*.log ?
+    sudo /usr/sbin/psauxlog /var/log/psaux.log
+    sudo /usr/sbin/meminfolog /var/log/meminfo.log
+    # TODO add when new ClusterTools2 ships
+    #/usr/sbin/vmstatlog /var/log/vmstat.log
+    # wildcards do not work for lsof
+    sudo /usr/sbin/lsoflog /var/log/lsof.log "+D/usr/sap/${SID}/" 22
+}
 
-sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
-echo "pgrep -f sapstartsrv.*${InstanceName}"
-logger -i -t SAPInstance-helper "PID of sapstartsrv is $sPID"
+function process_log_stack()
+{
+    process_stack 
+    process_log
+}
 
-# TODO permissions on /var/log/*.log ?
-/usr/sbin/psauxlog /var/log/psaux.log
-/usr/sbin/meminfolog /var/log/meminfo.log
-# TODO add when new ClusterTools2 ships
-#/usr/sbin/vmstatlog /var/log/vmstat.log
-# wildcards do not work for lsof
-/usr/sbin/lsoflog /var/log/lsof.log "+D/usr/sap/${SID}/" 22
-
+$logger -i -t "$logger_tag" "Called with $* (as $(id))"
+case "$cmd" in
+    log+stack ) process_log_stack
+                ;;
+esac
 exit 0
 # 
