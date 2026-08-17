@@ -15,6 +15,15 @@ logger="/usr/bin/logger"
 cmd="$1"
 InstanceName="$2"
 
+function sap_stack()
+{
+    timeout -s 9 30 /sapmnt/"$SID"/exe/uc/"$ARCH_KERNEL"/sapstack "$sPID" | while read -r; do
+        echo "$DATE_FORMAT": "$REPLY"
+    done >>"$LOG_FILE"
+    rc=$?
+    return $rc
+}
+
 function process_stack()
 {
     SID=""
@@ -26,7 +35,10 @@ function process_stack()
         sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
         echo "pgrep -f sapstartsrv.*${InstanceName}"
         $logger -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
-        /sapmnt/"$SID"/exe/uc/"$ARCH_KERNEL"/sapstack "$sPID"
+        DATE_FORMAT=$(date +"%F %T")
+        LOG_FILE=${1:-"/var/log/psaux.log"}
+        call_sap_stack; rc=$?
+        $logger -i -t "$logger_tag" "function call_sap_stack returned with rc=$rc"
     else
         $logger -i -t "$logger_tag" "Not able to find <SID>"
     fi
