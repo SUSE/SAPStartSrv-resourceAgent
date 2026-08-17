@@ -10,7 +10,7 @@
 # params: cmd InstanceName
 #
 
-logger_tag="SAPInstance-helper"
+logger_tag="SAPStartSrv-helper"
 logger="/usr/bin/logger"
 cmd="$1"
 InstanceName="$2"
