@@ -124,6 +124,8 @@ cluster nodes.
 .PP
 * User hacluster needs password-less sudo permission on "/usr/bin/SAPHanaSR-helper TODO".
 .PP
+* To call sapstack, gdb is needed.
+.PP
 * The alert agent runtime almost completely depends on call-outs to OS and
 Linux cluster.
 .\"
@@ -137,9 +139,13 @@ a request for the component BC-OP-LNX-SUSE.
 .SH SEE ALSO
 .\"
 \fBocf_suse_SAPStartSrv\fP(7), \fBocf_heartbeat_SAPInstance\fP(7), \fBSAPInstance-helper\fP(8),
-\fBcrm\fP(8), \fBsudoers\fP(5) ,
+\fBcrm\fP(8), \fBsudoers\fP(5) , \fBgdb\fP(1) ,
 .br
 https://clusterlabs.org/pacemaker/doc/2.1/Pacemaker_Administration/singlehtml/#alert-agents
+.\" TODO https://help.sap.com/docs/SAP_NETWEAVER_AS_ABAP_752/d0739d980ecf42ae9f3b4c19e21a4b6e/a72d46b36fe94f3287a9d211b3fd6732.html
+.\" TODO 1964673 - C-Call stack analysis
+.\" TODO 2193986 - Sapstack not showing C-Call stack
+.\" TODO 3204753 - Particular AP server sapstarsrv got terminated frequently
 .PP
 .\"
 .SH AUTHORS
