@@ -5,57 +5,64 @@
 # Support:      linux@sap.com
 # License:      GNU General Public License (GPL)
 # Copyright:    (c) 2026 SUSE LLC
-# Version:	    2026-08-14-12:20
+# Version:	    2026-08-15-00:00
 #
 # https://oneuptime.com/blog/post/2026-03-04-configure-pacemaker-alerts-and-notifications-on-rhel/view
 # https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/high_availability_add-on_reference/ch-alertscripts-haar
 #
-# crm configure alert resources-1 "/usr/bin/SAPHanaSR-alert-failing" select resources attributes alert_sid=EN2 alert_ino=00 alert_cmd="/bin/true" alert_resfilter="SAPInstance"
+# crm configure alert resources-1 "/usr/bin/SAPHanaSR-alert-failing" select resources attributes alert_sid=EN2 alert_ino=00 alert_cmd="/bin/true"
 # TODO: timeout 30s default okay?
 #
 
 logger_tag="SAPStartSrv-alert-timeout"
 logger="/usr/bin/logger"
 
-#crm_alert_recipient="${CRM_alert_recipient:-/dev/null}"
+crm_alert_recipient="${CRM_alert_recipient:-/dev/null}"
 crm_alert_kind="${CRM_alert_kind:-manual call}"         # nodes, fencing, resources, attribute
-#crm_alert_node="${CRM_alert_node:-$HOSTNAME}"
+crm_alert_node="${CRM_alert_node:-$HOSTNAME}"
 crm_alert_desc="${CRM_alert_desc:-no description}"
 crm_alert_status="${CRM_alert_status:-no status}"
-#crm_alert_rc="${CRM_alert_rc:-no rc}"
-#crm_alert_target_rc="${CRM_alert_target_rc:-no target rc}"
+crm_alert_rc="${CRM_alert_rc:-no rc}"
+crm_alert_target_rc="${CRM_alert_target_rc:-no target rc}"
 crm_alert_rsc="${CRM_alert_rsc:-no resource}"
 
 alert_sid="${alert_sid:-EN2}"
 alert_ino="${alert_ino:-00}"
 alert_cmd="${alert_cmd:-/bin/true}"
-alert_resfilter="${alert_resfiltercmd:-SAPInstance}"
 react_on="2-Timedout"
 
-$logger -t "$logger_tag" "AH: begin event '$crm_alert_kind'"
+$logger -i -t "$logger_tag" "AH: begin event '$crm_alert_kind'"
 
 function process_failure()
 {
-    $logger -t "$logger_tag" "AH: calling: $alert_cmd $alert_sid $alert_ino"
-    alert_cmd_out=$("$alert_cmd" "$alert_sid" "$alert_ino" 2>&1); alert_cmd_rc=$?
-    $logger -t "$logger_tag" "AH: alert_cmd_out='$alert_cmd_out': alert_cmd_rc='$alert_cmd_rc'"
+    local my_sid=C11 my_ino=AA
+    # 
+    # first get the definition of the resource we need to process
+    #
+    recxml=$(cibadmin -Ql --xpath "//primitive[@id='$crm_alert_rsc']")
+    #
+    # now extract the InstanceName from the resource
+    #
+    inst_name=$(echo "$recxml" | xmllint --xpath "string(//nvpair[@name='InstanceName']/@value)" -)
+    $logger -i -t "$logger_tag" "AH: calling: $alert_cmd $inst_name"
+    alert_cmd_out=$("$alert_cmd" "$inst_name" 2>&1); alert_cmd_rc="$?"
+    $logger -i -t "$logger_tag" "AH: alert_cmd_out='$alert_cmd_out': alert_cmd_rc='$alert_cmd_rc'"
 }
 
 case "$crm_alert_kind" in
     resource|resources)
         msg="Resource '${crm_alert_rsc}' is now status '${crm_alert_status}' ('${crm_alert_desc}')"
         issue="${crm_alert_status}-${crm_alert_desc// /}"
-        $logger -t "$logger_tag" "INFO: issue: $issue"
-        $logger -t "$logger_tag" "INFO: $msg"
-        # TODO: shellcheck to ignore SC2076 for the next line
-        if [[ "$issue" == "$react_on" && "$crm_alert_rsc" =~ "$alert_resfilter" ]]; then
+        $logger -i -t "$logger_tag" "INFO: issue: $issue"
+        $logger -i -t "$logger_tag" "INFO: $msg"
+        if [[ "$issue" == "$react_on" ]]; then
             process_failure
         fi
         ;;
     *)
         msg="Unhandled '$crm_alert_kind' alert (${crm_alert_desc})"
-        $logger -t "$logger_tag" "INFO: $msg"
+        $logger -i -t "$logger_tag" "INFO: $msg"
         ;;
 esac
-$logger -t "$logger_tag" "AH: end event '$crm_alert_kind'"
+$logger -i -t "$logger_tag" "AH: end event '$crm_alert_kind'"
 #
