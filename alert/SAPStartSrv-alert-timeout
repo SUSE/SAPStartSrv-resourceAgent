@@ -17,25 +17,25 @@
 logger_tag="SAPStartSrv-alert-timeout"
 logger="/usr/bin/logger"
 
-crm_alert_recipient="${CRM_alert_recipient:-/dev/null}"
+#crm_alert_recipient="${CRM_alert_recipient:-/dev/null}" # curently unused
 crm_alert_kind="${CRM_alert_kind:-manual call}"         # nodes, fencing, resources, attribute
-crm_alert_node="${CRM_alert_node:-$HOSTNAME}"
+#crm_alert_node="${CRM_alert_node:-$HOSTNAME}"          # TODO: Do we need to filter for the local node?
 crm_alert_desc="${CRM_alert_desc:-no description}"
 crm_alert_status="${CRM_alert_status:-no status}"
-crm_alert_rc="${CRM_alert_rc:-no rc}"
-crm_alert_target_rc="${CRM_alert_target_rc:-no target rc}"
+#crm_alert_rc="${CRM_alert_rc:-no rc}"                   # currently unused
+#crm_alert_target_rc="${CRM_alert_target_rc:-no target rc}" # currently unused
 crm_alert_rsc="${CRM_alert_rsc:-no resource}"
 
 alert_sid="${alert_sid:-EN2}"
 alert_ino="${alert_ino:-00}"
-alert_cmd="${alert_cmd:-/bin/true}"
+alert_cmd="${alert_cmd:-/usr/bin/SAPInstance-helper}"
+alert_subcmd="${alert_subcmd:-log+stack}"
 react_on="2-Timedout"
 
 $logger -i -t "$logger_tag" "AH: begin event '$crm_alert_kind'"
 
 function process_failure()
 {
-    local my_sid=C11 my_ino=AA
     if [ -x "$alert_cmd" ]; then
         # TODO sudo root?
         # 
@@ -46,8 +46,8 @@ function process_failure()
         # now extract the InstanceName from the resource
         #
         inst_name=$(echo "$recxml" | xmllint --xpath "string(//nvpair[@name='InstanceName']/@value)" -)
-        $logger -i -t "$logger_tag" "AH: calling: $alert_cmd "log+stack" $inst_name"
-        alert_cmd_out=$("$alert_cmd" "log+stack" "$inst_name" 2>&1); alert_cmd_rc="$?"
+        $logger -i -t "$logger_tag" "AH: calling: $alert_cmd $alert_subcmd $inst_name"
+        alert_cmd_out=$("$alert_cmd" "$alert_subcmd" "$inst_name" 2>&1); alert_cmd_rc="$?"
         $logger -i -t "$logger_tag" "AH: alert_cmd_out='$alert_cmd_out': alert_cmd_rc='$alert_cmd_rc'"
     else
         $logger -t "$logger_tag" "AH: no executable alert_cmd '$alert_cmd'"
