@@ -1,0 +1,153 @@
+.\" Version: 1.2
+.\"
+.TH SAPStartSrv-alert-timeout 8 "16 Aug 2026" "" "SAPStartSrv"
+.\"
+.SH NAME
+.\"
+SAPStartSrv-alert-timeout \- Alert agent for cluster timeout alerts.
+.PP
+.\"
+.SH DESCRIPTION
+.\"
+SAPStartSrv-alert-timeout can be used to react on Linux cluster RA timeout alerts.
+.PP
+The Linux cluster provides an interface to initiate external actions when a
+cluster event occurs (alert). Than the cluster calls an external program (an
+alert agent) to handle that alert.
+.PP
+When a Linux cluster resource agent run into an timeout, the cluster can call
+SAPStartSrv-alert-timeout on each active cluster node.
+.\" TODO
+.br
+See also manual pages ocf_suse_SAPStartSrv(7) and ocf_heartbeat_SAPInstance(7).
+i.PP
+.\"
+.SH SUPPORTED PARAMETERS
+.TP
+\fBtimeout\fR
+If the alert agent does not complete within this amount of time, it will be terminated.
+Optional, default "30s". Example "meta timeout=30s".
+.TP
+\fBalert_sid\fR
+TODO
+.TP
+\fBalert_ino\fR
+TODO
+.TP
+\fBalert_cmd\fR
+TODO
+.PP
+.\"
+.SH RETURN CODES
+.\"
+.B 0
+Successful program execution.
+.br
+.B >0
+Usage, syntax or execution errors.
+.br
+In addition log entries are written, which can be scanned by using a pattern
+like "SAPStartSrv-alert-timeout".
+.PP
+.\"
+.SH EXAMPLES
+.\"
+\fB*\fR Example configuration for the timeout alert handler.
+.PP
+The following lines needs to be added to the cluster´s CIB:
+.PP
+.RS 2
+alert timeout-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
+.br
+ select failures \\
+.br
+ attributes alert_sid=C11 alert_ino=00 alert_cmd="TODO"
+.RE
+.PP
+\fB*\fR Example for configuring the alert agent by using crm.
+.PP
+Alternate way for configuring the alert agent.
+.PP
+.RS 2
+# crm configure alert timeout-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
+.br
+ select failures \\
+.br
+ attributes alert_sid=C11 alert_ino=00 alert_cmd="TODO"
+.RE
+.PP
+\fB*\fR Showing all configured alert agents.
+.PP
+.RS 2
+# crm configure show type:alert
+.RE
+.PP
+\fB*\fR Showing agent messages.
+.PP
+.RS 2
+# grep SAPStartSrv-alert-timeout /var/log/messages
+.RE
+.PP
+\fB*\fR Example for sudo permissions in /etc/sudoers.d/SAPHanaSR .
+.PP
+See also manual pages sudoers(5) and SAPInstance-helper(8).
+.PP
+.RS 2
+# SAPStartSrv-alert-timeout needs
+.br
+hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPInstance-helper C11 00 "TODO"
+.RE
+.PP
+.\"
+.SH FILES
+.TP
+/usr/bin/SAPStartSrv-alert-timeout
+the alert agent
+.TP
+/usr/bin/SAPInstance-helper
+the called hook helper
+.TP
+/etc/sudoers.d/
+directory for sudoers config files
+.PP
+.\"
+.SH REQUIREMENTS
+.\"
+* No other alert agent should be configured for the fencing alert.
+.PP
+* User hacluster is member of group haclient. Both are defined locally on each cluster nodes.
+.PP
+* User hacluster needs password-less sudo permission on "/usr/bin/SAPHanaSR-helper <SID> <INO> <TODO>".
+.PP
+* The alert agent runtime almost completely depends on call-outs to OS and
+Linux cluster.
+.\"
+.SH BUGS
+.\"
+In case of any problem, please use your favourite SAP support process to open
+a request for the component BC-OP-LNX-SUSE.
+.\" TODO Please report any other feedback and suggestions to feedback@suse.com.
+.PP
+.\"
+.SH SEE ALSO
+.\"
+\fBocf_suse_SAPStartSrv\fP(7), ocf_heartbeat_SAPInstance\fP(7), \fBSAPInstance-helper\fp(8),
+\fBcrm\fp(8), \fBsudoers\fP(5) ,
+.br
+https://clusterlabs.org/pacemaker/doc/2.1/Pacemaker_Administration/singlehtml/#alert-agents
+.PP
+.\"
+.SH AUTHORS
+.\"
+F.Herschel, L.Pinne.
+.PP
+.\"
+.SH COPYRIGHT
+.\"
+(c) 2026 SUSE LLC
+.br
+SAPHanaSR-alert-fencing comes with ABSOLUTELY NO WARRANTY.
+.br
+For details see the GNU General Public License at
+http://www.gnu.org/licenses/gpl.html
+.\"
