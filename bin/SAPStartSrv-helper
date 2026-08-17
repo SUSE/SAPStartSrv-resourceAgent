@@ -15,7 +15,7 @@ logger="/usr/bin/logger"
 cmd="$1"
 InstanceName="$2"
 
-function sap_stack()
+function call_sap_stack()
 {
     timeout -s 9 30 /sapmnt/"$SID"/exe/uc/"$ARCH_KERNEL"/sapstack "$sPID" | while read -r; do
         echo "$DATE_FORMAT": "$REPLY"
