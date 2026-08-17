@@ -52,7 +52,7 @@ function process_log()
     #/usr/sbin/vmstatlog /var/log/vmstat.log
     #/usr/sbin/netstatlog /var/log/netstat.log
     # wildcards do not work for lsof
-    /usr/sbin/lsoflog /var/log/lsof.log "+D/usr/sap/${SID}/ +D/tmp/" 22
+    /usr/sbin/lsoflog /var/log/lsof.log "+D/tmp/ +D/usr/sap/${SID}/" 22
 }
 
 function process_log_stack()
@@ -64,7 +64,7 @@ function process_log_stack()
 $logger -i -t "$logger_tag" "Called with $* (as $(id))"
 case "$cmd" in
     log+stack ) process_log_stack
-                ;;
+    ;;
 esac
 exit 0
 # 
