@@ -36,7 +36,7 @@ function process_stack()
         echo "pgrep -f sapstartsrv.*${InstanceName}"
         $logger -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
         DATE_FORMAT=$(date +"%F %T")
-        LOG_FILE=${1:-"/var/log/psaux.log"}
+        LOG_FILE=${1:-"/var/log/sapstack.log"}
         call_sap_stack; rc=$?
         $logger -i -t "$logger_tag" "function call_sap_stack returned with rc=$rc"
     else
