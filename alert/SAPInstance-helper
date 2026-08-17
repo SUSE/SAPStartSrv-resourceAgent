@@ -1,5 +1,11 @@
 #!/usr/bin/bash
-
+#
+# SAPInstance-Helper
+# Author:       F.Herschel, L.Pinne, 2026
+# Support:      linux@sap.com
+# License:      GNU General Public License (GPL)
+# Copyright:    (c) 2026 SUSE LLC
+# Version:          2026-08-14-11:11
 #
 # params sid ino
 #
@@ -7,14 +13,18 @@
 logger -i -t SAPInstance-helper "Called with $* (as $(id))"
 
 InstanceName="$1"
-# sid=${1,,}
-#ino="${2}"
 
 sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
 echo "pgrep -f sapstartsrv.*${InstanceName}"
 logger -i -t SAPInstance-helper "PID of sapstartsrv is $sPID"
 
-/usr/sbin/psauxlog
-/sbin/meminfolog
+# TODO permissions on /var/log/*.log ?
+/usr/sbin/psauxlog /var/log/psaux.log
+/usr/sbin/meminfolog /var/log/meminfo.log
+# TODO add when new ClusterTools2 ships
+#/usr/sbin/vmstatlog /var/log/vmstat.log
+# wildcards do not work for lsof
+/usr/sbin/lsoflog /var/log/lsof.log "+D/usr/sap/${SID}/" 22
 
 exit 0
+# 

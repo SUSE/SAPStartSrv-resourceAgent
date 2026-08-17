@@ -36,17 +36,22 @@ $logger -i -t "$logger_tag" "AH: begin event '$crm_alert_kind'"
 function process_failure()
 {
     local my_sid=C11 my_ino=AA
-    # 
-    # first get the definition of the resource we need to process
-    #
-    recxml=$(cibadmin -Ql --xpath "//primitive[@id='$crm_alert_rsc']")
-    #
-    # now extract the InstanceName from the resource
-    #
-    inst_name=$(echo "$recxml" | xmllint --xpath "string(//nvpair[@name='InstanceName']/@value)" -)
-    $logger -i -t "$logger_tag" "AH: calling: $alert_cmd $inst_name"
-    alert_cmd_out=$("$alert_cmd" "$inst_name" 2>&1); alert_cmd_rc="$?"
-    $logger -i -t "$logger_tag" "AH: alert_cmd_out='$alert_cmd_out': alert_cmd_rc='$alert_cmd_rc'"
+    if [ -x "$alert_cmd" ]; then
+        # TODO sudo root?
+        # 
+        # first get the definition of the resource we need to process
+        #
+        recxml=$(cibadmin -Ql --xpath "//primitive[@id='$crm_alert_rsc']")
+        #
+        # now extract the InstanceName from the resource
+        #
+        inst_name=$(echo "$recxml" | xmllint --xpath "string(//nvpair[@name='InstanceName']/@value)" -)
+        $logger -i -t "$logger_tag" "AH: calling: $alert_cmd $inst_name"
+        alert_cmd_out=$("$alert_cmd" "$inst_name" 2>&1); alert_cmd_rc="$?"
+        $logger -i -t "$logger_tag" "AH: alert_cmd_out='$alert_cmd_out': alert_cmd_rc='$alert_cmd_rc'"
+    else
+        $logger -t "$logger_tag" "AH: no executable alert_cmd '$alert_cmd'"
+    fi
 }
 
 case "$crm_alert_kind" in
