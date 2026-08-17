@@ -46,8 +46,8 @@ function process_failure()
         # now extract the InstanceName from the resource
         #
         inst_name=$(echo "$recxml" | xmllint --xpath "string(//nvpair[@name='InstanceName']/@value)" -)
-        $logger -i -t "$logger_tag" "AH: calling: $alert_cmd $inst_name"
-        alert_cmd_out=$("$alert_cmd" "$inst_name" 2>&1); alert_cmd_rc="$?"
+        $logger -i -t "$logger_tag" "AH: calling: $alert_cmd "log+stack" $inst_name"
+        alert_cmd_out=$("$alert_cmd" "log+stack" "$inst_name" 2>&1); alert_cmd_rc="$?"
         $logger -i -t "$logger_tag" "AH: alert_cmd_out='$alert_cmd_out': alert_cmd_rc='$alert_cmd_rc'"
     else
         $logger -t "$logger_tag" "AH: no executable alert_cmd '$alert_cmd'"
