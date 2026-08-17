@@ -20,7 +20,9 @@ SAPStartSrv-alert-timeout on each active cluster node.
 .\" TODO
 .br
 See also manual pages ocf_suse_SAPStartSrv(7) and ocf_heartbeat_SAPInstance(7).
-i.PP
+.PP
+.B SAPStartSrv-alert-timeout is a technology preview.
+.PP
 .\"
 .SH SUPPORTED PARAMETERS
 .TP
@@ -105,7 +107,7 @@ hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPInstance-helper C11 00 "TODO"
 the alert agent
 .TP
 /usr/bin/SAPInstance-helper
-the called hook helper
+the called agent helper
 .TP
 /etc/sudoers.d/
 directory for sudoers config files
@@ -113,11 +115,14 @@ directory for sudoers config files
 .\"
 .SH REQUIREMENTS
 .\"
-* No other alert agent should be configured for the fencing alert.
+* SAPStartSrv-alert-timeout should be activated only on request of SUSE support.
 .PP
-* User hacluster is member of group haclient. Both are defined locally on each cluster nodes.
+* No other alert agent should be configured for the resources alert.
 .PP
-* User hacluster needs password-less sudo permission on "/usr/bin/SAPHanaSR-helper <SID> <INO> <TODO>".
+* User hacluster is member of group haclient. Both are defined locally on each
+cluster nodes.
+.PP
+* User hacluster needs password-less sudo permission on "/usr/bin/SAPHanaSR-helper TODO".
 .PP
 * The alert agent runtime almost completely depends on call-outs to OS and
 Linux cluster.
@@ -131,8 +136,8 @@ a request for the component BC-OP-LNX-SUSE.
 .\"
 .SH SEE ALSO
 .\"
-\fBocf_suse_SAPStartSrv\fP(7), ocf_heartbeat_SAPInstance\fP(7), \fBSAPInstance-helper\fp(8),
-\fBcrm\fp(8), \fBsudoers\fP(5) ,
+\fBocf_suse_SAPStartSrv\fP(7), \fBocf_heartbeat_SAPInstance\fP(7), \fBSAPInstance-helper\fP(8),
+\fBcrm\fP(8), \fBsudoers\fP(5) ,
 .br
 https://clusterlabs.org/pacemaker/doc/2.1/Pacemaker_Administration/singlehtml/#alert-agents
 .PP
