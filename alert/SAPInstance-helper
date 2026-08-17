@@ -4,17 +4,17 @@
 # params sid ino
 #
 
-logger -s -t SAPInstance-Helper "Called with $* (as $(id))"
+logger -i -t SAPInstance-helper "Called with $* (as $(id))"
 
-SID="$1"
+InstanceName="$1"
 # sid=${1,,}
-ino="${2}"
+#ino="${2}"
 
-sPID="$(pgrep -f "sapstartsrv.*${SID}.*${ino}")"
-logger -s -t SAPInstance-Helper "PID of sapstartsrv is $sPID"
+sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
+echo "pgrep -f sapstartsrv.*${InstanceName}"
+logger -i -t SAPInstance-helper "PID of sapstartsrv is $sPID"
 
 /usr/sbin/psauxlog
 /sbin/meminfolog
 
 exit 0
-
