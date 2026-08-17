@@ -34,14 +34,13 @@ function process_stack()
 
 function process_log()
 {
-    # TODO permissions on /var/log/*.log ?
-    sudo /usr/sbin/psauxlog /var/log/psaux.log
-    sudo /usr/sbin/meminfolog /var/log/meminfo.log
+    /usr/sbin/psauxlog /var/log/psaux.log
+    /usr/sbin/meminfolog /var/log/meminfo.log
     # TODO add when new ClusterTools2 ships
     #/usr/sbin/vmstatlog /var/log/vmstat.log
     #/usr/sbin/netstatlog /var/log/netstat.log
     # wildcards do not work for lsof
-    sudo /usr/sbin/lsoflog /var/log/lsof.log "+D/usr/sap/${SID}/ +D/tmp/" 22
+    /usr/sbin/lsoflog /var/log/lsof.log "+D/usr/sap/${SID}/ +D/tmp/" 22
 }
 
 function process_log_stack()
