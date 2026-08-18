@@ -19,7 +19,8 @@ When a Linux cluster resource agent run into an timeout, the cluster can call
 SAPStartSrv-alert-timeout on each active cluster node.
 .\" TODO for troubleshooting only
 .br
-See also manual pages ocf_suse_SAPStartSrv(7) and ocf_heartbeat_SAPInstance(7).
+See also manual pages SAPStartSrv-helper(8), ocf_suse_SAPStartSrv(7) and
+ocf_heartbeat_SAPInstance(7).
 .PP
 .B SAPStartSrv-alert-timeout is a technology preview.
 .PP
@@ -31,13 +32,18 @@ If the alert agent does not complete within this amount of time, it will be term
 Optional, default "30s". Example "meta timeout=30s".
 .TP
 \fBalert_sid\fR
-TODO
+SAP SID of to handle. Might be used by custom helper scripts.
+Optional, default "EN2". Example "attributes alert_sid=ADA".
 .TP
 \fBalert_ino\fR
-TODO
+SAP instance number of to handle. Might be used by custom helper scripts.
+Optional, default "00". Example "attributes alert_ino=22". 
 .TP
 \fBalert_cmd\fR
-TODO
+Command to call. Might be used to name a custom helper script.
+Optional, default "/usr/bin/SAPStartSrv-helper".
+Example "alert_cmd=/root/bin/dumpstack".
+See manual page SAPStartSrv-helper(8).
 .PP
 .\"
 .SH RETURN CODES
@@ -54,28 +60,41 @@ like "SAPStartSrv-alert-timeout".
 .\"
 .SH EXAMPLES
 .\"
-\fB*\fR Example configuration for the timeout alert handler.
+\fB*\fR Simple example configuration for the timeout alert handler.
 .PP
 The following lines needs to be added to the cluster´s CIB:
 .PP
 .RS 2
 alert timeout-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
 .br
- select failures \\
-.br
- attributes alert_sid=C11 alert_ino=00 alert_cmd="TODO"
+ select resources
 .RE
 .PP
-\fB*\fR Example for configuring the alert agent by using crm.
+\fB*\fR Simple example for configuring the alert agent by using crm.
 .PP
 Alternate way for configuring the alert agent.
 .PP
 .RS 2
-# crm configure alert timeout-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
+# crm configure alert timeout-1 \\
 .br
- select failures \\
+ "/usr/bin/SAPStartSrv-alert-timeout" \\
 .br
- attributes alert_sid=C11 alert_ino=00 alert_cmd="TODO"
+ select resources
+.RE
+.PP
+\fB*\fR Advanced example configuration for the timeout alert handler.
+.PP
+A custom script /root/bin/dumpstack is used, SID is EN2 instance number 00.
+.\" TODO what script?
+.PP
+.RS 2
+alert timeout-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
+.br
+ select resources \\
+.br
+ attributes alert_sid=ADA alert_ino=00 \\
+.br 
+ alert_cmd=/root/bin/dumpstack
 .RE
 .PP
 \fB*\fR Showing all configured alert agents.
@@ -90,14 +109,14 @@ Alternate way for configuring the alert agent.
 # grep SAPStartSrv-alert-timeout /var/log/messages
 .RE
 .PP
-\fB*\fR Example for sudo permissions in /etc/sudoers.d/SAPHanaSR .
+\fB*\fR Example for sudo permissions in /etc/sudoers.d/SAPStartSrv .
 .PP
-See also manual pages sudoers(5) and SAPInstance-helper(8).
+See also manual pages sudoers(5) and SAPStartSrv-helper(8).
 .PP
 .RS 2
 # SAPStartSrv-alert-timeout needs
 .br
-hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPInstance-helper C11 00 "TODO"
+hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPStartSrv-helper *
 .RE
 .PP
 .\"
@@ -106,8 +125,8 @@ hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPInstance-helper C11 00 "TODO"
 /usr/bin/SAPStartSrv-alert-timeout
 the alert agent
 .TP
-/usr/bin/SAPInstance-helper
-the called agent helper
+/usr/bin/SAPStartSrv-helper
+the default agent helper
 .TP
 /etc/sudoers.d/
 directory for sudoers config files
@@ -115,16 +134,18 @@ directory for sudoers config files
 .\"
 .SH REQUIREMENTS
 .\"
-* SAPStartSrv-alert-timeout should be activated only on request of SUSE support.
+* SAPStartSrv-alert-timeout should be activated only, when requested by support.
 .PP
 * No other alert agent should be configured for the resources alert.
 .PP
 * User hacluster is member of group haclient. Both are defined locally on each
 cluster nodes.
 .PP
-* User hacluster needs password-less sudo permission on "/usr/bin/SAPHanaSR-helper TODO".
+* User hacluster needs password-less sudo permission on "/usr/bin/SAPStartSrv-helper".
 .PP
 * To call sapstack, gdb is needed.
+.PP
+* The customer is responsible for any custom script called by the alert agent.
 .PP
 * The alert agent runtime almost completely depends on call-outs to OS and
 Linux cluster.
@@ -138,8 +159,8 @@ a request for the component BC-OP-LNX-SUSE.
 .\"
 .SH SEE ALSO
 .\"
-\fBocf_suse_SAPStartSrv\fP(7), \fBocf_heartbeat_SAPInstance\fP(7), \fBSAPInstance-helper\fP(8),
-\fBcrm\fP(8), \fBsudoers\fP(5) , \fBgdb\fP(1) ,
+\fBocf_suse_SAPStartSrv\fP(7), \fBocf_heartbeat_SAPInstance\fP(7),
+\fBSAPStartSrv-helper\fP(8), \fBcrm\fP(8), \fBsudoers\fP(5) , \fBgdb\fP(1) ,
 .br
 https://clusterlabs.org/pacemaker/doc/2.1/Pacemaker_Administration/singlehtml/#alert-agents
 .\" TODO https://help.sap.com/docs/SAP_NETWEAVER_AS_ABAP_752/d0739d980ecf42ae9f3b4c19e21a4b6e/a72d46b36fe94f3287a9d211b3fd6732.html
