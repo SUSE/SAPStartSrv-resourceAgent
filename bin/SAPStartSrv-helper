@@ -5,7 +5,7 @@
 # Support:      linux@sap.com
 # License:      GNU General Public License (GPL)
 # Copyright:    (c) 2026 SUSE LLC
-# Version:      2026-08-15-00:00
+# Version:      2026-08-18-09:05
 #
 # params: cmd InstanceName
 #
@@ -17,10 +17,9 @@ InstanceName="$2"
 
 function call_sap_stack()
 {
-    timeout -s 9 30 /sapmnt/"$SID"/exe/uc/"$ARCH_KERNEL"/sapstack "$sPID" | while read -r; do
-        echo "$DATE_FORMAT": "$REPLY"
-    done >>"$LOG_FILE"
-    rc=$?
+    sapstack_cmd="/sapmnt/"$SID"/exe/uc/"$ARCH_KERNEL"/sapstack"
+    $logger -i -t "$logger_tag" "function call_sap_stack: sapstack_cmd=$sapstack_cmd"
+    timeout -s 9 10 "$sapstack_cmd" "$sPID" > $LOG_FILE; rc=$?
     return $rc
 }
 
@@ -28,9 +27,9 @@ function process_stack()
 {
     SID=""
     if [[ "$InstanceName" =~ ^([A-Z][A-Z0-9][A-Z0-9])_ ]]; then
-        SID="${BASH_REMAP[1]}"
+        SID="${BASH_REMATCH[1]}"
     fi
-    if [[ -z "$SID" ]]; then
+    if [[ -n "$SID" ]]; then
         ARCH_KERNEL="linux$HOSTTYPE"
         sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
         echo "pgrep -f sapstartsrv.*${InstanceName}"
@@ -52,7 +51,7 @@ function process_log()
     #/usr/sbin/vmstatlog /var/log/vmstat.log
     #/usr/sbin/netstatlog /var/log/netstat.log
     # wildcards do not work for lsof
-    /usr/sbin/lsoflog /var/log/lsof.log "+D/tmp/ +D/usr/sap/${SID}/" 22
+    /usr/sbin/lsoflog /var/log/lsof.log "+D/usr/sap/${SID}/ +D/tmp/" 22
 }
 
 function process_log_stack()
@@ -64,7 +63,7 @@ function process_log_stack()
 $logger -i -t "$logger_tag" "Called with $* (as $(id))"
 case "$cmd" in
     log+stack ) process_log_stack
-    ;;
+                ;;
 esac
 exit 0
 # 
