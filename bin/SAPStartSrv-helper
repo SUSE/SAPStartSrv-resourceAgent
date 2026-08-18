@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 #
-# SAPInstance-Helper
+# SAPStartSrv-Helper
+#
 # Author:       F.Herschel, L.Pinne, 2026
 # Support:      linux@sap.com
 # License:      GNU General Public License (GPL)
@@ -62,8 +63,15 @@ function process_log_stack()
 
 $logger -i -t "$logger_tag" "Called with $* (as $(id))"
 case "$cmd" in
-    log+stack ) process_log_stack
-                ;;
+    log+stack) process_log_stack
+        ;;
+    log)  process_log
+        ;;
+    stack) process_stack
+        ;;
+    none)
+        /bin/true
+        ;;
 esac
 exit 0
 # 
