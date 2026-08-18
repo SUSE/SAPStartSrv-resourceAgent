@@ -16,9 +16,15 @@ See also manual page SAPStartSrv-alert-timeout(8).
 .\"
 .SH SYNTAX
 .\"
-SAPStartSrv-helper [ SID  [ [ INO ] TODO ]]]
+SAPStartSrv-helper CMD INSTANCENAME
 .PP
 TODO
+.PP
+CMD = [ log | stack | log+stack ]
+.PP
+INSTANCENAME 
+.br
+Example SCS42.
 .PP
 .\"
 .SH RETURN CODES
@@ -55,6 +61,16 @@ See also manual pages sudoers(5) and SAPStartSrv-alert-agent(8).
 hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPStartSrv-helper *
 .RE
 .PP
+\fB*\fR Testing the alert agent helper.
+.PP
+Command is "log", instance name is "ERS22".
+.PP
+.RS 2
+# SAPStartSrv-helper log ERS22
+.br
+# grep /usr/sap/.*/ERS22/ /var/log/lsof.log
+.RE
+.PP
 .\"
 .SH FILES
 .TP
@@ -66,6 +82,10 @@ the default agent helper
 .TP
 /etc/sudoers.d/
 directory for sudoers config files
+.TP
+/sapmnt/$SID/exe/uc/$ARCH_KERNEL/sapstack
+default path to sapstack
+.\" TODO psaux.log vmstat.log meminfo.log netstat.log
 .PP
 .\"
 .SH REQUIREMENTS
@@ -82,8 +102,14 @@ a request for the component BC-OP-LNX-SUSE.
 .\"
 .SH SEE ALSO
 .\"
-\fBocf_suse_SAPStartSrv\fP(7), \fBocf_heartbeat_SAPInstance\fP(7),
-\fBSAPStartSrv-alert-timeout\fP(8), \fBcrm\fP(8), \fBsudoers\fP(5)
+\fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_SAPInstance\fP(7) ,
+\fBSAPStartSrv-alert-timeout\fP(8) , \fBcrm\fP(8) , \fBsudoers\fP(5) ,
+\fBgdb\fP(1) ,
+.br
+https://help.sap.com/docs/SAP_NETWEAVER_AS_ABAP_752/d0739d980ecf42ae9f3b4c19e21a4b6e/a72d46b36fe94f3287a9d211b3fd6732.html ,
+.\" TODO 1964673 - C-Call stack analysis
+.\" TODO 2193986 - Sapstack not showing C-Call stack
+.\" TODO 3204753 - Particular AP server sapstarsrv got terminated frequently
 .PP
 .\"
 .SH AUTHORS
@@ -95,7 +121,7 @@ F.Herschel, L.Pinne.
 .\"
 (c) 2026 SUSE LLC
 .br
-SAPHanaSR-helper comes with ABSOLUTELY NO WARRANTY.
+SAPStartSrv-helper comes with ABSOLUTELY NO WARRANTY.
 .br
 For details see the GNU General Public License at
 http://www.gnu.org/licenses/gpl.html
