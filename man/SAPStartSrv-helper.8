@@ -1,0 +1,102 @@
+.\" Version: 1.2
+.\"
+.TH SAPStartSrv-helper 8 "16 Aug 2026" "" "SAPStartSrv"
+.\"
+.SH NAME
+.\"
+SAPStartSrv-helper \- Alert agent helper.
+.PP
+.\"
+.SH DESCRIPTION
+.\"
+SAPStartSrv-helper is called by SAPStartSrv-alert-timeout.
+.\" TODO
+See also manual page SAPStartSrv-alert-timeout(8).
+.PP
+.\"
+.SH SYNTAX
+.\"
+SAPStartSrv-helper [ SID  [ [ INO ] TODO ]]]
+.PP
+TODO
+.PP
+.\"
+.SH RETURN CODES
+.\"
+.B 0
+Successful program execution.
+.br
+.B >0
+Usage, syntax or execution errors.
+.br
+.B 127 | 136
+TODO timeout
+.br
+In addition log entries are written, which can be scanned by using a pattern
+like "SAPStartSrv-helper".
+.\" TODO 2>&1 output to calling SAPStartSrv-alert-timeout
+.PP
+.\"
+.SH EXAMPLES
+.\"
+\fB*\fR Showing alert agent helper messages.
+.PP
+.RS 2
+# grep SAPStartSrv-helper /var/log/messages
+.RE
+.PP
+\fB*\fR Example for sudo permissions in /etc/sudoers.d/SAPStartSrv .
+.PP
+See also manual pages sudoers(5) and SAPStartSrv-alert-agent(8).
+.PP
+.RS 2
+# SAPStartSrv-alert-timeout needs
+.br
+hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPStartSrv-helper *
+.RE
+.PP
+.\"
+.SH FILES
+.TP
+/usr/bin/SAPStartSrv-alert-timeout
+the alert agent
+.TP
+/usr/bin/SAPStartSrv-helper
+the default agent helper
+.TP
+/etc/sudoers.d/
+directory for sudoers config files
+.PP
+.\"
+.SH REQUIREMENTS
+.\"
+See REQUIREMENTS section of SAPStartSrv-alert-timeout(8).
+.PP
+.\"
+.SH BUGS
+.\"
+In case of any problem, please use your favourite SAP support process to open
+a request for the component BC-OP-LNX-SUSE.
+.\" TODO Please report any other feedback and suggestions to feedback@suse.com.
+.PP
+.\"
+.SH SEE ALSO
+.\"
+\fBocf_suse_SAPStartSrv\fP(7), \fBocf_heartbeat_SAPInstance\fP(7),
+\fBSAPStartSrv-alert-timeout\fP(8), \fBcrm\fP(8), \fBsudoers\fP(5)
+.PP
+.\"
+.SH AUTHORS
+.\"
+F.Herschel, L.Pinne.
+.PP
+.\"
+.SH COPYRIGHT
+.\"
+(c) 2026 SUSE LLC
+.br
+SAPHanaSR-helper comes with ABSOLUTELY NO WARRANTY.
+.br
+For details see the GNU General Public License at
+http://www.gnu.org/licenses/gpl.html
+.\"
