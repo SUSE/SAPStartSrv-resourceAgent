@@ -18,18 +18,25 @@ InstanceName="$2"
 
 function call_sap_stack()
 {
+    # TODO option to call with/without "-tree"
     sapstack_cmd="/sapmnt/"$SID"/exe/uc/"$ARCH_KERNEL"/sapstack"
     $logger -i -t "$logger_tag" "function call_sap_stack: sapstack_cmd=$sapstack_cmd"
     timeout -s 9 10 "$sapstack_cmd" "$sPID" > $LOG_FILE; rc=$?
     return $rc
 }
 
-function process_stack()
+function get_sid()
 {
     SID=""
     if [[ "$InstanceName" =~ ^([A-Z][A-Z0-9][A-Z0-9])_ ]]; then
         SID="${BASH_REMATCH[1]}"
     fi
+    echo "$SID"
+}
+
+function process_stack()
+{
+    SID=$(get_sid)
     if [[ -n "$SID" ]]; then
         ARCH_KERNEL="linux$HOSTTYPE"
         sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
@@ -46,28 +53,27 @@ function process_stack()
 
 function process_log()
 {
+    SID=$(get_sid)
     /usr/sbin/psauxlog /var/log/psaux.log
     /usr/sbin/meminfolog /var/log/meminfo.log
     # TODO add when new ClusterTools2 ships
     #/usr/sbin/vmstatlog /var/log/vmstat.log
     #/usr/sbin/netstatlog /var/log/netstat.log
     # wildcards do not work for lsof
-    /usr/sbin/lsoflog /var/log/lsof.log "+D/usr/sap/${SID}/ +D/tmp/" 22
-}
-
-function process_log_stack()
-{
-    process_stack 
-    process_log
+    /usr/sbin/lsoflog /var/log/lsof.log "+D/tmp/ +D/usr/sap/${SID}/" 22
 }
 
 $logger -i -t "$logger_tag" "Called with $* (as $(id))"
 case "$cmd" in
-    log+stack) process_log_stack
+    log+stack)
+        process_stack
+        process_log
         ;;
-    log)  process_log
+    log)
+        process_log
         ;;
-    stack) process_stack
+    stack)
+        process_stack
         ;;
     none)
         /bin/true
