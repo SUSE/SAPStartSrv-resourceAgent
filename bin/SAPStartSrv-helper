@@ -11,48 +11,62 @@
 # params: cmd InstanceName
 #
 
+#
+# global variables
+#
 logger_tag="SAPStartSrv-helper"
 logger="/usr/bin/logger"
 cmd="$1"
 InstanceName="$2"
 
+# params: <SID> <ARCH_KERNEL> <PID> [ <option-tree> ]
 function call_sap_stack()
 {
-    # TODO option to call with/without "-tree"
-    sapstack_cmd="/sapmnt/"$SID"/exe/uc/"$ARCH_KERNEL"/sapstack"
-    $logger -i -t "$logger_tag" "function call_sap_stack: sapstack_cmd=$sapstack_cmd"
-    timeout -s 9 10 "$sapstack_cmd" "$sPID" > $LOG_FILE; rc=$?
+    # DONE option to call with/without "-tree"
+    local SID="$1" ARCH_KERNEL="$2" sPID="$3" opt_tree="$4" rc=0 sapstack_cmd="" LOG_FILE=""
+    # uses global variables: logger, logger_tag 
+    LOG_FILE="/var/log/sapstack.log"
+    sapstack_cmd="/sapmnt/$SID/exe/uc/$ARCH_KERNEL/sapstack"
+    "$logger" -i -t "$logger_tag" "function call_sap_stack: sapstack_cmd=$sapstack_cmd"
+    timeout -s 9 10 "$sapstack_cmd" "$opt_tree" "$sPID" > "$LOG_FILE"; rc=$?
     return $rc
 }
 
+# params: -
 function get_sid()
 {
-    SID=""
+    local SID=""
+    # uses global variables: InstanceName
     if [[ "$InstanceName" =~ ^([A-Z][A-Z0-9][A-Z0-9])_ ]]; then
         SID="${BASH_REMATCH[1]}"
     fi
     echo "$SID"
 }
 
+# params: <option-tree>
 function process_stack()
 {
+    local SID="" ARCH_KERNEL="" 
+    local sPID="" opt_tree="$1"
+    # uses global variables: logger, logger_tag, InstanceName
     SID=$(get_sid)
     if [[ -n "$SID" ]]; then
         ARCH_KERNEL="linux$HOSTTYPE"
         sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
         echo "pgrep -f sapstartsrv.*${InstanceName}"
-        $logger -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
-        DATE_FORMAT=$(date +"%F %T")
-        LOG_FILE=${1:-"/var/log/sapstack.log"}
-        call_sap_stack; rc=$?
-        $logger -i -t "$logger_tag" "function call_sap_stack returned with rc=$rc"
+        "$logger" -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
+        call_sap_stack "$SID" "$ARCH_KERNEL" "$sPID" "$opt_tree"; rc=$?
+        "$logger" -i -t "$logger_tag" "function call_sap_stack returned with rc=$rc"
     else
-        $logger -i -t "$logger_tag" "Not able to find <SID>"
+        "$logger" -i -t "$logger_tag" "Not able to find <SID>"
     fi
 }
 
+# params: -
 function process_log()
 {
+    local SID=""
+    # uses global variables: -
     SID=$(get_sid)
     /usr/sbin/psauxlog /var/log/psaux.log
     /usr/sbin/meminfolog /var/log/meminfo.log
@@ -63,8 +77,12 @@ function process_log()
     /usr/sbin/lsoflog /var/log/lsof.log "+D/tmp/ +D/usr/sap/${SID}/" 22
 }
 
-$logger -i -t "$logger_tag" "Called with $* (as $(id))"
+"$logger" -i -t "$logger_tag" "Called with $* (as $(id))"
 case "$cmd" in
+    log+stacktree)
+        process_stack -tree
+        process_log
+        ;;
     log+stack)
         process_stack
         process_log
@@ -74,6 +92,9 @@ case "$cmd" in
         ;;
     stack)
         process_stack
+        ;;
+    stacktree)
+        process_stack -tree
         ;;
     none)
         /bin/true
