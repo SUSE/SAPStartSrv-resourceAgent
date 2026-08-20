@@ -68,6 +68,8 @@ install -d %{buildroot}%{_mandir}/man8
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
 install -m 0444 man/*.8.gz %{buildroot}%{_mandir}/man8
 install -D -m 0644 sbin/%{srvname}.in %{buildroot}%{_sbindir}/%{srvname}
+install -D -m 0755 bin/SAPStartSrv-helper %{buildroot}${_bindir}
+install -D -m 0755 alert/SAPStartSrv-alert-timeout %{buildroot}${_bindir}
 install -d %{buildroot}%{_unitdir}
 install -m 0644 service/* %{buildroot}%{_unitdir}
 ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcsapping
@@ -105,6 +107,7 @@ pytest tests
 %defattr(755,root,root,-)
 %{ocf_dir}/resource.d/suse/%{raname}
 %{_sbindir}/*
+%{_bindir}/*
 %defattr(644,root,root,-)
 %{_unitdir}/*
 
