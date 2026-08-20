@@ -83,6 +83,10 @@ function process_log()
 
 "$logger" -i -t "$logger_tag" "Called with $* (as $(id))"
 case "$cmd" in
+    all)
+        process_stack -tree
+        process_log
+        ;;
     log+stacktree)
         process_stack -tree
         process_log
