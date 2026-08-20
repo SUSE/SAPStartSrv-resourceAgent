@@ -46,7 +46,7 @@ SAPStartSrv-alert-timeout calls the command like
 .br
 (sudo "$alert_cmd" "$alert_subcmd" "$inst_name" "$alert_sid" "$alert_ino" 2>&1).
 .br
-Optional, default "/usr/bin/SAPStartSrv-helper", example "alert_cmd=/root/bin/dumpstack".
+Optional, default "/usr/bin/SAPStartSrv-helper", example "alert_cmd=/usr/local/bin/dumpstack".
 .TP
 \fBalert_subcmd\fR
 Subcommand to call SAPStartSrv-helper with.
@@ -92,7 +92,7 @@ Alternate way for configuring the alert agent.
 .PP
 \fB*\fR Advanced example configuration for the timeout alert handler.
 .PP
-A custom script /root/bin/dumpstack is used, SID is ADA, instance number 00.
+A custom script /usr/local/bin/dumpstack is used, SID is ADA, instance number 00.
 .\" TODO what script?
 .PP
 .RS 2
@@ -102,7 +102,7 @@ alert resources-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
 .br
  attributes alert_sid=ADA alert_ino=00 \\
 .br 
- alert_cmd=/root/bin/dumpstack
+ alert_cmd=/user/local/bin/dumpstack
 .RE
 .PP
 \fB*\fR Showing all configured alert agents.
