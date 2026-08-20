@@ -4,19 +4,20 @@
 .\"
 .SH NAME
 .\"
-SAPStartSrv-alert-timeout \- Alert agent for cluster timeout alerts.
+SAPStartSrv-alert-timeout \- Alert agent for cluster resources timeout alerts.
 .PP
 .\"
 .SH DESCRIPTION
 .\"
-SAPStartSrv-alert-timeout can be used to react on Linux cluster RA timeout alerts.
+SAPStartSrv-alert-timeout can be used to react on Linux cluster resources timeout
+alerts.
 .PP
 The Linux cluster provides an interface to initiate external actions when a
 cluster event occurs (alert). Than the cluster calls an external program (an
 alert agent) to handle that alert.
 .PP
-When a Linux cluster resource agent run into an timeout, the cluster can call
-SAPStartSrv-alert-timeout on each active cluster node.
+When a Linux cluster resource agent runs into resources timeout, the cluster can
+call SAPStartSrv-alert-timeout on each active cluster node.
 .\" TODO for troubleshooting only
 .br
 See also manual pages SAPStartSrv-helper(8), ocf_suse_SAPStartSrv(7) and
@@ -29,20 +30,19 @@ ocf_heartbeat_SAPInstance(7).
 .TP
 \fBtimeout\fR
 If the alert agent does not complete within this amount of time, it will be terminated.
-Optional, default "30s". Example "meta timeout=30s".
+Optional, default "30s", example "meta timeout=30s".
 .TP
 \fBalert_sid\fR
 SAP SID of to handle. Might be used by custom helper scripts.
-Optional, default "EN2". Example "attributes alert_sid=ADA".
+Optional, default "EN2", example "attributes alert_sid=ADA".
 .TP
 \fBalert_ino\fR
 SAP instance number of to handle. Might be used by custom helper scripts.
-Optional, default "00". Example "attributes alert_ino=22". 
+Optional, default "00", example "attributes alert_ino=22". 
 .TP
 \fBalert_cmd\fR
 Command to call. Might be used to name a custom helper script.
-Optional, default "/usr/bin/SAPStartSrv-helper".
-Example "alert_cmd=/root/bin/dumpstack".
+Optional, default "/usr/bin/SAPStartSrv-helper", example "alert_cmd=/root/bin/dumpstack".
 See manual page SAPStartSrv-helper(8).
 .PP
 .\"
@@ -65,7 +65,7 @@ like "SAPStartSrv-alert-timeout".
 The following lines needs to be added to the cluster´s CIB:
 .PP
 .RS 2
-alert timeout-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
+alert resources-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
 .br
  select resources
 .RE
@@ -75,7 +75,7 @@ alert timeout-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
 Alternate way for configuring the alert agent.
 .PP
 .RS 2
-# crm configure alert timeout-1 \\
+# crm configure alert resources-1 \\
 .br
  "/usr/bin/SAPStartSrv-alert-timeout" \\
 .br
@@ -84,11 +84,11 @@ Alternate way for configuring the alert agent.
 .PP
 \fB*\fR Advanced example configuration for the timeout alert handler.
 .PP
-A custom script /root/bin/dumpstack is used, SID is EN2 instance number 00.
+A custom script /root/bin/dumpstack is used, SID is ADA, instance number 00.
 .\" TODO what script?
 .PP
 .RS 2
-alert timeout-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
+alert resources-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
 .br
  select resources \\
 .br
@@ -142,13 +142,15 @@ directory for sudoers config files
 cluster nodes.
 .PP
 * User hacluster needs password-less sudo permission on "/usr/bin/SAPStartSrv-helper".
+If a custom script is used, respective permissions might be needed.
+.PP
+* The customer is responsible for any custom script called by the alert agent.
 .PP
 * To allow SAPStartSR-helper command "stack", gdb is needed.
 .PP
-* To allow SAPStartSR-helper command "log", ClusterTool2 version TODO or newer is
-needed.
-.PP
-* The customer is responsible for any custom script called by the alert agent.
+* To allow SAPStartSR-helper command "log", ClusterTool2
+.\" TODO version TODO or newer
+is needed.
 .PP
 * The alert agent runtime almost completely depends on call-outs to OS and
 Linux cluster.
@@ -164,7 +166,7 @@ a request for the component BC-OP-LNX-SUSE.
 .SH SEE ALSO
 .\"
 \fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_SAPInstance\fP(7) ,
-\fBSAPStartSrv-helper\fP(8) , \fBcrm\fP(8), \fBsudoers\fP(5) , \fBgdb\fP(1) ,
+\fBSAPStartSrv-helper\fP(8) , \fBcrm\fP(8), \fBsudoers\fP(5) ,
 .br
 https://clusterlabs.org/pacemaker/doc/2.1/Pacemaker_Administration/singlehtml/#alert-agents
 .PP
