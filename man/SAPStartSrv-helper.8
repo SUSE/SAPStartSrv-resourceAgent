@@ -16,7 +16,7 @@ See also manual page SAPStartSrv-alert-timeout(8).
 .\"
 .SH SYNTAX
 .\"
-\fBSAPStartSrv-helper\fR \fICMD\fP \fIINSTANCENAME\fP
+\fBSAPStartSrv-helper\fR \fICMD\fP \fIINSTANCENAME\fP [ \fISID\fR [ \fIINO\fR ]]
 .PP
 \fBCMD\fR: [ all | log | log+stack | log+stacktree | none | stack | stacktree ]
 .br
@@ -44,6 +44,10 @@ Required, default "log".
 \fBINSTANCENAME\fR: Full qualified name of the instance, see manual page ocf_heartbeat_SAPInstance(7).
 .br
 Required, no default, example "P22_SCS11_p22scs".
+.PP
+\fBSID\fR: System Identifier, ignored.
+.PP
+\fBINO\fR: Instance number, ignored.
 .PP
 .\"
 .SH RETURN CODES
@@ -129,7 +133,7 @@ a request for the component BC-OP-LNX-SUSE.
 .\"
 \fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_SAPInstance\fP(7) ,
 \fBSAPStartSrv-alert-timeout\fP(8) , \fBcrm\fP(8) , \fBsudoers\fP(5) ,
-lsoflog(8) , meminfolog(8) , psauxlog(8) ,
+\fBlsoflog\fP(8) , \fBmeminfolog\fP(8) , \fBpsauxlog\fP(8) ,
 .\" TODO netstatlog(8) , vmstatlog(8) , 
 \fBgdb\fP(1) ,
 .br

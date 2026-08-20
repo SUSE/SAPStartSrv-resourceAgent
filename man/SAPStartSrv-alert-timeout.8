@@ -30,7 +30,7 @@ ocf_heartbeat_SAPInstance(7).
 .TP
 \fBtimeout\fR
 If the alert agent does not complete within this amount of time, it will be terminated.
-Optional, default "30s", example "meta timeout=30s".
+Optional, default "30s", minimum "30s", example "meta timeout=30s".
 .TP
 \fBalert_sid\fR
 SAP SID of to handle. Might be used by custom helper scripts.
@@ -153,6 +153,7 @@ cluster nodes.
 If a custom script is used, respective permissions might be needed.
 .PP
 * The customer is responsible for any custom script called by the alert agent.
+Any custom script should return within the alert agent timeout.
 .PP
 * To allow SAPStartSR-helper command "stack", gdb is needed.
 .PP
@@ -161,7 +162,7 @@ If a custom script is used, respective permissions might be needed.
 is needed.
 .PP
 * The alert agent runtime almost completely depends on call-outs to OS and
-Linux cluster.
+Linux cluster. The alert agent timeout should be 30s at least.
 .PP
 .\"
 .SH BUGS
