@@ -42,6 +42,10 @@ Optional, default "00", example "attributes alert_ino=22".
 .TP
 \fBalert_cmd\fR
 Command to call. Might be used to name a custom helper script.
+SAPStartSrv-alert-timeout calls the command like
+.br
+(sudo "$alert_cmd" "$alert_subcmd" "$inst_name" "$alert_sid" "$alert_ino" 2>&1).
+.br
 Optional, default "/usr/bin/SAPStartSrv-helper", example "alert_cmd=/root/bin/dumpstack".
 .TP
 \fBalert_subcmd\fR
