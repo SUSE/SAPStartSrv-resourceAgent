@@ -16,15 +16,34 @@ See also manual page SAPStartSrv-alert-timeout(8).
 .\"
 .SH SYNTAX
 .\"
-SAPStartSrv-helper \fICMD\fP \fIINSTANCENAME\fP
+\fBSAPStartSrv-helper\fR \fICMD\fP \fIINSTANCENAME\fP
 .PP
-TODO
-.PP
-CMD = [ log | stack | stacktree | log+stack | none ]
-.PP
-INSTANCENAME 
+\fBCMD\fR: [ all | log | log+stack | log+stacktree | none | stack | stacktree ]
 .br
-Example SCS42.
+Internal command to call.
+.RS 2
+\fBall\fR - run all implemented commands
+.br
+\fBlog\fR - write OS status into logs, see manual pages lsoflog(8), meminfolog(8),
+psauxlog(8)
+.\" TODO netstatlog(8), vmstatlog(8)
+.br
+\fBlog+stack\fR - write OS status plus sapstartsrv stack trace
+.br
+\fBlog+stacktree\fR - write OS status plus sapstartsrv, and its child processes, stack trace
+.br
+\fBnone\fR - run no implemented command
+.br
+\fBstack\fR - write sapstartsrv stack trace, see sapstack -help 
+.br
+\fBstacktree\fR - write sapstartsrv, and its child processes, stack trace
+.RE
+.br
+Required, default "log".
+.PP
+\fBINSTANCENAME\fR: Full qualified name of the instance, see manual page ocf_heartbeat_SAPInstance(7).
+.br
+Required, no default, example "P22_SCS11_p22scs".
 .PP
 .\"
 .SH RETURN CODES
@@ -35,8 +54,8 @@ Successful program execution.
 .B >0
 Usage, syntax or execution errors.
 .br
-.B 127 | 136
-TODO timeout
+.B >126
+Called command timed out.
 .br
 In addition log entries are written, which can be scanned by using a pattern
 like "SAPStartSrv-helper".
@@ -63,12 +82,12 @@ hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPStartSrv-helper *
 .PP
 \fB*\fR Testing the alert agent helper.
 .PP
-Command is "log", instance name is "ERS22".
+Command is "log", instance name is "P22_ERS11_p22ers".
 .PP
 .RS 2
-# SAPStartSrv-helper log ERS22
+# SAPStartSrv-helper log P22_ERS11_p22ers
 .br
-# grep /usr/sap/.*/ERS22/ /var/log/lsof.log
+# grep /usr/sap/.*/ERS11/ /var/log/lsof.log
 .RE
 .PP
 .\"
@@ -83,9 +102,15 @@ the default agent helper
 /etc/sudoers.d/
 directory for sudoers config files
 .TP
-/sapmnt/$SID/exe/uc/$ARCH_KERNEL/sapstack
+/sapmnt/$SID/exe/uc/linux$HOSTTYPE/sapstack
 default path to sapstack
+.TP
+/var/log/
+directory for OS statuts logfiles
 .\" TODO psaux.log vmstat.log meminfo.log netstat.log
+.TP
+/var/log/stacktrace.log
+sapstartsrv stack trace
 .PP
 .\"
 .SH REQUIREMENTS
@@ -104,6 +129,8 @@ a request for the component BC-OP-LNX-SUSE.
 .\"
 \fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_SAPInstance\fP(7) ,
 \fBSAPStartSrv-alert-timeout\fP(8) , \fBcrm\fP(8) , \fBsudoers\fP(5) ,
+lsoflog(8) , meminfolog(8) , psauxlog(8) ,
+.\" TODO netstatlog(8) , vmstatlog(8) , 
 \fBgdb\fP(1) ,
 .br
 https://help.sap.com/docs/SAP_NETWEAVER_AS_ABAP_752/d0739d980ecf42ae9f3b4c19e21a4b6e/a72d46b36fe94f3287a9d211b3fd6732.html ,
