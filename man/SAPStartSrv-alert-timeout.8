@@ -43,6 +43,10 @@ Optional, default "00", example "attributes alert_ino=22".
 \fBalert_cmd\fR
 Command to call. Might be used to name a custom helper script.
 Optional, default "/usr/bin/SAPStartSrv-helper", example "alert_cmd=/root/bin/dumpstack".
+.TP
+\fBalert_subcmd\fR
+Subcommand to call SAPStartSrv-helper with.
+Optional, default "log", example "alert_subcmd=log+stack".
 See manual page SAPStartSrv-helper(8).
 .PP
 .\"

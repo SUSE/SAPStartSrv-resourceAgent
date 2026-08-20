@@ -1,16 +1,14 @@
 #!/bin/bash
 #
-# SAPHanaSR-alert-failing
-# Author:       Lars Pinne, Fabian Herschel, 2026
+# SAPHanaSR-alert-timeout
+#
+# Author:       F.Herschel, L.Pinne, 2026
 # Support:      linux@sap.com
 # License:      GNU General Public License (GPL)
 # Copyright:    (c) 2026 SUSE LLC
-# Version:	    2026-08-15-00:00
+# Version:	    2026-08-20-09:40
 #
-# https://oneuptime.com/blog/post/2026-03-04-configure-pacemaker-alerts-and-notifications-on-rhel/view
-# https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/high_availability_add-on_reference/ch-alertscripts-haar
-#
-# crm configure alert resources-1 "/usr/bin/SAPHanaSR-alert-failing" select resources attributes alert_sid=EN2 alert_ino=00 alert_cmd="/bin/true"
+# crm configure alert resources-1 "/usr/bin/SAPHanaSR-alert-timeout" select resources attributes alert_sid=EN2 alert_ino=00 alert_cmd="/bin/true"
 # TODO: timeout 30s default okay?
 #
 
@@ -29,7 +27,7 @@ crm_alert_rsc="${CRM_alert_rsc:-no resource}"
 alert_sid="${alert_sid:-EN2}"
 alert_ino="${alert_ino:-00}"
 alert_cmd="${alert_cmd:-/usr/bin/SAPStartSrv-helper}"
-alert_subcmd="${alert_subcmd:-log+stack}"
+alert_subcmd="${alert_subcmd:-log}"
 react_on="2-Timedout"
 
 $logger -i -t "$logger_tag" "AH: begin event '$crm_alert_kind'"
