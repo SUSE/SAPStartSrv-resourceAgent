@@ -1,5 +1,5 @@
 <services>
-  <service name="tar_scm" mode="disabled">
+  <service name="tar_scm" mode="manual">
     <param name="url">https://github.com/%%REPOSITORY%%.git</param>
     <param name="scm">git</param>
     <param name="exclude">.git</param>

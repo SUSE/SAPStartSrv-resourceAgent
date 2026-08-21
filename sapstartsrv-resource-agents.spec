@@ -24,7 +24,7 @@ Name:           sapstartsrv-resource-agents
 License:        GPL-2.0
 Group:          Productivity/Clustering/HA
 Summary:        Resource agent for SAP instance specific sapstartsrv service
-Version:        0
+Version:        0.9.6+git.1787302020.9a26c72
 Release:        0
 URL:            https://github.com/SUSE/SAPStartSrv-resourceAgent
 Source0:        %{name}-%{version}.tar.gz
@@ -62,14 +62,16 @@ Authors:
 gzip man/*
 
 %install
+mkdir -p %{buildroot}%{_bindir}
 install -D -m 0755 ra/%{raname}.in %{buildroot}%{ocf_dir}/resource.d/suse/%{raname}
 install -d %{buildroot}%{_mandir}/man7
 install -d %{buildroot}%{_mandir}/man8
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
 install -m 0444 man/*.8.gz %{buildroot}%{_mandir}/man8
 install -D -m 0644 sbin/%{srvname}.in %{buildroot}%{_sbindir}/%{srvname}
-install -D -m 0755 bin/SAPStartSrv-helper %{buildroot}${_bindir}
-install -D -m 0755 alert/SAPStartSrv-alert-timeout %{buildroot}${_bindir}
+install -D -m 0755 bin/SAPStartSrv-helper %{buildroot}%{_bindir}
+install -D -m 0755 alert/SAPStartSrv-alert-timeout %{buildroot}%{_bindir}
+ls %{buildroot}%{_bindir}
 install -d %{buildroot}%{_unitdir}
 install -m 0644 service/* %{buildroot}%{_unitdir}
 ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcsapping
