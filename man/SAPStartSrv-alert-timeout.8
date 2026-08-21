@@ -17,11 +17,10 @@ cluster event occurs (alert). Than the cluster calls an external program (an
 alert agent) to handle that alert.
 .PP
 When a Linux cluster resource agent runs into resources timeout, the cluster can
-call SAPStartSrv-alert-timeout on each active cluster node.
-.\" TODO for troubleshooting only
+call SAPStartSrv-alert-timeout on each active cluster node. Main purpose is colleting
+data in case of resource agent timeouts.
 .br
-See also manual pages SAPStartSrv-helper(8), ocf_suse_SAPStartSrv(7) and
-ocf_heartbeat_SAPInstance(7).
+See also manual pages SAPStartSrv-helper(8) and ocf_heartbeat_SAPInstance(7).
 .PP
 .B SAPStartSrv-alert-timeout is a technology preview.
 .PP
@@ -33,11 +32,11 @@ If the alert agent does not complete within this amount of time, it will be term
 Optional, default "30s", minimum "30s", example "meta timeout=30s".
 .TP
 \fBalert_sid\fR
-SAP SID of to handle. Might be used by custom helper scripts.
+SAP SID of the instance to handle. Might be used by custom helper scripts.
 Optional, default "EN2", example "attributes alert_sid=ADA".
 .TP
 \fBalert_ino\fR
-SAP instance number of to handle. Might be used by custom helper scripts.
+SAP instance number of instance to handle. Might be used by custom helper scripts.
 Optional, default "00", example "attributes alert_ino=22". 
 .TP
 \fBalert_cmd\fR
@@ -68,7 +67,7 @@ like "SAPStartSrv-alert-timeout".
 .\"
 .SH EXAMPLES
 .\"
-\fB*\fR Simple example configuration for the timeout alert handler.
+\fB*\fR Simple example configuration for the resources timeout alert agent.
 .PP
 The following lines needs to be added to the cluster´s CIB:
 .PP
@@ -90,10 +89,9 @@ Alternate way for configuring the alert agent.
  select resources
 .RE
 .PP
-\fB*\fR Advanced example configuration for the timeout alert handler.
+\fB*\fR Advanced example configuration for the resources timeout alert agent.
 .PP
 A custom script /usr/local/bin/dumpstack is used, SID is ADA, instance number 00.
-.\" TODO what script?
 .PP
 .RS 2
 alert resources-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
@@ -111,7 +109,7 @@ alert resources-1 "/usr/bin/SAPStartSrv-alert-timeout" \\
 # crm configure show type:alert
 .RE
 .PP
-\fB*\fR Showing agent messages.
+\fB*\fR Showing alert agent messages.
 .PP
 .RS 2
 # grep SAPStartSrv-alert-timeout /var/log/messages
