@@ -62,20 +62,31 @@ Authors:
 gzip man/*
 
 %install
-mkdir -p %{buildroot}%{_bindir}
+#
+# resource agent
+#
 install -D -m 0755 ra/%{raname}.in %{buildroot}%{ocf_dir}/resource.d/suse/%{raname}
+#
+# alert-timeout and helper
+#
+install -d %{buildroot}%{_bindir}
+install -m 0755 bin/SAPStartSrv-helper %{buildroot}%{_bindir}
+install -m 0755 alert/SAPStartSrv-alert-timeout %{buildroot}%{_bindir}
+#
+# service system unit files, helper and links
+#
+install -d %{buildroot}%{_unitdir}
+install -m 0644 service/* %{buildroot}%{_unitdir}
+install -D -m 0644 sbin/%{srvname}.in %{buildroot}%{_sbindir}/%{srvname}
+ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcsapping
+ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcsappong
+#
+# man pages
+#
 install -d %{buildroot}%{_mandir}/man7
 install -d %{buildroot}%{_mandir}/man8
 install -m 0444 man/*.7.gz %{buildroot}%{_mandir}/man7
 install -m 0444 man/*.8.gz %{buildroot}%{_mandir}/man8
-install -D -m 0644 sbin/%{srvname}.in %{buildroot}%{_sbindir}/%{srvname}
-install -D -m 0755 bin/SAPStartSrv-helper %{buildroot}%{_bindir}
-install -D -m 0755 alert/SAPStartSrv-alert-timeout %{buildroot}%{_bindir}
-ls %{buildroot}%{_bindir}
-install -d %{buildroot}%{_unitdir}
-install -m 0644 service/* %{buildroot}%{_unitdir}
-ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcsapping
-ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcsappong
 
 sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}%{ocf_dir}/resource.d/suse/%{raname}
 sed -i 's+@PYTHON@+%{_bindir}/python3+' %{buildroot}%{_sbindir}/%{srvname}
