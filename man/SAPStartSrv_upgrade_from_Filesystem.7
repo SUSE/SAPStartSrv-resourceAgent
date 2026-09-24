@@ -170,9 +170,35 @@ node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
 .PP
 \fB*\fP Removing Filesystem resources from CIB.
 .PP
+TODO
+node1, EN2, ASCS00, ERS10, ...
+.PP
+.RS 2
+node1:~ # cibadmin --delete --xpath \
+    "//resource[@id='rsc_fs_EN2_ERS10']"
+.br
+node1:~ # cibadmin --delete --xpath \
+    "//resource[@id='rsc_fs_EN2_ASCS00']"
+.RE
 .PP
 \fB*\fP Getting cluster out of maintenance and  saving new CIB.
 .PP
+TODO
+on one node for the whole cluster
+.br
+node1
+.PP
+.RS 2
+node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=true" |\\
+.br
+ crm configure load update -
+.br
+node1:~ # crm configure show > /root/crm.simple-mount.backup
+.br
+node1:~ # crm maintenance off
+.br
+node1:~ # cs_show_ensa_status
+.RE
 .PP
 \fB*\fP Testing the ERS instance.
 .PP
