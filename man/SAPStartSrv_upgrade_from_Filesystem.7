@@ -21,17 +21,17 @@ backed by one common NFS share.
 .PP
 .B * Upgrade procedure
 .PP
-TODO 
+TODO
 .PP
 1. Checking for clean state and collecting information.
 .br
-2. Setting cluster in maintenance and saving old CIB. 
+2. Setting cluster in maintenance and saving old CIB.
 .br
 3. Updating resource agents and enabling systemd services.
 .br
 4. Adding SAPStartSrv resources to CIB.
 .br
-5. Adapting fstab and mounting SAP instance directories. 
+5. Adapting fstab and mounting SAP instance directories.
 .br
 6. Removing Filesystem resources from CIB.
 .br
@@ -61,9 +61,9 @@ node1:~ # ssh node2 "ls -l /usr/sap/EN2/SYS/" | awk '{print $9,$11}'
 node1:~ # cs_show_ensa_status
 .RE
 .PP
-\fB*\fP Setting cluster in maintenance and saving old CIB. 
+\fB*\fP Setting cluster in maintenance and saving old CIB.
 .PP
-TODO on one node for the whole cluster 
+TODO on one node for the whole cluster
 .PP
 .RS 2
 node1:~ # crm maintenance on
