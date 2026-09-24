@@ -12,7 +12,7 @@ SAPStartSrv_upgrade_from_Filesystem \- upgrade from Filesystem to SAPStartSrv
 \fB*\fP What is the upgrade about?
 .PP
 It is about upgrading an HA cluster for SAP application central services from a
-Filsystem resource based setup to the simple-mount setup.
+Filesystem resource based setup to the simple-mount setup.
 .PP
 Instead several filesystems per SAP system plus additional filesystems per SAP
 instance, the simple-mount setup only needs a minimum.
@@ -35,7 +35,8 @@ This will be changed:
 a. Two systemd services sapping and sappong will be enabled.
 .br
 b. The SAP instance working directories for enqueue service and enqueue replicator
-(aka ASCS and ERS) will be added to fstab on both cluster nodes, and mounted statically. 
+(aka ASCS and ERS) will be added to fstab on both cluster nodes, and mounted
+statically. 
 .br
 c. The Filesystem resources for ASCS and ERS will be removed from CIB.
 .br 
@@ -69,12 +70,34 @@ TODO
 .PP
 \fB*\fP What needs to be prepared upfront?
 .PP
-TODO
+First, make yourself familiar with concepts, components and configuration of the
+simple-mount HA scenario for SAP central services. Refresh your knowledge of the
+Filesystem resource based HA scenario.
+.PP
+Next, the following information needs to be collected and documented before upgrading
+a cluster:
+.br
+1. names of cluster nodes
+.br
+2. names of SAP instance directories
+.br
+3. names of NFS server and shares for the SAP instance directories
+.br
+4. names of Filesystem resources and resource groups
+.br
+5. status of software update repository
+.br
+6. deviation of configuration from setup guide, if existing
+.br
+7. TODO
+.PP
+Finally, prepare config templates with correct values for the given cluster.
+Ideally also all needed commands are prepared in detail.
 .PP
 .\"
 .SH EXAMPLES
 .\"
-TODO
+TODO adapted 
 .PP
 \fB*\fP Checking for clean state and collecting information.
 .PP
