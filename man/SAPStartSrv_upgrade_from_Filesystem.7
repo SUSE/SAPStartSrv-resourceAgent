@@ -9,17 +9,45 @@ SAPStartSrv_upgrade_from_Filesystem \- upgrade from Filesystem to SAPStartSrv
 .\"
 .SH DESCRIPTION
 .\"
-.B * Overview
+\fB*\fP What is the upgrade about?
 .PP
-TODO
+It is about upgrading an HA cluster for SAP application central services from a
+Filsystem resource based setup to the simple-mount setup.
+.PP
+Instead several filesystems per SAP system plus additional filesystems per SAP
+instance, the simple-mount setup only needs a minimum.
+And these filesystems do not need to be controlled and switched-over by the Linux
+cluster. All filesystems are statically mounted at all nodes at system boot,
+backed by central NFS shares.
+.PP
+The cluster controls the start and stop of the SAP start framework of each SAP
+instance and controls and monitors the SAP instances. See manual page
+ocf_suse_SAPStartSrv(7) for details.
+.PP
+The upgrade procedure does not necessarily need downtime for the SAP central
+services, if planned and excuted carefully. Nevertheless, it should be done under
+friendly conditions.
+.PP
+\fB*\fP What will be changed?
+.PP
+This will be changed:
+.br
+a. Two systemd services sapping and sappong will be enabled.
+.br
+b. The SAP instance working directories for enqueue service and enqueue replicator
+(aka ASCS and ERS) will be added to fstab on both cluster nodes, and mounted statically. 
+.br
+c. The Filesystem resources for ASCS and ERS will be removed from CIB.
+.br 
+d. Instead, SAPStartSrv resources for ASCS and ERS will be added to the CIB.
 .PP
 The resulting setup will have two statically mounted directories, each backed by
 one NFS share - one per SAP instance. In addition it will have the SYS directory
 on local disk. This is slightly different from the original simple-mount layout,
-where all three directories are provided as part of one /usr/sap/$SID/ directory,
-backed by one common NFS share.
+where all three directories are provided as part of one single SAP system directory
+(/usr/sap/$SID/), backed by one common NFS share.
 .PP
-.B * Upgrade procedure
+\fB*\fP How does the upgrade procedure look like at a glance?
 .PP
 TODO
 .PP
@@ -35,16 +63,23 @@ TODO
 .br
 6. Removing Filesystem resources from CIB.
 .br
-7. Getting cluster out of maintenance and  saving new CIB.
+7. Getting cluster out of maintenance and saving new CIB.
 .br
 8. Testing the ERS instance.
+.PP
+\fB*\fP What needs to be prepared upfront?
+.PP
+TODO
 .PP
 .\"
 .SH EXAMPLES
 .\"
+TODO
+.PP
 \fB*\fP Checking for clean state and collecting information.
 .PP
 TODO
+see also SAPStartSrv_maintenance_examples(7).
 on one node for both nodes
 .br
 node1, node2, EN2
@@ -202,6 +237,19 @@ node1:~ # cs_show_ensa_status
 .PP
 \fB*\fP Testing the ERS instance.
 .PP
+TODO
+.br
+node1, node2
+.PP
+.RS 2
+node1:~ # ssh node2 "crm cluster stop && systemctl reboot"
+.br
+node1:~ # crm_mon -1r --exclude=summary
+.PP
+node2:~ # ssh node1 "crm cluster stop && systemctl reboot"
+.br
+node2:~ # crm_mon -1r --exclude=summary
+.RE
 .PP
 \"
 .SH FILES
@@ -242,7 +290,7 @@ request for the component BC-OP-LNX-SUSE.
 .\"
 \fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_Filesystem\fP(7) ,
 \fBSAPStartSrv_basic_cluster\fP(7) , \fBsapping\fP(7) ,
-\fBcrm\fP(8) , \fBcibadmin\fP(8) , \fBcrm_mon\fP(8) ,
+\fBcrm\fP(8) , \fBcibadmin\fP(8) , \fBcrm_mon\fP(8) , \fBcs_show_ensa_status\fP(8) ,
 \fBfstab\fP(5) , \fBmount\fP(8) , \fBawk\fP(1) , \fBsed\fP(1) , \fBzypper\fP(8) ,
 .PP
 .\"
