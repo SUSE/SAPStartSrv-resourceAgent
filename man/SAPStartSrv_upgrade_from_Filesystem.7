@@ -259,7 +259,7 @@ node2:~ # crm_mon -1r --exclude=summary
 filesystem table, for statically mounted NFS shares
 .TP
 /usr/sap/$SID/$InstanceName/
-TODO
+SAP instance directories, f.e. /usr/sap/EN2/ASCS00/
 .TP
 /usr/sap/$SID/SYS/
 TODO
@@ -270,11 +270,27 @@ TODO
 .\"
 .SH REQUIREMENTS
 .\"
-* The pacemaker cluster and both SAP instances are configured according to
-TODO setup guide.
+* OS, Linux cluster and SAP instances are matching requirements for both, the
+Filsystem resource based setup and the simple-mount setup.
 .PP
-* The pacemaker cluster and both SAP instances are in clean state and running
-fine.
+* The resource configuration matches a documented setup. Even if the general
+upgrade procedure is expected to work for customised configuration, details might
+need special treatment.
+.PP
+* The SAP instance directories (/usr/sap/$SID/$InstanceName/) are provided on
+NFS shares.
+.PP
+* The whole upgrade procedure is tested carefully and documented in detail before
+being applied on production.
+.PP
+* Linux cluster, SAP instances and enqueue replication are in sane state before
+the upgrade. All cluster nodes are online. 
+.PP
+* The SAP instances are idle during the upgrade. No other changes on OS, cluster,
+SAP instances or infrastructure are done in parallel to the upgrade.
+.PP
+* Linux cluster, SAP instances and enqueueu replication are checked and in sane
+state before set back into production.
 .PP
 * Password-less login for user root between cluster nodes.
 .PP
