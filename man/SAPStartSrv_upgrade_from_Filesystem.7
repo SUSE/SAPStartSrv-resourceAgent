@@ -11,7 +11,7 @@ SAPStartSrv_upgrade_from_Filesystem \- upgrade from Filesystem to SAPStartSrv
 .\"
 \fB*\fP What is the upgrade about?
 .PP
-It is about upgrading an HA cluster for SAP application central services from a
+It is about upgrading an HA cluster for SAP central service instances from the
 Filesystem resource based setup to the simple-mount setup.
 .PP
 Instead several filesystems per SAP system plus additional filesystems per SAP
@@ -25,8 +25,8 @@ instance and controls and monitors the SAP instances. See manual page
 ocf_suse_SAPStartSrv(7) for details.
 .PP
 The upgrade procedure does not necessarily need downtime for the SAP central
-services, if planned and excuted carefully. Nevertheless, it should be done under
-friendly conditions.
+service instances, if planned and excuted carefully. Nevertheless, it should be
+done under friendly conditions.
 .PP
 \fB*\fP What will be changed?
 .PP
@@ -43,10 +43,10 @@ c. The Filesystem resources for ASCS and ERS will be removed from CIB.
 d. Instead, SAPStartSrv resources for ASCS and ERS will be added to the CIB.
 .PP
 The resulting setup will have two statically mounted directories, each backed by
-one NFS share - one per SAP instance. In addition it will have the SYS directory
-on local disk. This is slightly different from the original simple-mount layout,
-where all three directories are provided as part of one single SAP system directory
-(/usr/sap/$SID/), backed by one common NFS share.
+one NFS share - one per SAP instance (f.e. ASCS00, ERS10). In addition it will
+have the SYS directory on local disk. This is slightly different from the original
+simple-mount layout, where all three directories are provided as part of one single
+SAP system directory (/usr/sap/$SID/), backed by one common NFS share.
 .PP
 \fB*\fP How does the upgrade procedure look like at a glance?
 .PP
@@ -77,27 +77,135 @@ Filesystem resource based HA scenario.
 Next, the following information needs to be collected and documented before upgrading
 a cluster:
 .br
-1. names of cluster nodes
+1. Names of cluster nodes
 .br
-2. names of SAP instance directories
+2. Names of SAP instance directories
 .br
-3. names of NFS server and shares for the SAP instance directories
+3. Names of NFS server and shares for the SAP instance directories, mount options
 .br
-4. names of Filesystem resources and resource groups
+4. Names of SAP instance profiles
 .br
-5. status of software update repository
+5. Names of Filesystem resources and resource groups
 .br
-6. deviation of configuration from setup guide, if existing
+6. Status of software update repository
 .br
-7. TODO
+7. Deviation of configuration from setup guide, if existing
+.br
+8. Matching with REQUIREMENTS section below 
 .PP
 Finally, prepare config templates with correct values for the given cluster.
 Ideally also all needed commands are prepared in detail.
+.\" TODO SAPStartSrv-upgrade-from-Filesystem-demo.8 ?
 .PP
 .\"
 .SH EXAMPLES
 .\"
-TODO adapted 
+TODO adapted
+.PP
+\fB*\fP Collecting information on one node.
+.PP
+TODO see also
+.br
+on one node
+.br
+node1,
+.br
+EN2, ASCS00, EN2_ASCS00_node12as,
+.br
+192.168.1.1, /export/EN2/usr-sap/ASCS00, nfs defaults,
+.br
+15-SP7, 
+.PP
+Names of SAP instance directories
+.br
+Names of NFS server and shares for the SAP instance directories, mount options
+.PP
+.RS 2
+node1:~ # mount | awk '$5=="nfs" {print $1,$3}'
+.br
+192.168.1.1:/data/export/node12/EN2/sapmnt-EN2 /sapmnt/EN2
+.br
+192.168.1.1:/data/export/node12/EN2/usr-sap-EN2/ASCS00 /usr/sap/EN2/ASCS00
+.PP
+node1:~ # crm configure show rsc_fs_EN2_ASCS00 | grep "params"
+.br
+params device="192.168.1.1:/export/EN2/usr-sap/ASCS00" \\
+.br
+ directory="/usr/sap/EN2/ASCS00" fstype=nfs \\
+.PP
+node1:~ # ls -l /usr/sap/EN2/SYS/ | awk '{print $9,$11}'
+.br
+exe
+.br
+gen
+.br
+global /sapmnt/EN2/global
+.br
+profile /sapmnt/EN2/profile
+.br
+src
+.RE
+.PP
+Names of SAP instance profiles
+.PP
+.RS 2
+node1:~ # crm configure show type:primitive | grep "InstanceName="
+.br
+params InstanceName=EN2_ASCS00_node12as \\
+.br
+ START_PROFILE="/sapmnt/EN2/profile/EN2_ASCS00_node12as" \\
+.br
+ AUTOMATIC_RECOVER=False \\
+.br
+params InstanceName=EN2_ERS10_node12er \\
+.br
+ START_PROFILE="/sapmnt/EN2/profile/EN2_ERS10_node12er" \\
+.br
+ AUTOMATIC_RECOVER=False IS_ERS=True \\
+.RE
+.PP
+Names of Filesystem resources and resource groups
+.PP
+.RS 2
+node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
+.br
+primitive rsc_fs_EN2_ASCS00 Filesystem \\
+.br
+primitive rsc_fs_EN2_ERS10 Filesystem \\
+.PP
+node1:~ # crm configure show type:group | grep group
+.br
+group grp_EN2_ASCS00 rsc_vip_EN2_ASCS00 \\
+.br
+ rsc_fs_EN2_ASCS00 rsc_SAPInstance_EN2_ASCS00 \\
+.br
+group grp_EN2_ERS10 rsc_vip_EN2_ERS10 \\
+.br
+ rsc_fs_EN2_ERS10 rsc_SAPInstance_EN2_ERS10 \\
+.RE
+.PP
+Status of software update repository
+.PP
+node1:~ # zypper lr -E
+.br
+ ...
+.br
+18 | ... :SLE-Module-SAP-Applications15-SP7-Updates ...
+.br
+25 | ... :SLE-Product-HA15-SP7-Updates ...
+.br
+ ...
+.PP
+node1:~ # zypper up -y -D sapstartsrv-resource-agents resource-agents
+.br
+ ...
+.br
+The following packages are going to be upgraded:
+.br
+  resource-agents sapstartsrv-resource-agents
+.br
+ ...
+.RE
 .PP
 \fB*\fP Checking for clean state and collecting information.
 .PP
@@ -108,10 +216,14 @@ on one node for both nodes
 node1, node2, EN2
 .PP
 .RS 2
+node1:~ # zypper up -y -D sapstartsrv-resource-agents resource-agents
+.br
 node1:~ # mount | awk '$5=="nfs" {print $1,$3}'
 .br
 node1:~ # ls -l /usr/sap/EN2/SYS/ | awk '{print $9,$11}'
 .PP
+node1:~ # ssh node2q "zypper up -y -D sapstartsrv-resource-agents resource-agents"
+.br
 node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
 .br
 node1:~ # ssh node2 "ls -l /usr/sap/EN2/SYS/" | awk '{print $9,$11}'
@@ -300,8 +412,9 @@ Filsystem resource based setup and the simple-mount setup.
 upgrade procedure is expected to work for customised configuration, details might
 need special treatment.
 .PP
-* The SAP instance directories (/usr/sap/$SID/$InstanceName/) are provided on
-NFS shares.
+* The SAP instance directories (/usr/sap/$SID/$InstanceName/) are provided on NFS
+shares. If the instance directories are backed by local disks, additional steps
+and services downtime are needed. This is out of scope for the procedure at hand.
 .PP
 * The whole upgrade procedure is tested carefully and documented in detail before
 being applied on production.
@@ -315,7 +428,14 @@ SAP instances or infrastructure are done in parallel to the upgrade.
 * Linux cluster, SAP instances and enqueueu replication are checked and in sane
 state before set back into production.
 .PP
-* Password-less login for user root between cluster nodes.
+* Password-less login for user root between cluster nodes. An upgrade is possible
+without, but would need adapted commands. 
+.PP
+* Only one SAP system (SID) per cluster. An upgrade is possible with multiple SIDs,
+but would need adapted commands.
+.PP
+* Two nodes per cluster. An upgrade is possible with three nodes, but would need
+additional commands.
 .PP
 .\"
 .SH BUGS
