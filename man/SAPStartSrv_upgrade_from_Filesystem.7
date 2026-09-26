@@ -87,7 +87,7 @@ a cluster:
 .br
 5. Names of Filesystem resources and resource groups
 .br
-6. Status of software update repository
+6. Status of packages and update repository
 .br
 7. Deviation of configuration from setup guide, if existing
 .br
@@ -184,7 +184,14 @@ group grp_EN2_ERS10 rsc_vip_EN2_ERS10 \\
  rsc_fs_EN2_ERS10 rsc_SAPInstance_EN2_ERS10 \\
 .RE
 .PP
-Status of software update repository
+Status of packages and update repository
+.PP
+.RS 2
+node1:~ # ssh rpm -q sapstartsrv-resource-agents resource-agents
+.br
+resource-agents TODO
+.br
+sapstartsrv-resource-agents TODO
 .PP
 node1:~ # zypper lr -E
 .br
@@ -255,9 +262,13 @@ node1, node2
 .RS 2
 node1:~ # zypper up sapstartsrv-resource-agents resource-agents
 .br
+node1:~ # rpm -q sapstartsrv-resource-agents resource-agents
+.br
 node1:~ # systemctl enable sapping sappong
 .PP
 node1:~ # ssh node2 "zypper up sapstartsrv-resource-agents resource-agents"
+.br
+node1:~ # ssh node2 "rpm -q sapstartsrv-resource-agents resource-agents"
 .br
 node1:~ # ssh node2 "systemctl enable sapping sappong"
 .RE
@@ -405,8 +416,10 @@ TODO
 .\"
 .SH REQUIREMENTS
 .\"
+* Packages sapstartsrv-resource-agents TODO and resource-agents TODO, or newer.
+.PP
 * OS, Linux cluster and SAP instances are matching requirements for both, the
-Filsystem resource based setup and the simple-mount setup.
+Filesystem resource based setup and the simple-mount setup.
 .PP
 * The resource configuration matches a documented setup. Even if the general
 upgrade procedure is expected to work for customised configuration, details might
@@ -425,9 +438,6 @@ the upgrade. All cluster nodes are online.
 * The SAP instances are idle during the upgrade. No other changes on OS, cluster,
 SAP instances or infrastructure are done in parallel to the upgrade.
 .PP
-* Linux cluster, SAP instances and enqueueu replication are checked and in sane
-state before set back into production.
-.PP
 * Password-less login for user root between cluster nodes. An upgrade is possible
 without, but would need adapted commands. 
 .PP
@@ -436,6 +446,9 @@ but would need adapted commands.
 .PP
 * Two nodes per cluster. An upgrade is possible with three nodes, but would need
 additional commands.
+.PP
+* Linux cluster, SAP instances and enqueueu replication are checked and in sane
+state before set back into production.
 .PP
 .\"
 .SH BUGS
