@@ -189,17 +189,19 @@ Status of packages and update repository
 .RS 2
 node1:~ # ssh rpm -q sapstartsrv-resource-agents resource-agents
 .br
-resource-agents TODO
+resource-agents 0.9.5+git.1751011207.4481e75-150000.1.24.2.x86_64
 .br
-sapstartsrv-resource-agents TODO
+sapstartsrv-resource-agents 0.9.5+git.1751011207.4481e75-150000.1.24.2.noarch
 .PP
-node1:~ # zypper lr -E
+node1:~ # zypper se --details sapstartsrv-resource-agents resource-agents | \\
+.br
+ grep -v srcpackage
 .br
  ...
 .br
-18 | ... :SLE-Module-SAP-Applications15-SP7-Updates ...
+i+ | resource-agents             ... | 4.13.0... | SLE-Product-HA...SP7-Updates
 .br
-25 | ... :SLE-Product-HA15-SP7-Updates ...
+i+ | sapstartsrv-resource-agents ... | 0.9.6+... | SLE-Module-SAP...SP7-Updates
 .br
  ...
 .PP
@@ -416,7 +418,7 @@ TODO
 .\"
 .SH REQUIREMENTS
 .\"
-* Packages sapstartsrv-resource-agents TODO and resource-agents TODO, or newer.
+* Packages sapstartsrv-resource-agents 0.9.5 and resource-agents 4.13.0, or newer.
 .PP
 * OS, Linux cluster and SAP instances are matching requirements for both, the
 Filesystem resource based setup and the simple-mount setup.
@@ -441,13 +443,15 @@ SAP instances or infrastructure are done in parallel to the upgrade.
 * Password-less login for user root between cluster nodes. An upgrade is possible
 without, but would need adapted commands. 
 .PP
-* Only one SAP system (SID) per cluster. An upgrade is possible with multiple SIDs,
-but would need adapted commands.
+* Only one SAP system (SID) per cluster. Only the ASCS and ERS instances. No
+dialog, diagnostic agent, webdispathcer, or other insances on the cluster nodes.
+An upgrade is possible with multiple SIDs or additional instances, but would need
+adapted commands.
 .PP
 * Two nodes per cluster. An upgrade is possible with three nodes, but would need
 additional commands.
 .PP
-* Linux cluster, SAP instances and enqueueu replication are checked and in sane
+* Linux cluster, SAP instances and enqueue replication are checked and in sane
 state before set back into production.
 .PP
 .\"
