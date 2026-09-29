@@ -26,7 +26,7 @@ Internal command to call.
 .br
 \fBlog\fR - write OS status into logs, see manual pages lsoflog(8), meminfolog(8),
 psauxlog(8)
-.\" TODO netstatlog(8), vmstatlog(8)
+.\" TODO netstatlog(8), vmstatlog(8), dstatelog(8)
 .br
 \fBlog+stack\fR - write OS status plus sapstartsrv stack trace
 .br
@@ -110,8 +110,8 @@ directory for sudoers config files
 default path to sapstack
 .TP
 /var/log/
-directory for OS statuts logfiles
-.\" TODO psaux.log vmstat.log meminfo.log netstat.log
+directory for OS statuts logfiles psaux.log, meminfo.log, lsof.log
+.\" TODO dstate.log, vmstat.log, netstat.log
 .TP
 /var/log/stacktrace.log
 sapstartsrv stack trace
@@ -134,8 +134,12 @@ a request for the component BC-OP-LNX-SUSE.
 \fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_SAPInstance\fP(7) ,
 \fBSAPStartSrv-alert-timeout\fP(8) , \fBcrm\fP(8) , \fBsudoers\fP(5) ,
 \fBlsoflog\fP(8) , \fBmeminfolog\fP(8) , \fBpsauxlog\fP(8) ,
-.\" TODO netstatlog(8) , vmstatlog(8) , 
+.\" TODO \fBnetstatlog\fP(8) , \fBvmstatlog\fP(8) , \fBdstatelog\fP(8) ,
 \fBgdb\fP(1) ,
+.br
+https://support.scc.suse.com/s/kb/SAPHanaController-or-SAPHanaTopology-monitor-timed-out-despite-HANA-CALL-TIMEOUT-is-set-correctly?language=en_US ,
+.br
+https://support.scc.suse.com/s/kb/Processes-in-an-Uninterruptible-Sleep-D-State-1583239339344?language=en_US ,
 .br
 https://help.sap.com/docs/SAP_NETWEAVER_AS_ABAP_752/d0739d980ecf42ae9f3b4c19e21a4b6e/a72d46b36fe94f3287a9d211b3fd6732.html ,
 .\" TODO 1964673 - C-Call stack analysis

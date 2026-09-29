@@ -6,7 +6,7 @@
 # Support:      linux@sap.com
 # License:      GNU General Public License (GPL)
 # Copyright:    (c) 2026 SUSE LLC
-# Version:      2026-08-18-09:05
+# Version:      2026-08-18T09:05
 #
 # params: cmd InstanceName
 #
@@ -22,7 +22,6 @@ InstanceName="$2"
 # params: <SID> <ARCH_KERNEL> <PID> [ <option-tree> ]
 function call_sap_stack()
 {
-    # DONE option to call with/without "-tree"
     local SID="$1" ARCH_KERNEL="$2" sPID="$3" opt_tree="$4" rc=0 sapstack_cmd="" LOG_FILE=""
     # uses global variables: logger, logger_tag 
     LOG_FILE="/var/log/sapstack.log"
@@ -77,6 +76,7 @@ function process_log()
     # TODO add when new ClusterTools2 ships
     #/usr/sbin/vmstatlog /var/log/vmstat.log
     #/usr/sbin/netstatlog /var/log/netstat.log
+    #/usr/sbin/dstatelog /var/log/dstate.log
     # wildcards do not work for lsof
     /usr/sbin/lsoflog /var/log/lsof.log "+D/tmp/ +D/usr/sap/${SID}/" 22
 }
