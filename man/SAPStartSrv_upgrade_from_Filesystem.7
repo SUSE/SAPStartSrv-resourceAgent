@@ -117,6 +117,7 @@ Ideally also all needed commands are prepared in detail.
 .PP
 This information should be collected before starting the upgrade. It should be
 done for each cluster node. See also SAPStartSrv_maintenance_examples(7).
+.br
 In this example, it is node node1, SAP system EN2, instance ASCS00, instance
 profile EN2_ASCS00_node12as, NFS server 192.168.1.1, share /export/EN2/usr-sap/ASCS00,
 mount options defaults, service pack 15-SP7, resource-agents version 4.13.0,
@@ -137,9 +138,9 @@ node1:~ # TODO
 .RS 2
 node1:~ # mount | awk '$5=="nfs" {print $1,$3}'
 .br
-192.168.1.1:/data/export/node12/EN2/sapmnt-EN2 /sapmnt/EN2
+192.168.1.1:/export/node12/EN2/sapmnt-EN2 /sapmnt/EN2
 .br
-192.168.1.1:/data/export/node12/EN2/usr-sap-EN2/ASCS00 /usr/sap/EN2/ASCS00
+192.168.1.1:/export/node12/EN2/usr-sap-EN2/ASCS00 /usr/sap/EN2/ASCS00
 .PP
 node1:~ # crm configure show rsc_fs_EN2_ASCS00 | grep "params"
 .br
@@ -207,7 +208,7 @@ resource-agents-4.13.0+git6.ae50f94f-150700.7.3.1.x86_64
 .br
 sapstartsrv-resource-agents-0.9.5+git.1751011207.4481e75-150000.1.24.2.noarch
 .PP
-node1:~ # zypper se --details sapstartsrv-resource-agents resource-agents | \\
+node1:~ # zypper se --details sapstartsrv-resource-agents resource-agents |\\
 .br
  grep -v srcpackage
 .br
@@ -232,11 +233,11 @@ The following packages are going to be upgraded:
 .PP
 \fB*\fP Checking for clean state and collecting information.
 .PP
-TODO
-see also SAPStartSrv_maintenance_examples(7).
-on one node for both nodes
+This should be done before the upgrade procedure will be started and and after
+it has been done. See also SAPStartSrv_maintenance_examples(7).
+The steps are done one node for both nodes.
 .br
-node1, node2, EN2
+Example nodes are node1 and node2, SAP system is EN2.
 .PP
 .RS 2
 node1:~ # zypper up -y -D sapstartsrv-resource-agents resource-agents
@@ -245,7 +246,7 @@ node1:~ # mount | awk '$5=="nfs" {print $1,$3}'
 .br
 node1:~ # ls -l /usr/sap/EN2/SYS/ | awk '{print $9,$11}'
 .PP
-node1:~ # ssh node2q "zypper up -y -D sapstartsrv-resource-agents resource-agents"
+node1:~ # ssh node2 "zypper up -y -D sapstartsrv-resource-agents resource-agents"
 .br
 node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
 .br
@@ -256,7 +257,7 @@ node1:~ # cs_show_ensa_status
 .PP
 \fB*\fP Setting cluster in maintenance and saving old CIB.
 .PP
-TODO on one node for the whole cluster
+The steps are done on one node for the whole cluster.
 .PP
 .RS 2
 node1:~ # crm maintenance on
@@ -266,14 +267,14 @@ node1:~ # crm configure show > /root/crm.filesystem.backup
 node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=false" |\\
 .br
  crm configure load update -
+.\" TODO check
 .RE
 .PP
 \fB*\fP Updating resource agents and enabling systemd services.
 .PP
-TODO
-on one node for both nodes
+The steps are done on one node for both nodes.
 .br
-node1, node2
+Example nodes are node1 and node2.
 .PP
 .RS 2
 node1:~ # zypper up sapstartsrv-resource-agents resource-agents
@@ -281,53 +282,72 @@ node1:~ # zypper up sapstartsrv-resource-agents resource-agents
 node1:~ # rpm -q sapstartsrv-resource-agents resource-agents
 .br
 node1:~ # systemctl enable sapping sappong
+.\" TODO systemctl start
+.\" TODO check: node1:~ # systemctl is-enabled sapping ?
 .PP
 node1:~ # ssh node2 "zypper up sapstartsrv-resource-agents resource-agents"
 .br
 node1:~ # ssh node2 "rpm -q sapstartsrv-resource-agents resource-agents"
 .br
 node1:~ # ssh node2 "systemctl enable sapping sappong"
+.\" TODO check
 .RE
 .PP
 \fB*\fP Adding SAPStartSrv resources to CIB.
 .PP
-TODO
-on one node for the whole cluster
+The steps are done on on one node for the whole cluster.
 .br
-node1, EN2, ASCS00, ERS10, node12er
+Example node is node1, SAP system EN2, SAP instances ASCS00 and ERS10, instance
+profiles EN2_ASCS00_node12as and EN2_ERS10_node12er.
 .PP
 .RS 2
 node1:~ # crm configure show type:primitive | grep "InstanceName="
 .br
-node1:~ # echo "rsc_SAPStartSrv_EN2_ASCS00 ocf:suse:SAPStartSrv params InstanceName=EN2_ASCS00_node12as" |\\
+node1:~ # echo "rsc_SAPStartSrv_EN2_ASCS00 ocf:suse:SAPStartSrv \\
+.br
+ params InstanceName=EN2_ASCS00_node12as" |\\
 .br
  crm configure load update -
 .br
-node1:~ # echo "rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv params InstanceName=EN2_ERS10_node12er" |\\
+node1:~ # echo "rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
+.br
+ params InstanceName=EN2_ERS10_node12er" |\\
 .br
  crm configure load update -
+.br
+node1:~ # crm configure show rsc_SAPStartSrv_EN2_ASCS00
+.br
+node1:~ # crm configure show rsc_SAPStartSrv_EN2_ERS10
 .PP
 node1:~ # crm configure show type:group | grep group
 .br
 node1:~ # crm configure show grp_EN2_ASCS00 > /root/crm.grp_EN2_ASCS00
 .br
-node1:~ # sed -e s/rsc_fs_EN2_ASCS00/rsc_SAPStartSrv_EN2_ASCS00/g -i /root/grp_EN2_ASCS00.crm
+node1:~ # sed -e s/rsc_fs_EN2_ASCS00/rsc_SAPStartSrv_EN2_ASCS00/g \\
+.br
+ -i /root/grp_EN2_ASCS00.crm
 .br
 node1:~ # crm configure load update /root/crm.grp_EN2_ASCS00
 .br
 node1:~ # crm configure show grp_EN2_ERS10 > /root/crm.grp_EN2_ERS10
 .br
-node1:~ # sed -e s/rsc_fs_EN2_ERS10/rsc_SAPStartSrv_EN2_ERS10/g -i /root/grp_EN2_ASCS00.crm
+node1:~ # sed -e s/rsc_fs_EN2_ERS10/rsc_SAPStartSrv_EN2_ERS10/g \\
+.br
+ -i /root/grp_EN2_ASCS00.crm
 .br
 node1:~ # crm configure load update /root/crm.grp_EN2_ERS10
+.PP
+node1:~ # crm configure show type:group
 .RE
 .PP
 \fB*\fP Adapting fstab and mounting SAP instance directories.
 .PP
-TODO
-on one node for both nodes
+The steps are done on one node for both nodes.
 .br
-node1, node2, EN2, ASCS00, ERS2, 192.168.1.1, ...
+Example nodes are node1 and node2, SAP system EN2, SAP instance ASCS00 and ERS2,
+Filesystem resources rsc_fs_EN2_ASCS00 and rsc_fs_EN2_ERS10, NFS server 192.168.1.1,
+NFS shares /export/EN2/usr-sap/ASCS00 and /export/EN2/usr-sap/ERS10, mount options
+defaults, fstab /etc/fstab.
 .PP
 .RS 2
 node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
@@ -350,6 +370,8 @@ node1:~ # cp /etc/fstab /root/fstab.backup
 .br
 node1:~ # cat /root/fstab.simple-mount >> /etc/fstab
 .br
+node1:~ # tail -2 /etc/fstab
+.br
 node1:~ # mount /usr/sap/EN2/ASCS00 ; mount /usr/sap/EN2/ERS10
 .br
 node1:~ # mount | awk '$5=="nfs" {print $1,$3}'
@@ -360,6 +382,8 @@ node1:~ # ssh node2 "cp /etc/fstab /root/fstab.backup"
 .br
 node1:~ # ssh node2 "cat /root/fstab.simple-mount >> /etc/fstab"
 .br
+node1:~ # ssh node2 "tail -2 /etc/fstab"
+.br
 node1:~ # ssh node2 "mount /usr/sap/EN2/ASCS00 ; mount /usr/sap/EN2/ERS10"
 .br
 node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
@@ -367,8 +391,10 @@ node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
 .PP
 \fB*\fP Removing Filesystem resources from CIB.
 .PP
-TODO
-node1, EN2, ASCS00, ERS10, ...
+The steps are done on one node for the whole cluster.
+.br
+Example node is node1, SAP system EN2, SAP instances ASCS00 and ERS10,
+Filesystem resources rsc_fs_EN2_ASCS00 and rsc_fs_EN2_ERS10. 
 .PP
 .RS 2
 node1:~ # cibadmin --delete --xpath \
@@ -378,12 +404,9 @@ node1:~ # cibadmin --delete --xpath \
     "//resource[@id='rsc_fs_EN2_ASCS00']"
 .RE
 .PP
-\fB*\fP Getting cluster out of maintenance and  saving new CIB.
+\fB*\fP Getting cluster out of maintenance and saving new CIB.
 .PP
-TODO
-on one node for the whole cluster
-.br
-node1
+The steps are done on one node on one node for the whole cluster.
 .PP
 .RS 2
 node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=true" |\\
