@@ -1,6 +1,6 @@
-.\" Version: 0.9.5
+.\" Version: 0.9.6
 .\"
-.TH SAPStartSrv_upgrade_from_Filesystem 7 "24 Sep 2026" "" "SAPStartSrv"
+.TH SAPStartSrv_upgrade_from_Filesystem 7 "26 Sep 2026" "" "SAPStartSrv"
 .\"
 .SH NAME
 .\"
@@ -14,11 +14,9 @@ SAPStartSrv_upgrade_from_Filesystem \- upgrade from Filesystem to SAPStartSrv
 It is about upgrading an HA cluster for SAP central service instances from the
 Filesystem resource based setup to the simple-mount setup.
 .PP
-Instead several filesystems per SAP system plus additional filesystems per SAP
-instance, the simple-mount setup only needs a minimum.
-And these filesystems do not need to be controlled and switched-over by the Linux
-cluster. All filesystems are statically mounted at all nodes at system boot,
-backed by central NFS shares.
+Instead of having the cluster managing filesystems per SAP instance, the simple-mount
+setup uses statically mounted filesystems. These filesystems are mounted at all nodes
+at system boot, backed by central NFS shares.
 .PP
 The cluster controls the start and stop of the SAP start framework of each SAP
 instance and controls and monitors the SAP instances. See manual page
@@ -477,10 +475,10 @@ filesystem table, for statically mounted NFS shares
 SAP instance directories, f.e. /usr/sap/EN2/ASCS00/
 .TP
 /usr/sap/$SID/SYS/
-TODO
+SAP system central local directory
 .TP
 /sapmnt/$SID/
-TODO
+SAP system central shared NFS directory
 .PP
 .\"
 .SH REQUIREMENTS
