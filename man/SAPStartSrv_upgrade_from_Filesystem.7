@@ -1,6 +1,6 @@
-.\" Version: 0.9.5
+.\" Version: 0.9.6
 .\"
-.TH SAPStartSrv_upgrade_from_Filesystem 7 "24 Sep 2026" "" "SAPStartSrv"
+.TH SAPStartSrv_upgrade_from_Filesystem 7 "26 Sep 2026" "" "SAPStartSrv"
 .\"
 .SH NAME
 .\"
@@ -14,11 +14,9 @@ SAPStartSrv_upgrade_from_Filesystem \- upgrade from Filesystem to SAPStartSrv
 It is about upgrading an HA cluster for SAP central service instances from the
 Filesystem resource based setup to the simple-mount setup.
 .PP
-Instead several filesystems per SAP system plus additional filesystems per SAP
-instance, the simple-mount setup only needs a minimum.
-And these filesystems do not need to be controlled and switched-over by the Linux
-cluster. All filesystems are statically mounted at all nodes at system boot,
-backed by central NFS shares.
+Instead of having the cluster managing filesystems per SAP instance, the simple-mount
+setup uses statically mounted filesystems. These filesystems are mounted at all nodes
+at system boot, backed by central NFS shares.
 .PP
 The cluster controls the start and stop of the SAP start framework of each SAP
 instance and controls and monitors the SAP instances. See manual page
@@ -37,9 +35,9 @@ This will be changed:
 .RS 2
 a. Two systemd services sapping and sappong will be enabled.
 .br
-b. The SAP instance working directories for enqueue service (aka ASCS) and
-enqueue replicator (aka ERS) will be added to fstab on both cluster nodes, and
-mounted statically. 
+b. The SAP instance working directories for enqueue service (ASCS or SCS) and
+enqueue replicator (ERS) will be added to fstab on both cluster nodes, and mounted
+statically. 
 .br
 c. The Filesystem resources for ASCS and ERS will be removed from CIB.
 .br 
@@ -128,7 +126,11 @@ Output is shown for each command.
 1. Names of cluster nodes
 .PP
 .RS 2
-node1:~ # TODO
+node1:~ # crm configure show type:node
+.br
+node 1: node1
+.br
+node 2: node2
 .RE
 .PP
 2. Names of SAP instance directories
@@ -267,7 +269,10 @@ node1:~ # crm configure show > /root/crm.filesystem.backup
 node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=false" |\\
 .br
  crm configure load update -
-.\" TODO check
+.br
+node1:~ # crm_mon -1r | grep "Resource management"
+.br
+node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
 .RE
 .PP
 \fB*\fP Updating resource agents and enabling systemd services.
@@ -282,15 +287,24 @@ node1:~ # zypper up sapstartsrv-resource-agents resource-agents
 node1:~ # rpm -q sapstartsrv-resource-agents resource-agents
 .br
 node1:~ # systemctl enable sapping sappong
-.\" TODO systemctl start
-.\" TODO check: node1:~ # systemctl is-enabled sapping ?
+.br
+node1:~ # systemctl start sapping sappong
+.br
+node1:~ # systemctl is-enabled sapping sappong
+.br
+node1:~ # systemctl is-active sapping sappong
 .PP
 node1:~ # ssh node2 "zypper up sapstartsrv-resource-agents resource-agents"
 .br
 node1:~ # ssh node2 "rpm -q sapstartsrv-resource-agents resource-agents"
 .br
 node1:~ # ssh node2 "systemctl enable sapping sappong"
-.\" TODO check
+.br
+node1:~ # ssh node2 "systemctl start sapping sappong"
+.br
+node1:~ # ssh node2 "systemctl is-enabled sapping sappong"
+.br
+node1:~ # ssh node2 "systemctl is-active sapping sappong"
 .RE
 .PP
 \fB*\fP Adding SAPStartSrv resources to CIB.
@@ -336,7 +350,7 @@ node1:~ # sed -e s/rsc_fs_EN2_ERS10/rsc_SAPStartSrv_EN2_ERS10/g \\
  -i /root/grp_EN2_ASCS00.crm
 .br
 node1:~ # crm configure load update /root/crm.grp_EN2_ERS10
-.PP
+.br
 node1:~ # crm configure show type:group
 .RE
 .PP
@@ -347,7 +361,7 @@ The steps are done on one node for both nodes.
 Example nodes are node1 and node2, SAP system EN2, SAP instance ASCS00 and ERS2,
 Filesystem resources rsc_fs_EN2_ASCS00 and rsc_fs_EN2_ERS10, NFS server 192.168.1.1,
 NFS shares /export/EN2/usr-sap/ASCS00 and /export/EN2/usr-sap/ERS10, mount options
-defaults, fstab /etc/fstab.
+defaults.
 .PP
 .RS 2
 node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
@@ -402,6 +416,8 @@ node1:~ # cibadmin --delete --xpath \
 .br
 node1:~ # cibadmin --delete --xpath \
     "//resource[@id='rsc_fs_EN2_ASCS00']"
+.br
+node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
 .RE
 .PP
 \fB*\fP Getting cluster out of maintenance and saving new CIB.
@@ -417,23 +433,35 @@ node1:~ # crm configure show > /root/crm.simple-mount.backup
 .br
 node1:~ # crm maintenance off
 .br
+node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
+.br
 node1:~ # cs_show_ensa_status
 .RE
 .PP
-\fB*\fP Testing the ERS instance.
+\fB*\fP Testing the ERS instance (optional).
 .PP
-TODO optional
+This test might be done after the upgrade procedure has been completed. It shows
+whether the cluster can move the ERS instance to node1 and back to node2. The ASCS
+instance keeps running.
 .br
-node1, node2
+In this example, the ERS initially is running on node2.
 .PP
 .RS 2
+node1:~ # crm_mon -1r --exclude=summary
+.br
 node1:~ # ssh node2 "crm cluster stop && systemctl reboot"
 .br
-node1:~ # crm_mon -1r --exclude=summary
+node1:~ # watch -n9 "crm_mon -1r --exclude=summary"
 .PP
-node2:~ # ssh node1 "crm cluster stop && systemctl reboot"
+node1:~ # ping node2
+.PP
+node1:~ # ssh node2 "systemctl is-active sapping sappong"
 .br
-node2:~ # crm_mon -1r --exclude=summary
+node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
+.br
+node1:~ # crm cluster start --all
+.br
+node1:~ # watch -n9 "crm_mon -1r --exclude=summary"
 .RE
 .PP
 \"
@@ -443,14 +471,14 @@ node2:~ # crm_mon -1r --exclude=summary
 /etc/fstab
 filesystem table, for statically mounted NFS shares
 .TP
-/usr/sap/$SID/$InstanceName/
+/usr/sap/$SID/$Instance/
 SAP instance directories, f.e. /usr/sap/EN2/ASCS00/
 .TP
 /usr/sap/$SID/SYS/
-TODO
+SAP system central local directory
 .TP
 /sapmnt/$SID/
-TODO
+SAP system central shared NFS directory
 .PP
 .\"
 .SH REQUIREMENTS
