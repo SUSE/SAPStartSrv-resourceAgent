@@ -265,13 +265,13 @@ The steps are done on one node for the whole cluster.
 .RS 2
 node1:~ # crm maintenance on
 .br
+node1:~ # crm_mon -1r | grep "Resource management"
+.br
 node1:~ # crm configure show > /root/crm.filesystem.backup
 .br
 node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=false" |\\
 .br
  crm configure load update -
-.br
-node1:~ # crm_mon -1r | grep "Resource management"
 .br
 node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
 .RE
@@ -412,11 +412,9 @@ Example node is node1, SAP system EN2, SAP instances ASCS00 and ERS10,
 Filesystem resources rsc_fs_EN2_ASCS00 and rsc_fs_EN2_ERS10. 
 .PP
 .RS 2
-node1:~ # cibadmin --delete --xpath \
-    "//resource[@id='rsc_fs_EN2_ERS10']"
+node1:~ # cibadmin --delete --xpath "//resource[@id='rsc_fs_EN2_ERS10']"
 .br
-node1:~ # cibadmin --delete --xpath \
-    "//resource[@id='rsc_fs_EN2_ASCS00']"
+node1:~ # cibadmin --delete --xpath "//resource[@id='rsc_fs_EN2_ASCS00']"
 .br
 node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
 .RE
