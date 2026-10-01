@@ -17,18 +17,18 @@ Filesystem resource based setup with shared disk to the simple-mount setup.
 The upgrade is done in two phases:
 .PP
 .RS 2
-1. Change the Filsystem based setup from shared disks to NFS shares,
-.br
-   described in this manual page.
+.TP
+1st: Change the Filsystem based setup from shared disks to NFS shares,
+ described in this manual page.
 .PP
-2. Upgrade from filesystem based setup to simple-mount setup,
-.br
-   described in SAPStartSrv_upgrade_from_Filesystem(7).
+.TP
+2nd: Upgrade from filesystem based setup to simple-mount setup,
+described in SAPStartSrv_upgrade_from_Filesystem(7).
 .RE
 .PP
 \fB*\fP What will be changed?
 .PP
-This will be changed during the first phase:
+This will be changed during the 1st phase:
 .PP
 .RS 2
 a. SAP instance directories will be moved from shared disk to NFS shares
@@ -36,7 +36,7 @@ a. SAP instance directories will be moved from shared disk to NFS shares
 b. Filesystem resources will changed from shared disk to NFS shares
 .RE
 .PP
-This will be changed during the second phase:
+This will be changed during the 2nd phase:
 .PP
 .RS 2
 a. Two systemd services sapping and sappong will be enabled.
@@ -130,6 +130,9 @@ Ideally also all needed commands are prepared in detail.
 .\"
 .SH EXAMPLES
 .\"
+.\" TODO: Filesystem only
+.\" TODO: simple-stack with Raid1, LVM, Filesystem
+.\" TODO: simple-stack with LVM-activate, Filesystem
 .PP
 \"
 .SH FILES
