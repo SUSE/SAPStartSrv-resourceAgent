@@ -1,0 +1,183 @@
+.\" Version: 0.9.6
+.\"
+.TH SAPStartSrv_upgrade_from_Filesystem_disk 7 "01 Oct 2026" "" "SAPStartSrv"
+.\"
+.SH NAME
+.\"
+SAPStartSrv_upgrade_from_Filesystem_disk \- upgrade from Filesystem on shared disk to SAPStartSrv
+.PP
+.\"
+.SH DESCRIPTION
+.\"
+\fB*\fP What is the upgrade about?
+.PP
+It is about upgrading an HA cluster for SAP central service instances from the
+Filesystem resource based setup with shared disk to the simple-mount setup.
+.PP
+The upgrade is done in two phases:
+.PP
+.RS 2
+1. Change the Filsystem based setup from shared disks to NFS shares,
+.br
+   described in this manual page.
+.PP
+2. Upgrade from filesystem based setup to simple-mount setup,
+.br
+   described in SAPStartSrv_upgrade_from_Filesystem(7).
+.RE
+.PP
+\fB*\fP What will be changed?
+.PP
+This will be changed during the first phase:
+.PP
+.RS 2
+a. SAP instance directories will be moved from shared disk to NFS shares
+.br
+b. Filesystem resources will changed from shared disk to NFS shares
+.RE
+.PP
+This will be changed during the second phase:
+.PP
+.RS 2
+a. Two systemd services sapping and sappong will be enabled.
+.br
+b. The SAP instance working directories for enqueue service (ASCS or SCS) and
+enqueue replicator (ERS) will be added to fstab on both cluster nodes, and mounted
+statically. 
+.br
+c. The Filesystem resources for ASCS and ERS will be removed from CIB.
+.br 
+d. Instead, SAPStartSrv resources for ASCS and ERS will be added to the CIB.
+.RE
+.PP
+\fB*\fP How does the first phase look like at a glance?
+.PP
+The first phase consists of TODO steps:
+.PP
+.RS 2
+1.1 Backing up the SAP instance directories.
+.br
+1.2 Checking for clean state, collecting information.
+.br
+1.3 Preparing shares on central NFS server.
+.PP
+2.1 Setting cluster into maintenance, saving old CIB.
+.br
+2.2 Stopping ERS instance, not resource group.
+.br
+2.3 Copying ERS instance directory to NFS share on other node.
+.br
+2.4 Unmounting disk-based ASCS instance directory.
+.br
+2.5 Adapting Filesystem resource for ERS.
+.br
+2.6 Starting ERS instance on other node.
+.PP
+\fBThe next step will bring down SAP central services.\fR
+.PP
+3.2 Stopping ASCS instance, not resource group.
+.br
+3.3 Copying ASCS instance directory to NFS share on other node.
+.br
+3.4 Unmounting disk-based ASCS instance directory.
+.br
+3.5 Adapting Filesystem resource for ASCS.
+.br
+3.6 Starting ASCS instance on other node.
+.br
+3.7 Getting cluster out of maintenance, saving new CIB.
+.PP
+4.1 Checking for clean state.
+.br
+4.2 Testing ERS instance (optional).
+.RE
+.PP
+TODO downtime
+.PP
+\fB*\fP How does the second phase look like at a glance?
+.PP
+Please refer to manual page SAPStartSrv_upgrade_from_Filesystem(7).
+.PP
+\fB*\fP What needs to be prepared upfront?
+.PP
+First, make yourself familiar with concepts, components and configuration of the
+simple-mount HA scenario for SAP central services. Refresh your knowledge of the
+Filesystem resource based HA scenario.
+.PP
+Next, the following information needs to be collected and documented before upgrading
+a cluster:
+.PP
+.RS 2
+1. Names of cluster nodes
+.br
+2. Names of SAP instance directories
+.br
+3. Names of shared disks, LVs, VGs for the SAP instance directories
+.br
+4. Names of NFS server and shares for the SAP instance directories, mount options
+.br
+5. Names of Filesystem resources and resource groups
+.br
+6. Deviation of configuration from setup guide, if existing
+.br
+7. Matching with REQUIREMENTS section below 
+.RE
+.PP
+Finally, prepare config templates with correct values for the given cluster.
+Ideally also all needed commands are prepared in detail.
+.\" TODO SAPStartSrv-upgrade-from-Filesystem-demo.8 ?
+.PP
+.\"
+.SH EXAMPLES
+.\"
+.PP
+\"
+.SH FILES
+.\"
+.TP
+/etc/fstab
+filesystem table, for statically mounted NFS shares
+.TP
+/usr/sap/$SID/$Instance/
+SAP instance directories, f.e. /usr/sap/EN2/ASCS00/
+.TP
+/usr/sap/$SID/SYS/
+SAP system central local directory
+.TP
+/sapmnt/$SID/
+SAP system central shared NFS directory
+.PP
+.\"
+.SH REQUIREMENTS
+.\"
+.PP
+.\"
+.SH BUGS
+.\"
+In case of any problem, please use your favourite SAP support process to open a
+request for the component BC-OP-LNX-SUSE.
+.\" TODO Please report any other feedback and suggestions to feedback@suse.com.
+.PP
+.\"
+.SH SEE ALSO
+.\"
+\fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_Filesystem\fP(7) ,
+\fBSAPStartSrv_basic_cluster\fP(7) , \fRSAPStartSrv_upgrade_from_Filesystem\fP(7) ,
+\fBcrm\fP(8) , \fBcibadmin\fP(8) , \fBcrm_mon\fP(8) , \fBcs_show_ensa_status\fP(8) ,
+\fBfstab\fP(5) , \fBmount\fP(8) , \fBawk\fP(1) , \fBsed\fP(1) ,
+.PP
+.\"
+.SH AUTHORS
+.\"
+F.Herschel, L.Pinne
+.PP
+.\"
+.SH COPYRIGHT
+.\"
+(c) 2026 SUSE LLC
+.br
+SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
+.br
+For details see the GNU General Public License at
+http://www.gnu.org/licenses/gpl.html
+.\"
