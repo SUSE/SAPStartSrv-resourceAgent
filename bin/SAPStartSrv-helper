@@ -76,6 +76,7 @@ function process_log()
     # TODO add when new ClusterTools2 ships
     #/usr/sbin/vmstatlog /var/log/vmstat.log
     #/usr/sbin/netstatlog /var/log/netstat.log
+    #/usr/sbin/cpustatelog /var/log/cpustate.log
     #/usr/sbin/dstatelog /var/log/dstate.log
     # wildcards do not work for lsof
     /usr/sbin/lsoflog /var/log/lsof.log "+D/tmp/ +D/usr/sap/${SID}/" 22
