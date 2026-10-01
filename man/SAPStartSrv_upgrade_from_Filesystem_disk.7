@@ -134,16 +134,45 @@ Ideally also all needed commands are prepared in detail.
 .\"
 \fB*\fP Checking for clean state, collecting information.
 .PP
+This information should be collected before starting the upgrade.
+See also SAPStartSrv_maintenance_examples(7).
+.PP
+To be done one one node for the whole cluster:
+.PP
+.RS 2
+node1:~ # cs_show_ensa_status
+.PP
+node1:~ # crm configure show type:node
+.PP
+node1:~ # crm configure show type:primitive |\\
+.br
+ grep -e "primitive.*Filesystem" -e "primitive.*lvm" -e "primitive.*Raid1" \\
+.br
+      -e "primitive.*LVM-activate"
+.PP
+node1:~ # crm configure show type:group | grep group
+.RE
+.PP
+To be done on each cluster node:
+.PP
+.RS 2
+node1:~ # ls -l /usr/sap/EN2/SYS/ | awk '{print $9,$11}'
+.br
+node1:~ # mount | awk 'TODO'
+.br
+node1:~ # df -h /usr/sap/*
+.RE
+.PP
 \fB*\fP Setting cluster in maintenance and saving old CIB.
 .PP
-The steps are done on one node for the whole cluster.
+To be done on one node for the whole cluster.
 .PP
 .RS 2
 node1:~ # crm maintenance on
 .br
 node1:~ # crm_mon -1r | grep "Resource management"
 .br
-node1:~ # crm configure show > /root/crm.filesystem.backup
+node1:~ # crm configure show > /root/crm.filesystem-disk.backup
 .br
 node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=false" |\\
 .br
@@ -156,11 +185,14 @@ node1:~ # crm configure show cib-bootstrap-options |\\
 .PP
 \fB*\fR Stopping SAP instance, not resource group.
 .PP
-ERS or ASCS instance
+To be done on the node where the SAP instance is running.
+ERS or ASCS instance.
 .br
-Example node is node2, sidadm en2adm, instance number 10 
+Example is node node2, sidadm en2adm, instance number 10.
 .PP
 .RS 2
+node2:~ # cs_show_ensa_status
+.br
 node2:~ # su - en2adm -c 'sapcontrol -nr 10 -function Stop'
 .br
 node2:~ # su - en2adm -c 'sapcontrol -nr 10 -function WaitforStopped'
@@ -170,15 +202,20 @@ node2:~ # crm resource refresh
 .PP
 \fB*\fP Copying SAP instance directory to NFS share on other node.
 .PP
-ERS or ASCS instance
+To be done on the other node node.
+ERS or ASCS instance.
 .br
-Example node2, other node node1, SID EN2, instance ERS10, NFS server 192.168.1.1,
-NFS share /export/EN2/usr-sap/ERS10, mount options defaults
+Example is node node2, other node node1, SID EN2, instance ERS10, NFS server
+192.168.1.1, NFS share /export/EN2/usr-sap/ERS10, mount options defaults
 .PP
 .RS 2
 node2:~ # ssh node1
 .br
+node2:~ # cs_show_ensa_status
+.br
 node1:~ # mount -t nfs 192.168.1.1:/export/EN2/usr-sap/ERS10 /usr/sap/EN2/ERS10/
+.br
+node1:~ # mount | grep /usr/sap/EN2/ERS10/
 .br
 node1:~ # rsync -va node2:/usr/sap/EN2/ERS10/* /usr/sap/EN2/ERS10/
 .br
@@ -189,21 +226,26 @@ node1:~ # exit
 .PP
 \fB*\fP Unmounting disk-based SAP instance directory.
 .PP
-ERS or ASCS instance
+To be done on the node where the SAP instance has been stopped manually.
+ERS or ASCS instance.
 .br
 Example node node2, SID EN2, instance ERS10
 .PP
 .RS 2
+node2:~ # cs_show_ensa_status
+.br
 node2:~ # umount /usr/sap/EN2/ERS10/
+.br
+node1:~ # mount | grep /usr/sap/EN2/ERS10/
 .br
 node2:~ # find /usr/sap/EN2/ERS10/
 .RE
 .PP
 \fB*\fR Adapting Filesystem resource.
 .PP
-ERS or ASCS instance.
 To be done on one node for the whole cluster.
-Example resource rsc_fs_EN2_ERS10, group grp_EN2_ERS10 
+ERS or ASCS instance.
+Example resource is rsc_fs_EN2_ERS10, group grp_EN2_ERS10.
 .PP
 .RS 2
 node1:~ # crm configure show type:group | grep group
@@ -213,9 +255,9 @@ node1:~ # TODO
 .PP
 \fB*\fR Removing non-needed storage stack resources.
 .PP
-ERS or ASCS instance.
 To be done on one node for the whole cluster.
-Raid1 and lvm resource. Also possible LVM-activate resource.
+ERS or ASCS instance.
+Usual resources are Raid1 and lvm, also possible LVM-activate.
 .br
 Example resources rsc_Raid1_EN2_ERS10 and rsc_lvm_EN2_ERS10, group grp_EN2_ERS10
 .PP
@@ -247,11 +289,10 @@ node1:~ # crm configure show type:primitive |\\
 .PP
 \fB*\fR Starting SAP instance on other node.
 .PP
-ERS or ASCS instance
-.br
 The instance will be started on the node where it has not been running before
 the stop, because the NFS share with the new SAP instance directory has been
 mounted there.
+ERS or ASCS instance.
 .br
 Example node is node1, sidadm en2adm, instance number 10
 .PP
@@ -269,7 +310,7 @@ node1:~ # exit
 .PP
 \fB*\fP Getting cluster out of maintenance and saving new CIB.
 .PP
-The steps are done on one node on one node for the whole cluster.
+To be done on one node for the whole cluster.
 .PP
 .RS 2
 node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=true" |\\
@@ -282,7 +323,7 @@ node1:~ # crm configure show cib-bootstrap-options |\\
 .br
 node1:~ # crm resource refresh
 .br
-node1:~ # crm configure show > /root/crm.simple-mount.backup
+node1:~ # crm configure show > /root/crm.filesystem.backup
 .br
 node1:~ # crm maintenance off
 .br
