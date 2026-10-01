@@ -17,6 +17,8 @@ Filesystem resource based setup to the simple-mount setup.
 Instead of having the cluster managing filesystems per SAP instance, the simple-mount
 setup uses statically mounted filesystems. These filesystems are mounted at all nodes
 at system boot, backed by central NFS shares.
+See also manual page SAPStartSrv_upgrade_from_Filesystem_disk(7), if shared disks are
+used.
 .PP
 The cluster controls the start and stop of the SAP start framework of each SAP
 instance and controls and monitors the SAP instances. See manual page
@@ -106,7 +108,6 @@ a cluster:
 .PP
 Finally, prepare config templates with correct values for the given cluster.
 Ideally also all needed commands are prepared in detail.
-.\" TODO SAPStartSrv-upgrade-from-Filesystem-demo.8 ?
 .PP
 .\"
 .SH EXAMPLES
@@ -493,8 +494,10 @@ upgrade procedure is expected to work for customised configuration, details migh
 need special treatment.
 .PP
 * The SAP instance directories (/usr/sap/$SID/$InstanceName/) are provided on NFS
-shares. If the instance directories are backed by local disks, additional steps
+shares. If the instance directories are backed by shared disks, additional steps
 and services downtime are needed. This is out of scope for the procedure at hand.
+See manual page SAPStartSrv_upgrade_from_Filesystem_disk(7), if shared disks are
+used.
 .PP
 * The whole upgrade procedure is tested carefully and documented in detail before
 being applied on production.
@@ -531,6 +534,7 @@ request for the component BC-OP-LNX-SUSE.
 .\"
 \fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_Filesystem\fP(7) ,
 \fBSAPStartSrv_basic_cluster\fP(7) , \fBsapping\fP(7) ,
+\fBSAPStartSrv_upgrade_from_Filesystem_disk\fP(7) ,
 \fBcrm\fP(8) , \fBcibadmin\fP(8) , \fBcrm_mon\fP(8) , \fBcs_show_ensa_status\fP(8) ,
 \fBfstab\fP(5) , \fBmount\fP(8) , \fBawk\fP(1) , \fBsed\fP(1) , \fBzypper\fP(8) ,
 .PP
