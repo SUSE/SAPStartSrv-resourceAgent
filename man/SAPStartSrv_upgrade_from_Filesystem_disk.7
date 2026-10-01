@@ -18,11 +18,11 @@ The upgrade is done in two phases:
 .PP
 .RS 2
 .TP
-1st: Change the Filsystem based setup from shared disks to NFS shares,
- described in this manual page.
+1st: Changing Filesystem based setup from shared disks to NFS shares,
+described in this manual page.
 .PP
 .TP
-2nd: Upgrade from filesystem based setup to simple-mount setup,
+2nd: Upgrading from Filesystem based setup to simple-mount setup,
 described in SAPStartSrv_upgrade_from_Filesystem(7).
 .RE
 .PP
@@ -31,9 +31,10 @@ described in SAPStartSrv_upgrade_from_Filesystem(7).
 This will be changed during the 1st phase:
 .PP
 .RS 2
-a. SAP instance directories will be moved from shared disk to NFS shares
+a. SAP instance directories will be copied from shared disk to NFS shares.
 .br
-b. Filesystem resources and resource groups will changed from shared disk to NFS shares
+b. Filesystem resources and resource groups will changed from shared disk to NFS
+shares.
 .RE
 .PP
 This will be changed during the 2nd phase:
@@ -41,8 +42,8 @@ This will be changed during the 2nd phase:
 .RS 2
 a. Two systemd services sapping and sappong will be enabled.
 .br
-b. The SAP instance working directories for enqueue service (ASCS or SCS) and
-enqueue replicator (ERS) will be added to fstab on both cluster nodes, and mounted
+b. The SAP instance working directories for enqueue service (ASCS) and enqueue
+replicator (ERS) will be added to fstab on both cluster nodes, and mounted
 statically. 
 .br
 c. The Filesystem resources for ASCS and ERS will be removed from CIB.
@@ -50,9 +51,9 @@ c. The Filesystem resources for ASCS and ERS will be removed from CIB.
 d. Instead, SAPStartSrv resources for ASCS and ERS will be added to the CIB.
 .RE
 .PP
-\fB*\fP How does the first phase look like at a glance?
+\fB*\fP How does the 1st phase look like at a glance?
 .PP
-The first phase consists of TODO steps:
+The 1st phase consists of the following steps:
 .PP
 .RS 2
 1.1 Backing up the SAP instance directories.
@@ -92,9 +93,9 @@ The first phase consists of TODO steps:
 4.2 Testing ERS instance (optional).
 .RE
 .PP
-TODO downtime
+A downtime is needed for both instances, the ASCS as well as the ERS.  
 .PP
-\fB*\fP How does the second phase look like at a glance?
+\fB*\fP How does the 2nd phase look like at a glance?
 .PP
 Please refer to manual page SAPStartSrv_upgrade_from_Filesystem(7).
 .PP
@@ -125,7 +126,6 @@ a cluster:
 .PP
 Finally, prepare config templates with correct values for the given cluster.
 Ideally also all needed commands are prepared in detail.
-.\" TODO SAPStartSrv-upgrade-from-Filesystem-demo.8 ?
 .PP
 .\"
 .SH EXAMPLES
@@ -152,6 +152,9 @@ LVM configuration, if LVM-activate resources are used
 .TP
 /etc/mdadm.conf, /etc/mdadm.conf.localdevices, /clusterconf/$SID/mdadm.conf
 MD-Raid configuration, if Raid1 resources are used
+.TP
+/etc/multipath/multipath.conf, /etc/multipath/bindings
+multipath configuration, if MPIO is used
 .PP
 .\"
 .SH REQUIREMENTS
@@ -183,6 +186,9 @@ additional commands.
 .PP
 * Linux cluster, SAP instances and enqueue replication are checked and in sane
 state before set back into production.
+.PP
+* OS configuration for MPIO, MD-Raid and LVM is not changed. This is out of scope
+for the procedure at hand.
 .PP
 * See also the REQUIREMENTS section in SAPStartSrv_upgrade_from_Filesystem(7).
 .PP
