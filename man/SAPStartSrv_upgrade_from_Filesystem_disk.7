@@ -229,16 +229,24 @@ node1:~ # exit
 To be done on the node where the SAP instance has been stopped manually.
 ERS or ASCS instance.
 .br
-Example node node2, SID EN2, instance ERS10
+Example node node2, SID EN2, instance ERS10, VG TODO, MD-Raid array TODO.
 .PP
 .RS 2
 node2:~ # cs_show_ensa_status
 .br
 node2:~ # umount /usr/sap/EN2/ERS10/
 .br
-node1:~ # mount | grep /usr/sap/EN2/ERS10/
+node2:~ # mount | grep /usr/sap/EN2/ERS10/
 .br
 node2:~ # find /usr/sap/EN2/ERS10/
+.br
+node2:~ # vgchange -an TODO 
+.br
+node2:~ # lvs TODO
+.br
+node2:~ # mdadm TODO
+.br
+node2:~ # mdadm TODO
 .RE
 .PP
 \fB*\fR Adapting Filesystem resource.
@@ -334,10 +342,6 @@ node1:~ # cs_show_ensa_status
 .PP
 See manual page SAPStartSrv_upgrade_from_Filesystem(7).
 .PP
-.\" TODO: Filesystem only
-.\" TODO: simple-stack with Raid1, lvm, Filesystem
-.\" TODO: simple-stack with LVM-activate, Filesystem
-.PP
 \"
 .SH FILES
 .\"
@@ -409,7 +413,8 @@ request for the component BC-OP-LNX-SUSE.
 \fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_Filesystem\fP(7) ,
 \fBSAPStartSrv_basic_cluster\fP(7) , \fBSAPStartSrv_upgrade_from_Filesystem\fP(7) ,
 \fBcrm\fP(8) , \fBcibadmin\fP(8) , \fBcrm_mon\fP(8) , \fBcs_show_ensa_status\fP(8) ,
-\fBfstab\fP(5) , \fBmount\fP(8) , \fBawk\fP(1) , \fBsed\fP(1) ,
+\fBfstab\fP(5) , \fBmount\fP(8) , \fBvgchange\fP(8) , \fBmdadm\fR(8),
+\fBawk\fP(1) , \fBsed\fP(1) ,
 .PP
 .\"
 .SH AUTHORS
