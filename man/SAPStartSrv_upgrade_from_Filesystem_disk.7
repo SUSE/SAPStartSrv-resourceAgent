@@ -31,24 +31,24 @@ described in SAPStartSrv_upgrade_from_Filesystem(7).
 This will be changed during the 1st phase:
 .PP
 .RS 2
-a. SAP instance directories will be copied from shared disk to NFS shares.
+1.a SAP instance directories will be copied from shared disk to NFS shares.
 .br
-b. Filesystem resources and resource groups will changed from shared disk to NFS
+1.b Filesystem resources and resource groups will changed from shared disk to NFS
 shares.
 .RE
 .PP
 This will be changed during the 2nd phase:
 .PP
 .RS 2
-a. Two systemd services sapping and sappong will be enabled.
+2.a Two systemd services sapping and sappong will be enabled.
 .br
-b. The SAP instance working directories for enqueue service (ASCS) and enqueue
+2.b The SAP instance working directories for enqueue service (ASCS) and enqueue
 replicator (ERS) will be added to fstab on both cluster nodes, and mounted
 statically. 
 .br
-c. The Filesystem resources for ASCS and ERS will be removed from CIB.
+2.c The Filesystem resources for ASCS and ERS will be removed from CIB.
 .br 
-d. Instead, SAPStartSrv resources for ASCS and ERS will be added to the CIB.
+2.d Instead, SAPStartSrv resources for ASCS and ERS will be added to the CIB.
 .RE
 .PP
 \fB*\fP How does the 1st phase look like at a glance?
@@ -62,13 +62,13 @@ The 1st phase consists of the following steps:
 .br
 1.3 Preparing shares on central NFS server.
 .PP
-2.1 Setting cluster into maintenance, saving old CIB.
+2.1 Setting cluster into maintenance and saving old CIB.
 .br
 2.2 Stopping ERS instance, not resource group.
 .br
 2.3 Copying ERS instance directory to NFS share on other node.
 .br
-2.4 Unmounting disk-based ASCS instance directory.
+2.4 Unmounting disk-based ERS instance directory.
 .br
 2.5 Adapting Filesystem resource and resource group for ERS.
 .br
@@ -86,7 +86,7 @@ The 1st phase consists of the following steps:
 .br
 3.6 Starting ASCS instance on other node.
 .br
-3.7 Getting cluster out of maintenance, saving new CIB.
+3.7 Getting cluster out of maintenance and saving new CIB.
 .PP
 4.1 Checking for clean state.
 .br
@@ -130,6 +130,105 @@ Ideally also all needed commands are prepared in detail.
 .\"
 .SH EXAMPLES
 .\"
+\fB*\fP Checking for clean state, collecting information.
+.PP
+\fB*\fP Setting cluster in maintenance and saving old CIB.
+.PP
+The steps are done on one node for the whole cluster.
+.PP
+.RS 2
+node1:~ # crm maintenance on
+.br
+node1:~ # crm configure show > /root/crm.filesystem.backup
+.br
+node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=false" |\\
+.br
+ crm configure load update -
+.br
+node1:~ # crm_mon -1r | grep "Resource management"
+.br
+node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
+.RE
+.PP
+\fB*\fR Stopping SAP instance, not resource group.
+.PP
+ERS or ASCS instance
+.br
+Example node is node2, sidadm en2adm, instance number 10 
+.PP
+.RS 2
+node2:~ # su - en2adm -c 'sapcontrol -nr 10 -function Stop'
+.br
+node2:~ # su - en2adm -c 'sapcontrol -nr 10 -function WaitforStopped'
+.br
+node2:~ # crm resource refresh
+.RE
+.PP
+\fB*\fP Copying SAP instance directory to NFS share on other node.
+.PP
+ERS or ASCS instance
+.PP
+\fB*\fP Unmounting disk-based SAP instance directory.
+.PP
+ERS or ASCS instance
+.PP
+\fB*\fR Adapting Filesystem resource and resource group.
+.PP
+ERS or ASCS instance 
+.\" TODO: Filesystem only
+.\" TODO: simple-stack with Raid1, LVM, Filesystem
+.\" TODO: simple-stack with LVM-activate, Filesystem
+.PP
+\fB*\fR Removing non-needed storage stack resources.
+.PP
+Raid1, LVM-activate, LVM
+.br
+Example resource rsc_Raid1_EN2_ERS10
+.PP
+.RS 2
+node1:~ # cibadmin --delete --xpath "//resource[@id='rsc_Raid1_EN2_ERS10']"
+.br
+node1:~ # crm configure show type:primitive | grep "primitive.*Raid1"
+.RE
+.PP
+\fB*\fR Starting SAP instance on other node.
+.PP
+ERS or ASCS instance
+.br
+Example node is node1, sidadm en2adm, instance number 10
+.PP
+.RS 2
+node2:~ # su - en2adm -c 'sapcontrol -nr 10 -function Start'
+.br
+node2:~ # su - en2adm -c 'sapcontrol -nr 10 -function WaitforStarted'
+.br
+node2:~ # crm resource refresh
+.RE
+.PP
+\fB*\fP Getting cluster out of maintenance and saving new CIB.
+.PP
+The steps are done on one node on one node for the whole cluster.
+.PP
+.RS 2
+node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=true" |\\
+.br
+ crm configure load update -
+.br
+node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
+.br
+node1:~ # crm resource refresh
+.br
+node1:~ # crm configure show > /root/crm.simple-mount.backup
+.br
+node1:~ # crm maintenance off
+.br
+node1:~ # cs_show_ensa_status
+.RE
+.PP
+\fB*\fP Testing the ERS instance (optional).
+.PP
+See manual page SAPStartSrv_upgrade_from_Filesystem(7).
+.PP
 .\" TODO: Filesystem only
 .\" TODO: simple-stack with Raid1, LVM, Filesystem
 .\" TODO: simple-stack with LVM-activate, Filesystem

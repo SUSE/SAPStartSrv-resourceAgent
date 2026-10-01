@@ -430,11 +430,13 @@ node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=true" |\\
 .br
  crm configure load update -
 .br
+node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
+.br
+node1:~ # crm resource refresh
+.br
 node1:~ # crm configure show > /root/crm.simple-mount.backup
 .br
 node1:~ # crm maintenance off
-.br
-node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
 .br
 node1:~ # cs_show_ensa_status
 .RE
