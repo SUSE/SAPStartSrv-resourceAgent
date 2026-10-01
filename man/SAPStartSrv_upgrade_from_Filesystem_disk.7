@@ -370,7 +370,8 @@ multipath configuration, if MPIO is used
 * Downtime for the SAP central services is needed for this procedure.
 .PP
 * OS, Linux cluster and SAP instances are matching requirements for the
-Filesystem resource based setup.
+Filesystem resource based setup. No cluster volume manager (f.e. cLVM), cluster
+filesystem (f.e. OCFS2) or distributed lock manager (f.e. DLM) is used.
 .PP
 * The whole upgrade procedure is tested carefully and documented in detail before
 being applied on production.
