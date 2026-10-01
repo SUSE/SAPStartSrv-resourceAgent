@@ -33,7 +33,7 @@ This will be changed during the 1st phase:
 .RS 2
 a. SAP instance directories will be moved from shared disk to NFS shares
 .br
-b. Filesystem resources will changed from shared disk to NFS shares
+b. Filesystem resources and resource groups will changed from shared disk to NFS shares
 .RE
 .PP
 This will be changed during the 2nd phase:
@@ -138,9 +138,6 @@ Ideally also all needed commands are prepared in detail.
 .SH FILES
 .\"
 .TP
-/etc/fstab
-filesystem table, for statically mounted NFS shares
-.TP
 /usr/sap/$SID/$Instance/
 SAP instance directories, f.e. /usr/sap/EN2/ASCS00/
 .TP
@@ -149,6 +146,12 @@ SAP system central local directory
 .TP
 /sapmnt/$SID/
 SAP system central shared NFS directory
+.TP
+/etc/lvm/lvm.conf
+LVM configuration, if LVM-activate resources are used
+.TP
+/etc/mdadm.conf, /etc/mdadm.conf.localdevices, /clusterconf/$SID/mdadm.conf
+MD-Raid configuration, if Raid1 resources are used
 .PP
 .\"
 .SH REQUIREMENTS
