@@ -84,6 +84,34 @@ See also manual pages sudoers(5) and SAPStartSrv-alert-agent(8).
 hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPStartSrv-helper *
 .RE
 .PP
+\fB*\fR Configure supportconfig plugins for collecting alert logs.
+.PP
+See also manual page supportconfig_plugins(5).
+.PP
+.RS 2
+# vi /etc/ClusterTools2/supportconfig_plugins
+.br
+ ...
+.br
+cat_psauxlog
+.br
+cat_meminfolog
+.br
+cat_vmstatlog
+.br
+cat_lsoflog
+.br
+cat_netstatlog
+.br
+cat_cpustatelog
+.br
+cat_dstatelog
+.br
+cat_sapstacklog
+.br
+:wq
+.RE
+.PP
 \fB*\fR Testing the alert agent helper.
 .PP
 Command is "log", instance name is "P22_ERS11_p22ers".
@@ -106,6 +134,9 @@ the default agent helper
 /etc/sudoers.d/
 directory for sudoers config files
 .TP
+/etc/ClusterTools2/supportconfig_plugins
+the supportconfig plugin configuration file
+.TP
 /sapmnt/$SID/exe/uc/linux$HOSTTYPE/sapstack
 default path to sapstack
 .TP
@@ -113,7 +144,7 @@ default path to sapstack
 directory for OS statuts logfiles psaux.log, meminfo.log, lsof.log
 .\" TODO cpustate.log, dstate.log, vmstat.log, netstat.log
 .TP
-/var/log/stacktrace.log
+/var/log/sapstack.log
 sapstartsrv stack trace
 .PP
 .\"
@@ -135,7 +166,7 @@ a request for the component BC-OP-LNX-SUSE.
 \fBSAPStartSrv-alert-timeout\fP(8) , \fBcrm\fP(8) , \fBsudoers\fP(5) ,
 \fBlsoflog\fP(8) , \fBmeminfolog\fP(8) , \fBpsauxlog\fP(8) ,
 .\" TODO \fBnetstatlog\fP(8) , \fBvmstatlog\fP(8) , \fBcpustatelog\fP(8), \fBdstatelog\fP(8) ,
-\fBgdb\fP(1) ,
+\fBsupportconfig_plugins.5\fP , \fBgdb\fP(1) ,
 .br
 https://support.scc.suse.com/s/kb/SAPHanaController-or-SAPHanaTopology-monitor-timed-out-despite-HANA-CALL-TIMEOUT-is-set-correctly?language=en_US ,
 .br
