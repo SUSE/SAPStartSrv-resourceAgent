@@ -214,6 +214,8 @@ group grp_EN2_ERS10 rsc_vip_EN2_ERS10 \\
 6. Status of packages and update repository
 .PP
 .RS 2
+node1:~ # zypper in sapstartsrv-resource-agents
+.br
 node1:~ # rpm -q sapstartsrv-resource-agents resource-agents
 .PP
 resource-agents-4.13.0+git6.ae50f94f-150700.7.3.1.x86_64
@@ -302,25 +304,17 @@ node1:~ # zypper up sapstartsrv-resource-agents resource-agents
 .br
 node1:~ # rpm -q sapstartsrv-resource-agents resource-agents
 .br
-node1:~ # systemctl enable sapping sappong
+node1:~ # systemctl enable --now sapping sappong
 .br
-node1:~ # systemctl start sapping sappong
-.br
-node1:~ # systemctl is-enabled sapping sappong
-.br
-node1:~ # systemctl is-active sapping sappong
+node1:~ # systemctl status sapping sappong | grep "Loaded:.*enabled"
 .PP
 node1:~ # ssh node2 "zypper up sapstartsrv-resource-agents resource-agents"
 .br
 node1:~ # ssh node2 "rpm -q sapstartsrv-resource-agents resource-agents"
 .br
-node1:~ # ssh node2 "systemctl enable sapping sappong"
+node1:~ # ssh node2 "systemctl enable --now sapping sappong"
 .br
-node1:~ # ssh node2 "systemctl start sapping sappong"
-.br
-node1:~ # ssh node2 "systemctl is-enabled sapping sappong"
-.br
-node1:~ # ssh node2 "systemctl is-active sapping sappong"
+node1:~ # ssh node2 "systemctl status sapping sappong" | grep "Loaded:.*enabled"
 .RE
 .PP
 \fB*\fP Adding SAPStartSrv resources to CIB (step 4).
