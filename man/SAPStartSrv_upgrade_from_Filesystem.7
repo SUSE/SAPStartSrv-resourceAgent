@@ -422,6 +422,8 @@ Example node is node1, SAP system EN2, SAP instances ASCS00 and ERS10,
 Filesystem resources rsc_fs_EN2_ASCS00 and rsc_fs_EN2_ERS10. 
 .PP
 .RS 2
+node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
+.br
 node1:~ # cibadmin --delete --xpath "//resource[@id='rsc_fs_EN2_ERS10']"
 .br
 node1:~ # cibadmin --delete --xpath "//resource[@id='rsc_fs_EN2_ASCS00']"
