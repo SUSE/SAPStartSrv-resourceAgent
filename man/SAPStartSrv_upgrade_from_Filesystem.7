@@ -424,9 +424,9 @@ Filesystem resources rsc_fs_EN2_ASCS00 and rsc_fs_EN2_ERS10.
 .RS 2
 node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
 .br
-node1:~ # cibadmin --delete --xpath "//resource[@id='rsc_fs_EN2_ERS10']"
+node1:~ # cibadmin --delete --xpath "//primitive[@id='rsc_fs_EN2_ERS10']"
 .br
-node1:~ # cibadmin --delete --xpath "//resource[@id='rsc_fs_EN2_ASCS00']"
+node1:~ # cibadmin --delete --xpath "//primitive[@id='rsc_fs_EN2_ASCS00']"
 .br
 node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
 .RE
