@@ -256,6 +256,8 @@ node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
 node1:~ # ssh node2 "ls -l /usr/sap/EN2/SYS/" | awk '{print $9,$11}'
 .PP
 node1:~ # cs_show_ensa_status
+.br
+node1:~ # ssh node2 cs_show_ensa_status
 .RE
 .PP
 \fB*\fP Setting cluster in maintenance and saving old CIB (step 2).
