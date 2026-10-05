@@ -322,7 +322,8 @@ node1:~ # ssh node2 "systemctl status sapping sappong" | grep "Loaded:.*enabled"
 The steps are done on on one node for the whole cluster.
 .br
 Example node is node1, SAP system EN2, SAP instances ASCS00 and ERS10, instance
-profiles EN2_ASCS00_node12as and EN2_ERS10_node12er.
+profiles EN2_ASCS00_node12as and EN2_ERS10_node12er, resource names
+rsc_SAPStartSrv_EN2_ASCS00 and rsc_SAPStartSrv_EN2_ERS10.
 .PP
 .RS 2
 node1:~ # crm configure show type:primitive | grep "InstanceName="
