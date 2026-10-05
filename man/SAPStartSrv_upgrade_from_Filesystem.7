@@ -252,12 +252,16 @@ The steps are done one node for both nodes.
 Example nodes are node1 and node2, SAP system is EN2.
 .PP
 .RS 2
+node1:~ # zypper in sapstartsrv-resource-agents 
+.br
 node1:~ # zypper up -y -D sapstartsrv-resource-agents resource-agents
 .br
 node1:~ # mount | awk '$5=="nfs" {print $1,$3}'
 .br
 node1:~ # ls -l /usr/sap/EN2/SYS/ | awk '{print $9,$11}'
 .PP
+node1:~ # ssh node2 "zypper in sapstartsrv-resource-agents"
+.br
 node1:~ # ssh node2 "zypper up -y -D sapstartsrv-resource-agents resource-agents"
 .br
 node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
