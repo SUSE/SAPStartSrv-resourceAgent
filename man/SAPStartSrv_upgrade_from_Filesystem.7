@@ -328,13 +328,13 @@ rsc_SAPStartSrv_EN2_ASCS00 and rsc_SAPStartSrv_EN2_ERS10.
 .RS 2
 node1:~ # crm configure show type:primitive | grep "InstanceName="
 .br
-node1:~ # echo "rsc_SAPStartSrv_EN2_ASCS00 ocf:suse:SAPStartSrv \\
+node1:~ # echo "primitive rsc_SAPStartSrv_EN2_ASCS00 ocf:suse:SAPStartSrv \\
 .br
  params InstanceName=EN2_ASCS00_node12as" |\\
 .br
  crm configure load update -
 .br
-node1:~ # echo "rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
+node1:~ # echo "primitive rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
 .br
  params InstanceName=EN2_ERS10_node12er" |\\
 .br
