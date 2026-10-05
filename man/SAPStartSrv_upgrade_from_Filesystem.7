@@ -112,7 +112,7 @@ Ideally also all needed commands are prepared in detail.
 .\"
 .SH EXAMPLES
 .\"
-\fB*\fP Collecting information on one node.
+\fB*\fP Collecting information for one node, to be prepared upfront.
 .PP
 This information should be collected before starting the upgrade. It should be
 done for each cluster node. See also SAPStartSrv_maintenance_examples(7).
@@ -234,7 +234,7 @@ The following packages are going to be upgraded:
  ...
 .RE
 .PP
-\fB*\fP Checking for clean state and collecting information.
+\fB*\fP Checking for clean state and collecting information (step 1).
 .PP
 This should be done before the upgrade procedure will be started and and after
 it has been done. See also SAPStartSrv_maintenance_examples(7).
@@ -258,7 +258,7 @@ node1:~ # ssh node2 "ls -l /usr/sap/EN2/SYS/" | awk '{print $9,$11}'
 node1:~ # cs_show_ensa_status
 .RE
 .PP
-\fB*\fP Setting cluster in maintenance and saving old CIB.
+\fB*\fP Setting cluster in maintenance and saving old CIB (step 2).
 .PP
 The steps are done on one node for the whole cluster.
 .PP
@@ -276,7 +276,7 @@ node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=false" |\\
 node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
 .RE
 .PP
-\fB*\fP Updating resource agents and enabling systemd services.
+\fB*\fP Updating resource agents and enabling systemd services (step 3).
 .PP
 The steps are done on one node for both nodes.
 .br
@@ -308,7 +308,7 @@ node1:~ # ssh node2 "systemctl is-enabled sapping sappong"
 node1:~ # ssh node2 "systemctl is-active sapping sappong"
 .RE
 .PP
-\fB*\fP Adding SAPStartSrv resources to CIB.
+\fB*\fP Adding SAPStartSrv resources to CIB (step 4).
 .PP
 The steps are done on on one node for the whole cluster.
 .br
@@ -355,7 +355,7 @@ node1:~ # crm configure load update /root/crm.grp_EN2_ERS10
 node1:~ # crm configure show type:group
 .RE
 .PP
-\fB*\fP Adapting fstab and mounting SAP instance directories.
+\fB*\fP Adapting fstab and mounting SAP instance directories (step 5).
 .PP
 The steps are done on one node for both nodes.
 .br
@@ -404,7 +404,7 @@ node1:~ # ssh node2 "mount /usr/sap/EN2/ASCS00 ; mount /usr/sap/EN2/ERS10"
 node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
 .RE
 .PP
-\fB*\fP Removing Filesystem resources from CIB.
+\fB*\fP Removing Filesystem resources from CIB (step 6).
 .PP
 The steps are done on one node for the whole cluster.
 .br
@@ -419,7 +419,7 @@ node1:~ # cibadmin --delete --xpath "//resource[@id='rsc_fs_EN2_ASCS00']"
 node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
 .RE
 .PP
-\fB*\fP Getting cluster out of maintenance and saving new CIB.
+\fB*\fP Getting cluster out of maintenance and saving new CIB (step 7).
 .PP
 The steps are done on one node on one node for the whole cluster.
 .PP
@@ -439,7 +439,11 @@ node1:~ # crm maintenance off
 node1:~ # cs_show_ensa_status
 .RE
 .PP
-\fB*\fP Testing the ERS instance (optional).
+\fB*\fP Checking for clean state (step 8).
+.PP
+See example above: "Checking for clean state and collecting information (step 1)."
+.PP
+\fB*\fP Testing the ERS instance (optional, step 9).
 .PP
 This test might be done after the upgrade procedure has been completed. It shows
 whether the cluster can move the ERS instance to node1 and back to node2. The ASCS
