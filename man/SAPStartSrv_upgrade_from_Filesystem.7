@@ -433,7 +433,7 @@ node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
 .PP
 \fB*\fP Getting cluster out of maintenance and saving new CIB (step 7).
 .PP
-The steps are done on one node on one node for the whole cluster.
+The steps are done on one node for the whole cluster.
 .PP
 .RS 2
 node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=true" |\\
@@ -449,6 +449,8 @@ node1:~ # crm configure show > /root/crm.simple-mount.backup
 node1:~ # crm maintenance off
 .br
 node1:~ # cs_show_ensa_status
+.br
+node1:~ # ssh node2 "cs_show_ensa_status"
 .RE
 .PP
 \fB*\fP Checking for clean state (step 8).
