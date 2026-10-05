@@ -54,28 +54,32 @@ SAP system directory (/usr/sap/$SID/), backed by one common NFS share.
 .PP
 \fB*\fP How does the upgrade procedure look like at a glance?
 .PP
-The upgrade procedure consists of nine steps:
+The upgrade procedure consists of ten steps:
 .PP
 .RS 2
-1. Checking for clean state and collecting information.
+Step 1 - Checking for clean state and collecting information.
 .br
-2. Setting cluster in maintenance and saving old CIB.
+Step 2 - Setting cluster in maintenance and saving old CIB.
 .br
-3. Updating resource agents and enabling systemd services.
+Step 3 - Updating resource agents and enabling systemd services.
 .br
-4. Adding SAPStartSrv resources to CIB.
+Step 4 - Adapting fstab and mounting SAP instance directories.
 .br
-5. Adapting fstab and mounting SAP instance directories.
+Step 5 - Adding SAPStartSrv resources to CIB.
 .br
-6. Removing Filesystem resources from CIB.
+Step 6 - Adapting SAPInstance resources in CIB.
 .br
-7. Getting cluster out of maintenance and saving new CIB.
+Step 7 - Removing Filesystem resources from CIB.
 .br
-8. Checking for clean state.
+Step 8 - Getting cluster out of maintenance and saving new CIB.
 .br
-9. Testing the ERS instance (optional).
+Step 9 - Checking for clean state.
+.br
+Step 10 - Testing the ERS instance (optional).
 .RE
 .PP
+Detailed examples for all steps are given in the EXAMPLES section below.
+.br
 Linux cluster and SAP central services (ASCS) are kept running. However, resource
 management is disabled and the system goes thru fragile states during the upgrade.
 .PP
@@ -182,13 +186,13 @@ params InstanceName=EN2_ASCS00_node12as \\
 .br
  START_PROFILE="/sapmnt/EN2/profile/EN2_ASCS00_node12as" \\
 .br
- AUTOMATIC_RECOVER=False \\
+ AUTOMATIC_RECOVER=False MINIMAL_PROBE=true \\
 .br
 params InstanceName=EN2_ERS10_node12er \\
 .br
  START_PROFILE="/sapmnt/EN2/profile/EN2_ERS10_node12er" \\
 .br
- AUTOMATIC_RECOVER=False IS_ERS=True \\
+ AUTOMATIC_RECOVER=False IS_ERS=True MINIMAL_PROBE=true \\
 .RE
 .PP
 5. Names of Filesystem resources and resource groups
@@ -245,11 +249,11 @@ The following packages are going to be upgraded:
  ...
 .RE
 .PP
-\fB*\fP Checking for clean state and collecting information (step 1).
+\fB*\fP Step 1 - Checking for clean state and collecting information.
 .PP
 This should be done before the upgrade procedure will be started and and after
 it has been done. See also SAPStartSrv_maintenance_examples(7).
-The steps are done one node for both nodes.
+To be done on one node for both nodes.
 .br
 Example nodes are node1 and node2, SAP system is EN2.
 .PP
@@ -275,9 +279,9 @@ node1:~ # cs_show_ensa_status
 node1:~ # ssh node2 "cs_show_ensa_status"
 .RE
 .PP
-\fB*\fP Setting cluster in maintenance and saving old CIB (step 2).
+\fB*\fP Step 2 - Setting cluster in maintenance and saving old CIB.
 .PP
-The steps are done on one node for the whole cluster.
+To be done on one node for the whole cluster.
 .PP
 .RS 2
 node1:~ # crm maintenance on
@@ -293,9 +297,9 @@ node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=false" |\\
 node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
 .RE
 .PP
-\fB*\fP Updating resource agents and enabling systemd services (step 3).
+\fB*\fP Step 3 - Updating resource agents and enabling systemd services.
 .PP
-The steps are done on one node for both nodes.
+To be done on one node for both nodes.
 .br
 Example nodes are node1 and node2.
 .PP
@@ -317,57 +321,9 @@ node1:~ # ssh node2 "systemctl enable --now sapping sappong"
 node1:~ # ssh node2 "systemctl status sapping sappong" | grep "Loaded:.*enabled"
 .RE
 .PP
-\fB*\fP Adding SAPStartSrv resources to CIB (step 4).
+\fB*\fP Step 4 - Adapting fstab and mounting SAP instance directories.
 .PP
-The steps are done on on one node for the whole cluster.
-.br
-Example node is node1, SAP system EN2, SAP instances ASCS00 and ERS10, instance
-profiles EN2_ASCS00_node12as and EN2_ERS10_node12er, resource names
-rsc_SAPStartSrv_EN2_ASCS00 and rsc_SAPStartSrv_EN2_ERS10.
-.PP
-.RS 2
-node1:~ # crm configure show type:primitive | grep "InstanceName="
-.br
-node1:~ # echo "primitive rsc_SAPStartSrv_EN2_ASCS00 ocf:suse:SAPStartSrv \\
-.br
- params InstanceName=EN2_ASCS00_node12as" |\\
-.br
- crm configure load update -
-.br
-node1:~ # echo "primitive rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
-.br
- params InstanceName=EN2_ERS10_node12er" |\\
-.br
- crm configure load update -
-.br
-node1:~ # crm configure show rsc_SAPStartSrv_EN2_ASCS00
-.br
-node1:~ # crm configure show rsc_SAPStartSrv_EN2_ERS10
-.PP
-node1:~ # crm configure show type:group | grep group
-.br
-node1:~ # crm configure show grp_EN2_ASCS00 > /root/crm.grp_EN2_ASCS00
-.br
-node1:~ # sed -e s/rsc_fs_EN2_ASCS00/rsc_SAPStartSrv_EN2_ASCS00/g \\
-.br
- -i /root/crm.grp_EN2_ASCS00
-.br
-node1:~ # crm configure load update /root/crm.grp_EN2_ASCS00
-.br
-node1:~ # crm configure show grp_EN2_ERS10 > /root/crm.grp_EN2_ERS10
-.br
-node1:~ # sed -e s/rsc_fs_EN2_ERS10/rsc_SAPStartSrv_EN2_ERS10/g \\
-.br
- -i /root/crm.grp_EN2_ERS10
-.br
-node1:~ # crm configure load update /root/crm.grp_EN2_ERS10
-.br
-node1:~ # crm configure show type:group
-.RE
-.PP
-\fB*\fP Adapting fstab and mounting SAP instance directories (step 5).
-.PP
-The steps are done on one node for both nodes.
+To be done on one node for both nodes.
 .br
 Example nodes are node1 and node2, SAP system EN2, SAP instance ASCS00 and ERS2,
 Filesystem resources rsc_fs_EN2_ASCS00 and rsc_fs_EN2_ERS10, NFS server 192.168.1.1,
@@ -414,9 +370,73 @@ node1:~ # ssh node2 "mount /usr/sap/EN2/ASCS00 ; mount /usr/sap/EN2/ERS10"
 node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
 .RE
 .PP
-\fB*\fP Removing Filesystem resources from CIB (step 6).
+\fB*\fP Step 5 - Adding SAPStartSrv resources to CIB.
 .PP
-The steps are done on one node for the whole cluster.
+To be done on one node for the whole cluster.
+.br
+Example node is node1, SAP system EN2, SAP instances ASCS00 and ERS10, instance
+profiles EN2_ASCS00_node12as and EN2_ERS10_node12er, resource names
+rsc_SAPStartSrv_EN2_ASCS00 and rsc_SAPStartSrv_EN2_ERS10.
+.PP
+.RS 2
+node1:~ # crm configure show type:primitive | grep "InstanceName="
+.br
+node1:~ # echo "primitive rsc_SAPStartSrv_EN2_ASCS00 ocf:suse:SAPStartSrv \\
+.br
+ params InstanceName=EN2_ASCS00_node12as" |\\
+.br
+ crm configure load update -
+.br
+node1:~ # echo "primitive rsc_SAPStartSrv_EN2_ERS10 ocf:suse:SAPStartSrv \\
+.br
+ params InstanceName=EN2_ERS10_node12er" |\\
+.br
+ crm configure load update -
+.br
+node1:~ # crm configure show rsc_SAPStartSrv_EN2_ASCS00
+.br
+node1:~ # crm configure show rsc_SAPStartSrv_EN2_ERS10
+.PP
+node1:~ # crm configure show type:group | grep group
+.br
+node1:~ # crm configure show grp_EN2_ASCS00 > /root/crm.grp_EN2_ASCS00
+.br
+node1:~ # sed -e s/rsc_fs_EN2_ASCS00/rsc_SAPStartSrv_EN2_ASCS00/g \\
+.br
+ -i /root/crm.grp_EN2_ASCS00
+.br
+node1:~ # crm configure load update /root/crm.grp_EN2_ASCS00
+.br
+node1:~ # crm configure show grp_EN2_ERS10 > /root/crm.grp_EN2_ERS10
+.br
+node1:~ # sed -e s/rsc_fs_EN2_ERS10/rsc_SAPStartSrv_EN2_ERS10/g \\
+.br
+ -i /root/crm.grp_EN2_ERS10
+.br
+node1:~ # crm configure load update /root/crm.grp_EN2_ERS10
+.br
+node1:~ # crm configure show type:group
+.RE
+.PP
+\fB*\fP Step 6 - Adapting SAPInstance resources in CIB.
+.PP
+To be done on one node for the whole cluster.
+.br
+Example resources are rsc_SAPInstance_EN2_ASCS00 and rsc_SAPInstance_EN2_ERS10.
+.PP
+.RS 2
+node1:~ # crm configure show type:primitive | grep "primitive.*SAPInstance"
+.br
+node1:~ # crm resource param rsc_SAPInstance_EN2_ASCS00 set MINIMAL_PROBE true
+.br
+node1:~ # crm resource param rsc_SAPInstance_EN2_ERS10 set MINIMAL_PROBE true
+.br
+node1:~ # crm configure show type:primitive | grep MINIMAL_PROBE
+.RE
+.PP
+\fB*\fP Step 7 -Removing Filesystem resources from CIB.
+.PP
+To be done on one node for the whole cluster.
 .br
 Example node is node1, SAP system EN2, SAP instances ASCS00 and ERS10,
 Filesystem resources rsc_fs_EN2_ASCS00 and rsc_fs_EN2_ERS10. 
@@ -431,9 +451,9 @@ node1:~ # cibadmin --delete --xpath "//primitive[@id='rsc_fs_EN2_ASCS00']"
 node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
 .RE
 .PP
-\fB*\fP Getting cluster out of maintenance and saving new CIB (step 7).
+\fB*\fP Step 8 - Getting cluster out of maintenance and saving new CIB.
 .PP
-The steps are done on one node for the whole cluster.
+To be done on one node for the whole cluster.
 .PP
 .RS 2
 node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=true" |\\
@@ -455,15 +475,16 @@ node1:~ # cs_show_ensa_status
 node1:~ # ssh node2 "cs_show_ensa_status"
 .RE
 .PP
-\fB*\fP Checking for clean state (step 8).
+\fB*\fP Step 9 - Checking for clean state..
 .PP
 See example above: "Checking for clean state and collecting information (step 1)."
 .PP
-\fB*\fP Testing the ERS instance (optional, step 9).
+\fB*\fP Step 10 - Testing the ERS instance (optional).
 .PP
 This test might be done after the upgrade procedure has been completed. It shows
 whether the cluster can move the ERS instance to node1 and back to node2. The ASCS
 instance keeps running.
+To be done on one node for the whole cluster.
 .br
 In this example, the ERS initially is running on node2.
 .PP
