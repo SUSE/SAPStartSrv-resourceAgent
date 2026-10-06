@@ -540,7 +540,9 @@ node1:~ # watch -n9 "crm_mon -1r --exclude=summary"
 .PP
 node1:~ # ping node2
 .PP
-node1:~ # ssh node2 "systemctl is-active sapping sappong"
+node1:~ # ssh node2 "systemctl status sapping sappong" |\\
+.br
+ grep "Loaded:.*enabled"
 .br
 node1:~ # ssh node2 "mount" | awk '$5=="nfs" {print $1,$3}'
 .br
