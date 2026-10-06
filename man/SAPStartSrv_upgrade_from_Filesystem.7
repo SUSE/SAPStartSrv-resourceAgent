@@ -152,7 +152,9 @@ node1:~ # mount | awk '$5=="nfs" {print $1,$3}'
 .br
 192.168.1.1:/export/node12/EN2/usr-sap-EN2/ASCS00 /usr/sap/EN2/ASCS00
 .PP
-node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
+node1:~ # crm configure show type:primitive |\\
+.br
+ grep "primitive.*Filesystem"
 .PP
 primitive rsc_fs_EN2_ASCS00 Filesystem \\
 .br
@@ -180,7 +182,9 @@ src
 4. Names of SAP instance profiles
 .PP
 .RS 2
-node1:~ # crm configure show type:primitive | grep "InstanceName="
+node1:~ # crm configure show type:primitive |\\
+.br
+ grep "InstanceName="
 .PP
 params InstanceName=EN2_ASCS00_node12as \\
 .br
@@ -198,7 +202,9 @@ params InstanceName=EN2_ERS10_node12er \\
 5. Names of Filesystem resources and resource groups
 .PP
 .RS 2
-node1:~ # crm configure show type:primitive | grep "primitive.*Filesystem"
+node1:~ # crm configure show type:primitive |\\
+.br
+ grep "primitive.*Filesystem"
 .PP
 primitive rsc_fs_EN2_ASCS00 Filesystem \\
 .br
@@ -230,9 +236,9 @@ node1:~ # zypper se --details sapstartsrv-resource-agents resource-agents |\\
 .PP
  ...
 .br
-i+ | resource-agents             ... | 4.13.0... | SLE-Product-HA...SP7-Updates
+i+ | resource-agents             ...| 4.13.0...| SLE-Product-HA...SP7-Updates
 .br
-i+ | sapstartsrv-resource-agents ... | 0.9.6+... | SLE-Module-SAP...SP7-Updates
+i+ | sapstartsrv-resource-agents ...| 0.9.6+...| SLE-Module-SAP...SP7-Updates
 .br
  ...
 .PP
@@ -247,20 +253,35 @@ The following packages are going to be upgraded:
  ...
 .RE
 .PP
+.\" .TS
+.\" allbox tab(@);
+.\" l l.
+.\" Parameter@Value(s)
+.\" Names of cluster nodes:@___________________________________________________
+.\" SAP instance directories:@___________________________________________________
+.\" NFS server:@___________________________________________________
+.\" NFS shares:@___________________________________________________
+.\" NFS mount options:@___________________________________________________
+.\" SAP instance profiles:@___________________________________________________
+.\" Filesystem resources:@___________________________________________________
+.\" resource groups:@___________________________________________________
+.\" .TE
+.\" .PP
 .TS
-box tab(@);
+allbox tab(@);
 l l.
-Parameter@Value(s)
--
-Names of cluster nodes:@___________________________________________________
-SAP instance directories:@___________________________________________________
-NFS server:@___________________________________________________
-NFS shares:@___________________________________________________
-NFS mount options:@___________________________________________________
-SAP instance profiles:@___________________________________________________
-Filesystem resources:@___________________________________________________
-resource groups:@___________________________________________________
+Parameter@Value(s)                                .\"    
+Names of cluster nodes@
+SAP instance directories@
+NFS server@
+NFS shares@
+NFS mount options@
+SAP instance profiles@
+Filesystem resources@
+resource groups@
 .TE
+.PP
+A table might be useful for documenting the needed parameters.
 .PP
 \fB*\fP Installing software package sapstartsrv-resource-agents.
 .PP
@@ -333,7 +354,9 @@ node1:~ # rpm -q sapstartsrv-resource-agents resource-agents
 .br
 node1:~ # systemctl enable --now sapping sappong
 .br
-node1:~ # systemctl status sapping sappong | grep "Loaded:.*enabled"
+node1:~ # systemctl status sapping sappong |\\
+.br
+ grep "Loaded:.*enabled"
 .PP
 node1:~ # ssh node2 "zypper up sapstartsrv-resource-agents resource-agents"
 .br
@@ -341,7 +364,9 @@ node1:~ # ssh node2 "rpm -q sapstartsrv-resource-agents resource-agents"
 .br
 node1:~ # ssh node2 "systemctl enable --now sapping sappong"
 .br
-node1:~ # ssh node2 "systemctl status sapping sappong" | grep "Loaded:.*enabled"
+node1:~ # ssh node2 "systemctl status sapping sappong" |\\
+.br
+ grep "Loaded:.*enabled"
 .RE
 .PP
 \fB*\fP Step 4 - Adapting fstab and mounting SAP instance directories.
@@ -481,7 +506,9 @@ To be done on one node for the whole cluster.
 .RS 2
 node1:~ # crm configure property stop-orphan-resources=true 
 .br
-node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
+node1:~ # crm configure show cib-bootstrap-options |\\
+.br
+ grep stop-orphan-resources
 .br
 node1:~ # crm resource refresh ; cs_wait_for_idle -s 3
 .br
@@ -498,13 +525,13 @@ node1:~ # ssh node2 "cs_show_ensa_status"
 .PP
 \fB*\fP Step 9 - Checking for clean state..
 .PP
-See example above: "Checking for clean state and collecting information (step 1)."
+See example above: "Step 1 - Checking for clean state and collecting information."
 .PP
 \fB*\fP Step 10 - Testing the ERS instance (optional).
 .PP
 This test might be done after the upgrade procedure has been completed. It shows
-whether the cluster can move the ERS instance to node1 and back to node2. The ASCS
-instance keeps running.
+whether the cluster can move the ERS instance to node1 and back to node2. The
+ASCS instance keeps running.
 To be done on one node for the whole cluster.
 .br
 In this example, the ERS initially is running on node2.
@@ -552,8 +579,8 @@ SAP system central shared NFS directory
 Filesystem resource based setup and the simple-mount setup.
 .PP
 * The resource configuration matches a documented setup. Even if the general
-upgrade procedure is expected to work for customised configuration, details might
-need special treatment.
+upgrade procedure is expected to work for customised configuration, details
+might need special treatment.
 .PP
 * The SAP instance directories (/usr/sap/$SID/$InstanceName/) are provided on NFS
 shares. If the instance directories are backed by shared disks, additional steps
