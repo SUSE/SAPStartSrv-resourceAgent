@@ -1,14 +1,14 @@
 #!/bin/bash
 #
-# SAPHanaSR-alert-timeout
+# SAPStartSrv-alert-timeout
 #
 # Author:       F.Herschel, L.Pinne, 2026
 # Support:      linux@sap.com
 # License:      GNU General Public License (GPL)
 # Copyright:    (c) 2026 SUSE LLC
-# Version:	    2026-08-20-09:40
+# Version:	    2026-08-20_09:40
 #
-# crm configure alert resources-1 "/usr/bin/SAPHanaSR-alert-timeout" select resources attributes alert_sid=EN2 alert_ino=00 alert_cmd="/bin/true"
+# crm configure alert resources-1 "/usr/bin/SAPStartSrv-alert-timeout" select resources attributes alert_sid=EN2 alert_ino=00 alert_cmd="/bin/true"
 # TODO: timeout 30s default okay?
 #
 
