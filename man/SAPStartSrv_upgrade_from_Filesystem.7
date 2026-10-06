@@ -253,6 +253,7 @@ The following packages are going to be upgraded:
  ...
 .RE
 .PP
+.RS 2
 .TS
 allbox tab(@);
 l l.
@@ -273,6 +274,7 @@ ERS resource group@
 .TE
 .PP
 A table might be useful for documenting the needed parameters.
+.RE
 .PP
 \fB*\fP Installing software package sapstartsrv-resource-agents.
 .PP
@@ -329,7 +331,9 @@ node1:~ # crm configure show > /root/crm.filesystem.backup
 .br
 node1:~ # crm configure property stop-orphan-resources=false
 .br
-node1:~ # crm configure show cib-bootstrap-options | grep stop-orphan-resources
+node1:~ # crm configure show cib-bootstrap-options |\\
+.br
+ grep stop-orphan-resources
 .RE
 .PP
 \fB*\fP Step 3 - Updating resource agents and enabling systemd services.
