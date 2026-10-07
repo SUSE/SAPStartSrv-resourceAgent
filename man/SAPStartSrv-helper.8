@@ -25,8 +25,7 @@ Internal command to call.
 \fBall\fR - run all implemented commands
 .br
 \fBlog\fR - write OS status into logs, see manual pages lsoflog(8), meminfolog(8),
-psauxlog(8)
-.\" TODO netstatlog(8), vmstatlog(8), dstatelog(8)
+psauxlog(8), netstatlog(8), vmstatlog(8), dstatelog(8)
 .br
 \fBlog+stack\fR - write OS status plus sapstartsrv stack trace
 .br
@@ -141,8 +140,8 @@ the supportconfig plugin configuration file
 default path to sapstack
 .TP
 /var/log/
-directory for OS statuts logfiles psaux.log, meminfo.log, lsof.log
-.\" TODO cpustate.log, dstate.log, vmstat.log, netstat.log
+directory for OS statuts logfiles psaux.log, meminfo.log, lsof.log,
+cpustate.log, dstate.log, vmstat.log, netstat.log
 .TP
 /var/log/sapstack.log
 sapstartsrv stack trace
@@ -165,7 +164,7 @@ a request for the component BC-OP-LNX-SUSE.
 \fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_SAPInstance\fP(7) ,
 \fBSAPStartSrv-alert-timeout\fP(8) , \fBcrm\fP(8) , \fBsudoers\fP(5) ,
 \fBlsoflog\fP(8) , \fBmeminfolog\fP(8) , \fBpsauxlog\fP(8) ,
-.\" TODO \fBnetstatlog\fP(8) , \fBvmstatlog\fP(8) , \fBcpustatelog\fP(8), \fBdstatelog\fP(8) ,
+\fBnetstatlog\fP(8) , \fBvmstatlog\fP(8) , \fBcpustatelog\fP(8), \fBdstatelog\fP(8) ,
 \fBsupportconfig_plugins.5\fP , \fBgdb\fP(1) ,
 .br
 https://support.scc.suse.com/s/kb/SAPHanaController-or-SAPHanaTopology-monitor-timed-out-despite-HANA-CALL-TIMEOUT-is-set-correctly?language=en_US ,
