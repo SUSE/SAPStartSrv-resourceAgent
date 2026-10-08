@@ -59,6 +59,7 @@ jobs:
       run: git config --global --add safe.directory $(pwd)
     - name: deliver package
       run: |
+        sed -i 's~mode="manual"~mode="disabled"~' _service && \
         sed -i 's~%%VERSION%%~${{ github.sha }}~' _service && \
         sed -i 's~%%REPOSITORY%%~${{ github.repository }}~' _service && \
         /scripts/upload.sh
