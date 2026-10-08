@@ -1,0 +1,113 @@
+#!/usr/bin/bash
+#
+# SAPStartSrv-Helper
+#
+# Author:       F.Herschel, L.Pinne, 2026
+# Support:      linux@sap.com
+# License:      GNU General Public License (GPL)
+# Copyright:    (c) 2026 SUSE LLC
+# Version:      2026-08-18T09:05
+#
+# params: cmd InstanceName
+#
+
+#
+# global variables
+#
+logger_tag="SAPStartSrv-helper"
+logger="/usr/bin/logger"
+cmd="$1"
+InstanceName="$2"
+
+# params: <SID> <ARCH_KERNEL> <PID> [ <option-tree> ]
+function call_sap_stack()
+{
+    local SID="$1" ARCH_KERNEL="$2" sPID="$3" opt_tree="$4" rc=0 sapstack_cmd="" LOG_FILE=""
+    # uses global variables: logger, logger_tag 
+    LOG_FILE="/var/log/sapstack.log"
+    sapstack_cmd="/sapmnt/$SID/exe/uc/$ARCH_KERNEL/sapstack"
+    "$logger" -i -t "$logger_tag" "function call_sap_stack: sapstack_cmd=$sapstack_cmd"
+    if [[ -n "$opt_tree" ]]; then
+        timeout -s 9 10 "$sapstack_cmd" "$opt_tree" "$sPID" > "$LOG_FILE"; rc=$?
+    else
+        timeout -s 9 10 "$sapstack_cmd" "$sPID" > "$LOG_FILE"; rc=$?
+    fi
+    return $rc
+}
+
+# params: -
+function get_sid()
+{
+    local SID=""
+    # uses global variables: InstanceName
+    if [[ "$InstanceName" =~ ^([A-Z][A-Z0-9][A-Z0-9])_ ]]; then
+        SID="${BASH_REMATCH[1]}"
+    fi
+    echo "$SID"
+}
+
+# params: <option-tree>
+function process_stack()
+{
+    local SID="" ARCH_KERNEL="" 
+    local sPID="" opt_tree="$1"
+    # uses global variables: logger, logger_tag, InstanceName
+    SID=$(get_sid)
+    if [[ -n "$SID" ]]; then
+        ARCH_KERNEL="linux$HOSTTYPE"
+        sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
+        echo "pgrep -f sapstartsrv.*${InstanceName}"
+        "$logger" -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
+        call_sap_stack "$SID" "$ARCH_KERNEL" "$sPID" "$opt_tree"; rc=$?
+        "$logger" -i -t "$logger_tag" "function call_sap_stack returned with rc=$rc"
+    else
+        "$logger" -i -t "$logger_tag" "Not able to find <SID>"
+    fi
+}
+
+# params: -
+function process_log()
+{
+    local SID=""
+    # uses global variables: -
+    SID=$(get_sid)
+    # TODO function: test -x $X && $X 
+    /usr/sbin/psauxlog /var/log/psaux.log
+    /usr/sbin/meminfolog /var/log/meminfo.log
+    /usr/sbin/vmstatlog /var/log/vmstat.log
+    /usr/sbin/cpustatelog /var/log/cpustate.log
+    /usr/sbin/dstatelog /var/log/dstate.log
+    /usr/sbin/netstatlog /var/log/netstat.log
+    # wildcards do not work for lsof
+    /usr/sbin/lsoflog /var/log/lsof.log "+D/tmp/ +D/usr/sap/${SID}/" 21
+}
+
+"$logger" -i -t "$logger_tag" "Called with $* (as $(id))"
+case "$cmd" in
+    all)
+        process_stack -tree
+        process_log
+        ;;
+    log+stacktree)
+        process_stack -tree
+        process_log
+        ;;
+    log+stack)
+        process_stack
+        process_log
+        ;;
+    log)
+        process_log
+        ;;
+    stack)
+        process_stack
+        ;;
+    stacktree)
+        process_stack -tree
+        ;;
+    none)
+        /bin/true
+        ;;
+esac
+exit 0
+# 

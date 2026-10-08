@@ -1,10 +1,10 @@
 <services>
-  <service name="tar_scm" mode="disabled">
+  <service name="tar_scm" mode="manual">
     <param name="url">https://github.com/%%REPOSITORY%%.git</param>
     <param name="scm">git</param>
     <param name="exclude">.git</param>
     <param name="filename">sapstartsrv-resource-agents</param>
-    <param name="versionformat">0.9.5+git.%ct.%h</param>
+    <param name="versionformat">0.9.6+git.%ct.%h</param>
     <param name="revision">%%VERSION%%</param>
   </service>
 

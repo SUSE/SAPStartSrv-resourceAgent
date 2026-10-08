@@ -1,0 +1,443 @@
+.\" Version: 0.9.6
+.\"
+.TH SAPStartSrv_upgrade_from_Filesystem_disk 7 "01 Oct 2026" "" "SAPStartSrv"
+.\"
+.SH NAME
+.\"
+SAPStartSrv_upgrade_from_Filesystem_disk \- upgrade from Filesystem on shared disk to SAPStartSrv
+.PP
+.\"
+.SH DESCRIPTION
+.\"
+\fB*\fP What is the upgrade about?
+.PP
+It is about upgrading an HA cluster for SAP central service instances from the
+Filesystem resource based setup with shared disk to the simple-mount setup.
+.PP
+The upgrade is done in two phases:
+.PP
+.RS 2
+.TP
+1st: Changing Filesystem based setup from shared disks to NFS shares,
+described in this manual page.
+.PP
+.TP
+2nd: Upgrading from Filesystem based setup to simple-mount setup,
+described in SAPStartSrv_upgrade_from_Filesystem(7).
+.RE
+.PP
+\fB*\fP What will be changed?
+.PP
+This will be changed during the 1st phase:
+.PP
+.RS 2
+1.a SAP instance directories will be copied from shared disk to NFS shares.
+.br
+1.b Filesystem resources and resource groups will changed from shared disk to NFS
+shares.
+.RE
+.PP
+This will be changed during the 2nd phase:
+.PP
+.RS 2
+2.a Two systemd services sapping and sappong will be enabled.
+.br
+2.b The SAP instance working directories for enqueue service (ASCS) and enqueue
+replicator (ERS) will be added to fstab on both cluster nodes, and mounted
+statically. 
+.br
+2.c The Filesystem resources for ASCS and ERS will be removed from CIB.
+.br 
+2.d Instead, SAPStartSrv resources for ASCS and ERS will be added to the CIB.
+.RE
+.PP
+\fB*\fP How does the 1st phase look like at a glance?
+.PP
+The 1st phase consists of the following steps:
+.PP
+.RS 2
+1.1 Backing up the SAP instance directories.
+.br
+1.2 Checking for clean state, collecting information.
+.br
+1.3 Preparing shares on central NFS server.
+.br
+1.4 Setting cluster into maintenance and saving old CIB.
+.PP
+2.1 Stopping ERS instance, not resource group.
+.br
+2.2 Copying ERS instance directory to NFS share on other node.
+.br
+2.3 Unmounting disk-based ERS instance directory.
+.br
+2.4 Adapting Filesystem resource for ERS.
+.br
+2.5 Removing non-needed storage stack resources for ERS.
+.br
+2.6 Starting ERS instance on other node.
+.PP
+\fBThe next step will bring down SAP central services.\fR
+.PP
+3.1 Stopping ASCS instance, not resource group.
+.br
+3.2 Copying ASCS instance directory to NFS share on other node.
+.br
+3.3 Unmounting disk-based ASCS instance directory.
+.br
+3.4 Adapting Filesystem resource for ASCS.
+.br
+3.5 Removing non-needed storage stack resources for ASCS.
+.br
+3.6 Starting ASCS instance on other node.
+.PP
+4.1 Getting cluster out of maintenance and saving new CIB.
+.br
+4.2 Checking for clean state.
+.br
+4.3 Testing ERS instance (optional).
+.RE
+.PP
+A downtime is needed for both instances, the ASCS as well as the ERS.  
+.PP
+\fB*\fP How does the 2nd phase look like at a glance?
+.PP
+Please refer to manual page SAPStartSrv_upgrade_from_Filesystem(7).
+.PP
+\fB*\fP What needs to be prepared upfront?
+.PP
+First, refresh your knowledge of the Filesystem resource based HA scenario.
+.PP
+Next, the following information needs to be collected and documented before upgrading
+a cluster:
+.PP
+.RS 2
+1. Names of cluster nodes
+.br
+2. Names of SAP instance directories
+.br
+3. Names of shared disks, MD-Raid mirrors, VGs, LVs for the SAP instance directories
+.br
+4. Names of NFS server and shares for the SAP instance directories, mount options
+.br
+5. Names of Filesystem resources and resource groups
+.br
+6. Deviation of configuration from setup guide, if existing
+.br
+7. Matching with REQUIREMENTS section below 
+.RE
+.PP
+Finally, prepare config templates with correct values for the given cluster.
+Ideally also all needed commands are prepared in detail.
+.PP
+.\"
+.SH EXAMPLES
+.\"
+\fB*\fP Checking for clean state, collecting information.
+.PP
+This information should be collected before starting the upgrade.
+See also SAPStartSrv_maintenance_examples(7).
+.PP
+To be done on one node for the whole cluster:
+.PP
+.RS 2
+node1:~ # cs_show_ensa_status
+.PP
+node1:~ # crm configure show type:node
+.PP
+node1:~ # crm configure show type:primitive |\\
+.br
+ grep -e "primitive.*Filesystem" -e "primitive.*lvm" -e "primitive.*Raid1" \\
+.br
+      -e "primitive.*LVM-activate"
+.PP
+node1:~ # crm configure show type:group | grep group
+.RE
+.PP
+To be done on each cluster node:
+.PP
+.RS 2
+node1:~ # ls -l /usr/sap/EN2/SYS/ | awk '{print $9,$11}'
+.br
+node1:~ # mount | awk 'TODO'
+.br
+node1:~ # df -h /usr/sap/*
+.RE
+.PP
+\fB*\fP Setting cluster in maintenance and saving old CIB.
+.PP
+To be done on one node for the whole cluster.
+.PP
+.RS 2
+node1:~ # crm maintenance on
+.br
+node1:~ # crm_mon -1r | grep "Resource management"
+.br
+node1:~ # crm configure show > /root/crm.filesystem-disk.backup
+.br
+node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=false" |\\
+.br
+ crm configure load update -
+.br
+node1:~ # crm configure show cib-bootstrap-options |\\
+.br
+ grep stop-orphan-resources
+.RE
+.PP
+\fB*\fR Stopping SAP instance, not resource group.
+.PP
+To be done on the node where the SAP instance is running.
+ERS or ASCS instance.
+.br
+Example is node node2, sidadm en2adm, instance number 10.
+.PP
+.RS 2
+node2:~ # cs_show_ensa_status
+.br
+node2:~ # su - en2adm -c 'sapcontrol -nr 10 -function Stop'
+.br
+node2:~ # su - en2adm -c 'sapcontrol -nr 10 -function WaitforStopped'
+.br
+node2:~ # crm resource refresh
+.RE
+.PP
+\fB*\fP Copying SAP instance directory to NFS share on other node.
+.PP
+To be done on the other node node.
+ERS or ASCS instance.
+.br
+Example is node node2, other node node1, SID EN2, instance ERS10, NFS server
+192.168.1.1, NFS share /export/EN2/usr-sap/ERS10, mount options defaults
+.PP
+.RS 2
+node2:~ # ssh node1
+.br
+node2:~ # cs_show_ensa_status
+.br
+node1:~ # mount -t nfs 192.168.1.1:/export/EN2/usr-sap/ERS10 /usr/sap/EN2/ERS10/
+.br
+node1:~ # mount | grep /usr/sap/EN2/ERS10/
+.br
+node1:~ # rsync -va node2:/usr/sap/EN2/ERS10/* /usr/sap/EN2/ERS10/
+.br
+node1:~ # find /usr/sap/EN2/ERS10/
+.br
+node1:~ # exit
+.RE
+.PP
+\fB*\fP Unmounting disk-based SAP instance directory.
+.PP
+To be done on the node where the SAP instance has been stopped manually.
+ERS or ASCS instance.
+.br
+Example node node2, SID EN2, instance ERS10, VG TODO, MD-Raid array TODO.
+.PP
+.RS 2
+node2:~ # cs_show_ensa_status
+.br
+node2:~ # umount /usr/sap/EN2/ERS10/
+.br
+node2:~ # mount | grep /usr/sap/EN2/ERS10/
+.br
+node2:~ # find /usr/sap/EN2/ERS10/
+.br
+node2:~ # vgchange -an TODO 
+.br
+node2:~ # lvs TODO
+.br
+node2:~ # mdadm TODO
+.br
+node2:~ # mdadm TODO
+.RE
+.PP
+\fB*\fR Adapting Filesystem resource.
+.PP
+To be done on one node for the whole cluster.
+ERS or ASCS instance.
+Example resource is rsc_fs_EN2_ERS10, group grp_EN2_ERS10.
+.PP
+.RS 2
+node1:~ # crm configure show type:group | grep group
+.br
+node1:~ # TODO
+.RE
+.PP
+\fB*\fR Removing non-needed storage stack resources.
+.PP
+To be done on one node for the whole cluster.
+ERS or ASCS instance.
+Usual resources are Raid1 and lvm, also possible LVM-activate.
+.br
+Example resources rsc_Raid1_EN2_ERS10 and rsc_lvm_EN2_ERS10, group grp_EN2_ERS10
+.PP
+.RS 2
+node1:~ # crm configure show type:Raid1
+.br
+node1:~ # crm configure show type:lvm
+.PP
+node1:~ # crm configure show type:group
+.br
+node1:~ # crm configure show type:group > /root/crm.grp_EN2_ERS10
+.br
+node1:~ # sed -e s/rsc_Raid1_EN2_ERS10//g -e s/rsc_lvm_EN2_ERS10//g \\
+.br
+ -i /root/crm.grp_EN2_ERS10
+.br
+node1:~ # crm configure load update /root/crm.grp_EN2_ERS10
+.br
+node1:~ # crm configure show type:group
+.PP
+node1:~ # cibadmin --delete --xpath "//resource[@id='rsc_Raid1_EN2_ERS10']"
+.br
+node1:~ # cibadmin --delete --xpath "//resource[@id='rsc_lvm_EN2_ERS10']"
+.br
+node1:~ # crm configure show type:primitive |\\
+.br
+ grep -e "primitive.*Raid1" -e "primitive.*lvm"
+.RE
+.PP
+\fB*\fR Starting SAP instance on other node.
+.PP
+The instance will be started on the node where it has not been running before
+the stop, because the NFS share with the new SAP instance directory has been
+mounted there.
+ERS or ASCS instance.
+.\" TODO: does work with ENSA2, but not with ENSA1
+.br
+Example node is node1, sidadm en2adm, instance number 10
+.PP
+.RS 2
+node2:~ # ssh node1
+.br
+node1:~ # su - en2adm -c 'sapcontrol -nr 10 -function Start'
+.br
+node1:~ # su - en2adm -c 'sapcontrol -nr 10 -function WaitforStarted'
+.br
+node1:~ # crm resource refresh
+.br
+node1:~ # exit
+.RE
+.PP
+\fB*\fP Getting cluster out of maintenance and saving new CIB.
+.PP
+To be done on one node for the whole cluster.
+.PP
+.RS 2
+node1:~ # echo "property cib-bootstrap-options: stop-orphan-resources=true" |\\
+.br
+ crm configure load update -
+.br
+node1:~ # crm configure show cib-bootstrap-options |\\
+.br
+ grep stop-orphan-resources
+.br
+node1:~ # crm resource refresh
+.br
+node1:~ # crm configure show > /root/crm.filesystem.backup
+.br
+node1:~ # crm maintenance off
+.br
+node1:~ # cs_show_ensa_status
+.RE
+.PP
+\fB*\fP Testing the ERS instance (optional).
+.PP
+See manual page SAPStartSrv_upgrade_from_Filesystem(7).
+.PP
+\"
+.SH FILES
+.\"
+.TP
+/usr/sap/$SID/$Instance/
+SAP instance directories, f.e. /usr/sap/EN2/ASCS00/
+.TP
+/usr/sap/$SID/SYS/
+SAP system central local directory
+.TP
+/sapmnt/$SID/
+SAP system central shared NFS directory
+.TP
+/etc/lvm/lvm.conf
+LVM configuration, if LVM-activate resources are used
+.TP
+/etc/mdadm.conf, /etc/mdadm.conf.localdevices, /clusterconf/$SID/mdadm.conf
+MD-Raid configuration, if Raid1 resources are used
+.TP
+/etc/multipath/multipath.conf, /etc/multipath/bindings
+multipath configuration, if MPIO is used
+.PP
+.\"
+.SH REQUIREMENTS
+.\"
+* Downtime for the SAP central services is needed for this procedure.
+.PP
+* OS, Linux cluster and SAP instances are matching requirements for the
+Filesystem resource based setup. No cluster volume manager (f.e. cLVM), cluster
+filesystem (f.e. OCFS2) or distributed lock manager (f.e. DLM) is used.
+.PP
+* The whole upgrade procedure is tested carefully and documented in detail before
+being applied on production.
+.PP
+* Linux cluster, SAP instances and enqueue replication are in sane state before
+the upgrade. All cluster nodes are online. 
+.PP
+* The SAP instances are idle during the upgrade. No other changes on OS, cluster,
+SAP instances or infrastructure are done in parallel to the upgrade.
+.PP
+* Password-less login for user root between cluster nodes. An upgrade is possible
+without, but would need adapted commands. 
+.PP
+* Only one SAP system (SID) per cluster. Only the ASCS and ERS instances. No
+dialog, diagnostic agent, webdispatcher, or other instances on the cluster nodes.
+An upgrade is possible with multiple SIDs or additional instances, but would need
+adapted commands.
+.PP
+* Two nodes per cluster. An upgrade is possible with three nodes, but would need
+additional commands.
+.PP
+* Linux cluster, SAP instances and enqueue replication are checked and in sane
+state before set back into production.
+.PP
+* OS configuration for MPIO, MD-Raid and LVM is not changed. This is out of scope
+for the procedure at hand.
+.PP
+* See also the REQUIREMENTS section in SAPStartSrv_upgrade_from_Filesystem(7).
+.PP
+.\"
+.SH BUGS
+.\"
+This manual page is work in progress.
+.PP
+.\" In case of any problem, please use your favourite SAP support process to open a
+.\" request for the component BC-OP-LNX-SUSE.
+.\" TODO Please report any other feedback and suggestions to feedback@suse.com.
+.PP
+.\"
+.SH SEE ALSO
+.\"
+\fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_Filesystem\fP(7) ,
+\fBSAPStartSrv_basic_cluster\fP(7) , \fBSAPStartSrv_upgrade_from_Filesystem\fP(7) ,
+\fBcrm\fP(8) , \fBcibadmin\fP(8) , \fBcrm_mon\fP(8) , \fBcs_show_ensa_status\fP(8) ,
+\fBfstab\fP(5) , \fBmount\fP(8) , \fBvgchange\fP(8) , \fBmdadm\fR(8),
+\fBawk\fP(1) , \fBsed\fP(1) ,
+.br
+https://documentation.suse.com/external-tree/en-us/sbp/all/sles-sap-12-netweaver-high-availability-simple-stack.pdf ,
+.br
+https://documentation.suse.com/de-de/sles/15-SP7/html/SLES-all/cha-raid.html ,
+.br
+https://documentation.suse.com/sles/15-SP7/html/SLES-all/cha-lvm.html
+.PP
+.\"
+.SH AUTHORS
+.\"
+F.Herschel, L.Pinne
+.PP
+.\"
+.SH COPYRIGHT
+.\"
+(c) 2026 SUSE LLC
+.br
+SAPStartSrv comes with ABSOLUTELY NO WARRANTY.
+.br
+For details see the GNU General Public License at
+http://www.gnu.org/licenses/gpl.html
+.\"

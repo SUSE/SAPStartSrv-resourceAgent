@@ -1,0 +1,193 @@
+.\" Version: 1.2
+.\"
+.TH SAPStartSrv-helper 8 "16 Aug 2026" "" "SAPStartSrv"
+.\"
+.SH NAME
+.\"
+SAPStartSrv-helper \- Helper for SAPStartSrv-alert-timeout.
+.PP
+.\"
+.SH DESCRIPTION
+.\"
+SAPStartSrv-helper is called by SAPStartSrv-alert-timeout.
+.\" TODO
+See also manual page SAPStartSrv-alert-timeout(8).
+.PP
+.\"
+.SH SYNTAX
+.\"
+\fBSAPStartSrv-helper\fR \fICMD\fP \fIINSTANCENAME\fP [ \fISID\fR [ \fIINO\fR ]]
+.PP
+\fBCMD\fR: [ all | log | log+stack | log+stacktree | none | stack | stacktree ]
+.br
+Internal command to call.
+.RS 2
+\fBall\fR - run all implemented commands
+.br
+\fBlog\fR - write OS status into logs, see manual pages lsoflog(8), meminfolog(8),
+psauxlog(8), netstatlog(8), vmstatlog(8), dstatelog(8)
+.br
+\fBlog+stack\fR - write OS status plus sapstartsrv stack trace
+.br
+\fBlog+stacktree\fR - write OS status plus sapstartsrv, and its child processes, stack trace
+.br
+\fBnone\fR - run no implemented command
+.br
+\fBstack\fR - write sapstartsrv stack trace, see sapstack -help 
+.br
+\fBstacktree\fR - write sapstartsrv, and its child processes, stack trace
+.RE
+.br
+Required, default "log".
+.PP
+\fBINSTANCENAME\fR: Full qualified name of the instance, see manual page ocf_heartbeat_SAPInstance(7).
+.br
+Required, no default, example "P22_SCS11_p22scs".
+.PP
+\fBSID\fR: System Identifier, ignored.
+.PP
+\fBINO\fR: Instance number, ignored.
+.PP
+.\"
+.SH RETURN CODES
+.\"
+.B 0
+Successful program execution.
+.br
+.B >0
+Usage, syntax or execution errors.
+.br
+.B >126
+Called command timed out.
+.br
+In addition log entries are written, which can be scanned by using a pattern
+like "SAPStartSrv-helper".
+.\" TODO 2>&1 output to calling SAPStartSrv-alert-timeout
+.PP
+.\"
+.SH EXAMPLES
+.\"
+\fB*\fR Showing alert agent helper messages.
+.PP
+.RS 2
+# grep SAPStartSrv-helper /var/log/messages
+.RE
+.PP
+\fB*\fR Example for sudo permissions in /etc/sudoers.d/SAPStartSrv .
+.PP
+See also manual pages sudoers(5) and SAPStartSrv-alert-agent(8).
+.PP
+.RS 2
+# SAPStartSrv-alert-timeout needs
+.br
+hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPStartSrv-helper *
+.RE
+.PP
+\fB*\fR Configure supportconfig plugins for collecting alert logs.
+.PP
+See also manual page supportconfig_plugins(5).
+.PP
+.RS 2
+# vi /etc/ClusterTools2/supportconfig_plugins
+.br
+ ...
+.br
+cat_psauxlog
+.br
+cat_meminfolog
+.br
+cat_vmstatlog
+.br
+cat_lsoflog
+.br
+cat_netstatlog
+.br
+cat_cpustatelog
+.br
+cat_dstatelog
+.br
+cat_sapstacklog
+.br
+:wq
+.RE
+.PP
+\fB*\fR Testing the alert agent helper.
+.PP
+Command is "log", instance name is "P22_ERS11_p22ers".
+.PP
+.RS 2
+# SAPStartSrv-helper log P22_ERS11_p22ers
+.br
+# grep /usr/sap/.*/ERS11/ /var/log/lsof.log
+.RE
+.PP
+.\"
+.SH FILES
+.TP
+/usr/bin/SAPStartSrv-alert-timeout
+the alert agent
+.TP
+/usr/bin/SAPStartSrv-helper
+the default agent helper
+.TP
+/etc/sudoers.d/
+directory for sudoers config files
+.TP
+/etc/ClusterTools2/supportconfig_plugins
+the supportconfig plugin configuration file
+.TP
+/sapmnt/$SID/exe/uc/linux$HOSTTYPE/sapstack
+default path to sapstack
+.TP
+/var/log/
+directory for OS statuts logfiles psaux.log, meminfo.log, lsof.log,
+cpustate.log, dstate.log, vmstat.log, netstat.log
+.TP
+/var/log/sapstack.log
+sapstartsrv stack trace
+.PP
+.\"
+.SH REQUIREMENTS
+.\"
+See REQUIREMENTS section of SAPStartSrv-alert-timeout(8).
+.PP
+.\"
+.SH BUGS
+.\"
+In case of any problem, please use your favourite SAP support process to open
+a request for the component BC-OP-LNX-SUSE.
+.\" TODO Please report any other feedback and suggestions to feedback@suse.com.
+.PP
+.\"
+.SH SEE ALSO
+.\"
+\fBocf_suse_SAPStartSrv\fP(7) , \fBocf_heartbeat_SAPInstance\fP(7) ,
+\fBSAPStartSrv-alert-timeout\fP(8) , \fBcrm\fP(8) , \fBsudoers\fP(5) ,
+\fBlsoflog\fP(8) , \fBmeminfolog\fP(8) , \fBpsauxlog\fP(8) ,
+\fBnetstatlog\fP(8) , \fBvmstatlog\fP(8) , \fBcpustatelog\fP(8), \fBdstatelog\fP(8) ,
+\fBsupportconfig_plugins.5\fP , \fBgdb\fP(1) ,
+.br
+https://support.scc.suse.com/s/kb/SAPHanaController-or-SAPHanaTopology-monitor-timed-out-despite-HANA-CALL-TIMEOUT-is-set-correctly?language=en_US ,
+.br
+https://support.scc.suse.com/s/kb/Processes-in-an-Uninterruptible-Sleep-D-State-1583239339344?language=en_US ,
+.br
+https://help.sap.com/docs/SAP_NETWEAVER_AS_ABAP_752/d0739d980ecf42ae9f3b4c19e21a4b6e/a72d46b36fe94f3287a9d211b3fd6732.html ,
+.\" TODO 1964673 - C-Call stack analysis
+.\" TODO 2193986 - Sapstack not showing C-Call stack
+.\" TODO 3204753 - Particular AP server sapstarsrv got terminated frequently
+.PP
+.\"
+.SH AUTHORS
+.\"
+F.Herschel, L.Pinne.
+.PP
+.\"
+.SH COPYRIGHT
+.\"
+(c) 2026 SUSE LLC
+.br
+SAPStartSrv-helper comes with ABSOLUTELY NO WARRANTY.
+.br
+For details see the GNU General Public License at
+http://www.gnu.org/licenses/gpl.html
+.\"
