@@ -34,6 +34,7 @@ Requires:       resource-agents
 Requires:       pacemaker > 1.1.1
 Requires:       python3
 Requires:       python3-psutil
+Requires:       libxml2-tools
 Recommends:     supportutils-plugin-ha-sap
 %if %{with test}
 BuildRequires:  python3-pytest
