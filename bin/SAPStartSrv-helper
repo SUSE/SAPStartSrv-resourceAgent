@@ -55,8 +55,8 @@ function process_stack()
     SID=$(get_sid)
     if [[ -n "$SID" ]]; then
         ARCH_KERNEL="linux$HOSTTYPE"
-        sPID="$(pgrep -f "sapstartsrv.*${InstanceName}")"
-        echo "pgrep -f sapstartsrv.*${InstanceName}"
+        mapfile -t sPIDs < <(pgrep -f "sapstartsrv.*${InstanceName}")
+        sPID="${sPIDs[0]}"
         "$logger" -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
         call_sap_stack "$SID" "$ARCH_KERNEL" "$sPID" "$opt_tree"; rc=$?
         "$logger" -i -t "$logger_tag" "function call_sap_stack returned with rc=$rc"
