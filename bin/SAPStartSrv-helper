@@ -57,9 +57,13 @@ function process_stack()
         ARCH_KERNEL="linux$HOSTTYPE"
         mapfile -t sPIDs < <(pgrep -f "sapstartsrv.*${InstanceName}")
         sPID="${sPIDs[0]}"
-        "$logger" -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
-        call_sap_stack "$SID" "$ARCH_KERNEL" "$sPID" "$opt_tree"; rc=$?
-        "$logger" -i -t "$logger_tag" "function call_sap_stack returned with rc=$rc"
+        if [[ -n "$sPID" ]]; then
+            "$logger" -i -t "$logger_tag" "PID of sapstartsrv is $sPID"
+            call_sap_stack "$SID" "$ARCH_KERNEL" "$sPID" "$opt_tree"; rc=$?
+            "$logger" -i -t "$logger_tag" "function call_sap_stack returned with rc=$rc"
+        else
+            "$logger" -i -t "$logger_tag" "PID of sapstartsrv (system $SID) not found"
+        fi
     else
         "$logger" -i -t "$logger_tag" "Not able to find <SID>"
     fi
