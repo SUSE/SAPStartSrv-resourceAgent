@@ -28,9 +28,9 @@ function call_sap_stack()
     sapstack_cmd="/sapmnt/$SID/exe/uc/$ARCH_KERNEL/sapstack"
     "$logger" -i -t "$logger_tag" "function call_sap_stack: sapstack_cmd=$sapstack_cmd"
     if [[ -n "$opt_tree" ]]; then
-        timeout -s 9 10 "$sapstack_cmd" "$opt_tree" "$sPID" > "$LOG_FILE"; rc=$?
+        timeout -s 9 10 sudo -i -u "${SID,,}adm" "$sapstack_cmd" "$opt_tree" "$sPID" > "$LOG_FILE"; rc=$?
     else
-        timeout -s 9 10 "$sapstack_cmd" "$sPID" > "$LOG_FILE"; rc=$?
+        timeout -s 9 10 sudo -i -u "${SID,,}adm" "$sapstack_cmd" "$sPID" > "$LOG_FILE"; rc=$?
     fi
     return $rc
 }
