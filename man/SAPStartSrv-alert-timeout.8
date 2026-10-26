@@ -153,7 +153,8 @@ If a custom script is used, respective permissions might be needed.
 * The customer is responsible for any custom script called by the alert agent.
 Any custom script should return within the alert agent timeout.
 .PP
-* To allow SAPStartSrv-helper command "stack", gdb is needed.
+* To allow SAPStartSrv-helper command "stack", gdb is needed. The gdb needs permission
+to call ptrace() on the sapstartsrv process.
 .PP
 * To allow SAPStartSrv-helper command "log", ClusterTool2 3.1.5 or newer is needed.
 .PP
