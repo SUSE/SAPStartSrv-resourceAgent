@@ -75,15 +75,17 @@ function process_log()
     local SID=""
     # uses global variables: -
     SID=$(get_sid)
+    # needs to run as root
     # TODO function: test -x $X && $X 
-    /usr/sbin/psauxlog /var/log/psaux.log
-    /usr/sbin/meminfolog /var/log/meminfo.log
-    /usr/sbin/vmstatlog /var/log/vmstat.log
-    /usr/sbin/cpustatelog /var/log/cpustate.log
-    /usr/sbin/dstatelog /var/log/dstate.log
-    /usr/sbin/netstatlog /var/log/netstat.log
+    test -x /usr/sbin/psauxlog && /usr/sbin/psauxlog /var/log/psaux.log
+    test -x /usr/sbin/pseolog && /usr/sbin/pseolog /var/log/pseo.log
+    test -x /usr/sbin/meminfolog && /usr/sbin/meminfolog /var/log/meminfo.log
+    test -x /usr/sbin/vmstatlog && /usr/sbin/vmstatlog /var/log/vmstat.log
+    test -x /usr/sbin/cpustatelog && /usr/sbin/cpustatelog /var/log/cpustate.log
+    test -x /usr/sbin/dstatelog && /usr/sbin/dstatelog /var/log/dstate.log
+    test -x /usr/sbin/netstatlog && /usr/sbin/netstatlog /var/log/netstat.log
     # wildcards do not work for lsof
-    /usr/sbin/lsoflog /var/log/lsof.log "+D/tmp/ +D/usr/sap/${SID}/" 21
+    test -x /usr/sbin/lsoflog && /usr/sbin/lsoflog /var/log/lsof.log "+D/tmp/ +D/usr/sap/${SID}/" 21
 }
 
 "$logger" -i -t "$logger_tag" "Called with $* (as $(id))"
