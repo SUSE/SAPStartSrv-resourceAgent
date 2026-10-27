@@ -125,6 +125,25 @@ See also manual pages sudoers(5) and SAPStartSrv-helper(8).
 hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPStartSrv-helper *
 .RE
 .PP
+\fB*\fR Example for Yama ptrace scope permission.
+.PP
+The Yama Linux Security Module might not allow the user <sid>adm to attach the
+gdb to the sapstartsrv process. In that case, the system-wide ptrace scope could
+be changed to '0'. First the current mode should be documented. The mode needs to
+be restored once sapstartsrv has been traced. Example ptrace scope is '2'.
+.PP
+.RS 2
+# cat /proc/sys/kernel/yama/ptrace_scope
+.br
+# echo 0 > /proc/sys/kernel/yama/ptrace_scope
+.PP
+<trace sapstartsrv>
+.PP
+# echo 2 > /proc/sys/kernel/yama/ptrace_scope
+.RE
+.PP
+Note: Understand the security impact before trying this.
+.PP
 .\"
 .SH FILES
 .TP
@@ -136,6 +155,9 @@ the default agent helper
 .TP
 /etc/sudoers.d/
 directory for sudoers config files
+.TP
+/proc/sys/kernel/yama/ptrace_scope
+Yama ptrace scope security configuration
 .PP
 .\"
 .SH REQUIREMENTS
