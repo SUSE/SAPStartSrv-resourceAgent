@@ -130,7 +130,8 @@ hacluster ALL=(ALL) NOPASSWD: /usr/bin/SAPStartSrv-helper *
 The Yama Linux Security Module might not allow the user <sid>adm to attach the
 gdb to the sapstartsrv process. In that case, the system-wide ptrace scope could
 be changed to '0'. First the current mode should be documented. The mode needs to
-be restored once sapstartsrv has been traced. Example ptrace scope is '2'.
+be restored once sapstartsrv has been traced. Example ptrace scope to restore
+is '1'.
 .PP
 .RS 2
 # cat /proc/sys/kernel/yama/ptrace_scope
@@ -139,7 +140,7 @@ be restored once sapstartsrv has been traced. Example ptrace scope is '2'.
 .PP
 <trace sapstartsrv>
 .PP
-# echo 2 > /proc/sys/kernel/yama/ptrace_scope
+# echo 1 > /proc/sys/kernel/yama/ptrace_scope
 .RE
 .PP
 Note: Understand the security impact before trying this.
